@@ -66,7 +66,7 @@ request "get-users" "default" {
 
 Execute with `-e`, useful for testing against various environments or testing in CI pipelines
 ```shell script
-  restbeast r -l get-users -e dev
+  restbeast request -l get-users --env dev
 ```
 
 #### Randomize data in request bodies
@@ -90,6 +90,7 @@ request "new-user" "default" {
 #### Chaining requests
 
 When `update-user` request executed, it will do a `new-user` request first and use it's response as a depencency in `update-user` request.
+
 ```hcl
 request "new-user" "default" {
   method = "POST"
@@ -140,26 +141,49 @@ request "new-user" "default" {
 
 #### Attack request
 Keep targeted server busy. This command will execute given request `c` times in given `p` period.
+Request count has to be equal or higher than 1 request per second.
+
+```shell script
+restbeast ar test-request-name -c 60 -p 60s
+```
+
+Example output
+```text
+Status 200 response: %78 (47)
+Status 400 response: %15 (9)
+Status 500 response: %6 (4)
+95 Percentile: 1.091473938s
+99 Percentile: 1.100081803s
+AverageTime: 585.411933ms
+```
 
 ## Install
+
+Either get the latest build from [gitlab release page](https://gitlab.com/restbeast/cli/-/releases) or download with curl
+```shell script
+curl https://cli-releases.restbeast.com/restbeast_v0.0.1_linux_amd64.tar.gz --output restbeast.tar.gz
+``` 
+
+Decompress file
+```shell script
+tar zxvf restbeast.tar.gz
+```
+
+Set permissions
+```shell script
+chmod 755 restbeast
+```
+
+Move executable file to a location in $PATH 
+```shell script
+sudo mv restbeast /usr/local/bin/
+```
 
 ## Usage
 
 ### Help
 
-`rb` or `rb -h` or `rb command -h`
-
-### Regular api requests
-
-`rb r get https://domain.com/get/something`
-
-#### Saving requests
-
-`rb r get https://domain.com/get/something -s a-request-name` 
-
-#### Using saved requests
-
-`rb r get -l a-request-name`
+`restbeast -h` or `restbeast {command} -h`
 
 ## FAQ and troubleshooting
 
