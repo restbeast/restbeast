@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"gitlab.com/restbeast/cli/lib"
+	"os"
 	"sort"
 	"sync"
 	"time"
@@ -20,7 +21,6 @@ func (a sortByTime) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 
 func init() {
 	attackRequestCmd.Flags().BoolVarP(&outputTiming, "timing", "t", true, "Displays timings")
-	attackRequestCmd.Flags().StringVarP(&load, "load", "l", "", "Loads and executes given request")
 	attackRequestCmd.Flags().StringVarP(&env, "env", "e", "", "Selected environment")
 	attackRequestCmd.Flags().IntVarP(&count, "count", "c", 60, "Request count")
 	attackRequestCmd.Flags().StringVarP(&period, "period", "p", "60s", "Period")
@@ -28,9 +28,17 @@ func init() {
 }
 
 func doAttackRequest(cmd *cobra.Command, args []string) {
+	if len(args) == 0 {
+		fmt.Println("Error: Specify a request name")
+		os.Exit(1)
+	}
+
 	duration, err := time.ParseDuration(period)
 	if err != nil {
-		panic(err)
+		fmt.Println("Error: Failed to parse duration")
+		fmt.Println("Valid time units are  \"s\", \"m\", \"h\"")
+		fmt.Println("Examples: \"300s\", \"1.5h\" or \"2h45m\"")
+		os.Exit(1)
 	}
 
 	perSecond := count / (int(duration) / int(time.Second))
@@ -41,7 +49,11 @@ func doAttackRequest(cmd *cobra.Command, args []string) {
 	var wg sync.WaitGroup
 
 	var request lib.Request
-	request, err = lib.LoadOne(load, env, version)
+	request, err = lib.LoadOne(args[0], env, version)
+	if err != nil {
+		fmt.Println("Error: Failed to load request")
+		os.Exit(1)
+	}
 
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()

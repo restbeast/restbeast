@@ -7,7 +7,7 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "rb",
+	Use:   "restbeast",
 	Short: "RestBeast is an api testing tool.",
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()

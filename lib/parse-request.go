@@ -180,6 +180,7 @@ func parseRequest(name string, variables map[string]cty.Value, envVars cty.Value
 
   if err != nil {
   	fmt.Println("Error: Request not found")
+  	os.Exit(1)
 	}
 
 	requestAsVars := map[string]cty.Value{}

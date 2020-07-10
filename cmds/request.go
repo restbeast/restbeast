@@ -23,9 +23,14 @@ func init() {
 func doRequest(cmd *cobra.Command, args []string) {
 	isTerminal := terminal.IsTerminal(int(os.Stdout.Fd()))
 
+	if len(args) == 0 {
+		fmt.Println("Error: Specify a request name")
+		os.Exit(1)
+	}
+
 	request, err := lib.LoadOne(args[0], env, version)
 	if err != nil {
-		fmt.Println("Error: Unable to load given request")
+		fmt.Println("Error: Failed to load given request")
 		os.Exit(1)
 	}
 
