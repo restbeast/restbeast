@@ -9,19 +9,20 @@ Best way to share restbeast configuration is to commit your `hcl` files to vcs.
 
 Example of a simple request
 ```hcl
-request "get-users" "default" {
+request "get-users" {
   method = "GET"
   url = "https://${env.url}/users"
 }
 ```
+
 Executing the given example and piping output to `jq`
 ```shell script
-restbeast r -l get-users | jq
+restbeast r get-users | jq
 ```
 
 A more complex example for adding a user
 ```hcl
-request "new-user" "default" {
+request "new-user" {
   method = "POST"
   url = "https://${env.url}/users"
   headers = {
@@ -33,6 +34,9 @@ request "new-user" "default" {
   }
 }
 ```
+
+#### Functions
+A variety of functions are available. See [documentation](https://gitlab.com/restbeast/cli/-/blob/master/docs/functions.md)
 
 #### Execute requests in various environments
 Environment variables and related secrets can be changed with just a simple env flag.
@@ -55,7 +59,7 @@ env dev {
   secretEngine = "vault"
 }
 
-request "get-users" "default" {
+request "get-users" {
   method = "GET"
   url = "https://${env.url}/users"
   headers = {
@@ -66,7 +70,7 @@ request "get-users" "default" {
 
 Execute with `-e`, useful for testing against various environments or testing in CI pipelines
 ```shell script
-  restbeast request -l get-users --env dev
+restbeast request get-users --env dev
 ```
 
 #### Randomize data in request bodies
@@ -74,7 +78,7 @@ Leverage `https://github.com/brianvoe/gofakeit` library in your requests.
 
 An example with randomized user data
 ```hcl
-request "new-user" "default" {
+request "new-user" {
   method = "POST"
   url = "https://${env.url}/users"
   headers = {
@@ -92,7 +96,7 @@ request "new-user" "default" {
 When `update-user` request executed, it will do a `new-user` request first and use it's response as a depencency in `update-user` request.
 
 ```hcl
-request "new-user" "default" {
+request "new-user" {
   method = "POST"
   url = "https://${env.url}/users"
   headers = {
@@ -104,7 +108,7 @@ request "new-user" "default" {
   }
 }
 
-request "update-user" "default" {
+request "update-user" {
   method = "PATCH"
   url = "https://${env.url}/users/${request.new-user.id}"
   headers = {
@@ -119,7 +123,7 @@ request "update-user" "default" {
 
 #### Testing / Assertion (TODO)
 ```hcl
-request "new-user" "default" {
+request "new-user" {
   method = "POST"
   url = "https://${env.url}/users"
   headers = {
@@ -159,10 +163,7 @@ AverageTime: 585.411933ms
 
 ## Install
 
-Either get the latest build from [gitlab release page](https://gitlab.com/restbeast/cli/-/releases) or download with curl
-```shell script
-curl https://cli-releases.restbeast.com/restbeast_v0.0.1_linux_amd64.tar.gz --output restbeast.tar.gz
-``` 
+Either get the latest build from [gitlab release page](https://gitlab.com/restbeast/cli/-/releases)
 
 Decompress file
 ```shell script
@@ -174,12 +175,10 @@ Set permissions
 chmod 755 restbeast
 ```
 
-Move executable file to a location in $PATH 
+Move the executable file to a location in $PATH 
 ```shell script
 sudo mv restbeast /usr/local/bin/
 ```
-
-## Usage
 
 ### Help
 

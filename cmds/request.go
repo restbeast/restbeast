@@ -10,7 +10,7 @@ import (
 )
 
 var outputTiming, outputDetailedTiming bool
-var load, env string
+var env string
 
 func init() {
 	requestCmd.Flags().BoolVar(&outputTiming, "timing", false, "Displays timings")
