@@ -36,7 +36,8 @@ request "new-user" {
 ```
 
 #### Functions
-A variety of functions are available. See [documentation](https://gitlab.com/restbeast/cli/-/blob/master/docs/functions.md)
+A variety of functions are available. 
+See [built-in go-cty functions](https://gitlab.com/restbeast/cli/-/blob/master/docs/functions.md) and [gofakeit functions](https://gitlab.com/restbeast/cli/-/blob/master/docs/gofakeit-functions.md) 
 
 #### Execute requests in various environments
 Environment variables and related secrets can be changed with just a simple env flag.

@@ -3,6 +3,7 @@ module gitlab.com/restbeast/cli
 go 1.13
 
 require (
+	github.com/brianvoe/gofakeit/v5 v5.9.0
 	github.com/hashicorp/hcl/v2 v2.6.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/spf13/cobra v0.0.7
