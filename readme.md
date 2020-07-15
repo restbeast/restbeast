@@ -86,8 +86,8 @@ request "new-user" {
     "content-type" = "application/json"
   }
   body = {
-    firstName = gofakeit.FirstName()
-    lastName = gofakeit.LastName()
+    firstName = gofakeitFirstName()
+    lastName = gofakeitLastName()
   }
 }
 ```
@@ -104,8 +104,8 @@ request "new-user" {
     "content-type" = "application/json"
   }
   body = {
-    firstName = gofakeit.FirstName()
-    lastName = gofakeit.LastName()
+    firstName = gofakeitFirstName()
+    lastName = gofakeitLastName()
   }
 }
 
@@ -117,7 +117,7 @@ request "update-user" {
   }
   body = {
     firstName = "Mr. ${upper(request.new-user.firstName)}"
-    lastName = gofakeit.LastName()
+    lastName = gofakeitLastName()
   }
 }
 ```
@@ -131,8 +131,8 @@ request "new-user" {
     "content-type" = "application/json"
   }
   body = {
-    firstName = gofakeit.FirstName(),
-    lastName = gofakeit.LastName()
+    firstName = gofakeitFirstName(),
+    lastName = gofakeitLastName()
   }
   expect = {
     status = 201
@@ -173,7 +173,7 @@ tar zxvf restbeast.tar.gz
 
 Set permissions
 ```shell script
-chmod 755 restbeast
+chmod +x restbeast
 ```
 
 Move the executable file to a location in $PATH 
