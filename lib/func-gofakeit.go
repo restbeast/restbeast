@@ -2,9 +2,9 @@ package lib
 
 import (
 	"errors"
+	"github.com/brianvoe/gofakeit/v5"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/function"
-	"github.com/brianvoe/gofakeit/v5"
 	"github.com/zclconf/go-cty/cty/gocty"
 	"time"
 )
