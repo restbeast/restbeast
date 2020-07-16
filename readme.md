@@ -47,17 +47,8 @@ env local {
   default = true
   variables = {
     url = "localhost"
-    apiKey = "${secret.apiKey}"
+    apiKey = "oh-my-secret"
   }
-  secretEngine = "env-vars"
-}
-
-env dev {
-  variables = {
-    url = "dev-domain.com"
-    apiKey = "${secret.apiKey}"
-  }
-  secretEngine = "vault"
 }
 
 request "get-users" {
@@ -72,6 +63,61 @@ request "get-users" {
 Execute with `-e`, useful for testing against various environments or testing in CI pipelines
 ```shell script
 restbeast request get-users --env dev
+```
+
+#### Secrets
+
+```hcl
+env local {
+  secrets from_shell_env {
+    type = "env-var"
+    paths = {
+      apikey = "APIKEY"
+    }
+  }
+
+  // SSM secret engine isn't implemented yet.
+  secrets from_aws_ssm {
+    type = "aws-ssm"
+    paths = {
+      apikey = "/path/to/apikey"
+    }
+    provider = "aws.dev-acc-eu-west-1"
+  }
+
+  // SSM secret engine isn't implemented yet.
+  secrets from_aws_ssm {
+    type = "aws-ssm"
+    paths = {
+      apikey = "/path/to/apikey"
+    }
+    provider = "aws.dev-acc-eu-west-1"
+  }
+
+  variables = {
+    url = "localhost"
+    apiKey = secret.from_shell_env.apikey
+    anOtherKey = secret.aws-ssm.apikey
+  }
+}
+```
+
+##### Secrets from environment variables
+```hcl
+env test {
+  secrets env {
+    type = "env-var"
+    paths = {
+      val1 = "VAL1"
+      val2 = "VAL2"
+    }
+  }  
+}
+```
+
+Prefix environment variables with `restbeast_var_`
+```shell script
+restbeast_var_VAL1=secret1 restbeast_var_VAL2=secret2 restbeast r xxx --env test
 ```
 
 #### Randomize data in request bodies
@@ -122,7 +168,7 @@ request "update-user" {
 }
 ```
 
-#### Testing / Assertion (TODO)
+#### Testing / Assertion (Not Implemented Yet)
 ```hcl
 request "new-user" {
   method = "POST"
@@ -131,16 +177,28 @@ request "new-user" {
     "content-type" = "application/json"
   }
   body = {
-    firstName = gofakeitFirstName(),
+    firstName = gofakeitFirstName()
     lastName = gofakeitLastName()
   }
   expect = {
     status = 201
     body = {
-      id = assert.uuidV4()
-      name = assert.notNil()
+      id = assertUuidV4()
+      name = assertNotNil()
     }
   }
+}
+```
+
+#### Secrets
+```hcl
+env local {
+  default = true
+  variables = {
+    url = "localhost"
+    apiKey = "${secret.apiKey}"
+  }
+  secretEngine = "env-vars"
 }
 ```
 
@@ -164,7 +222,7 @@ AverageTime: 585.411933ms
 
 ## Install
 
-Either get the latest build from [gitlab release page](https://gitlab.com/restbeast/cli/-/releases)
+Get the latest build from [gitlab release page](https://gitlab.com/restbeast/cli/-/releases)
 
 Decompress file
 ```shell script

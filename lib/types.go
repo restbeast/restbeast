@@ -7,7 +7,7 @@ import (
 
 type VariableCfg struct {
 	Name string `hcl:"name,label"`
-	Default hcl.Attributes `hcl:"default,remain"`
+	Value hcl.Attributes `hcl:"value,remain"`
 }
 
 type RequestCfg struct {
@@ -17,9 +17,16 @@ type RequestCfg struct {
 
 type RequestCfgs []*RequestCfg
 
+type SecretCfg struct {
+	Name string `hcl:"name,label"`
+	Type string `hcl:"type,attr"`
+	Paths map[string]string `hcl:"paths,attr"`
+}
+
 type EnvironmentCfg struct {
 	Name      string `hcl:"name,label"`
 	Default   bool `hcl:"default,optional"`
+	Secrets   []*SecretCfg `hcl:"secrets,block"`
 	Variables hcl.Body `hcl:",remain"`
 }
 

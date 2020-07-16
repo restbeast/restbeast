@@ -21,7 +21,11 @@ func LoadOne(name, env, version string) (request Request, err error) {
 		return
 	}
 
-	envVars, _ := parseEnv(env, root.Environments)
+	envVars, envErr := parseEnv(env, root.Environments)
+	if envErr != nil {
+		return Request{}, envErr
+	}
+
 	variables := parseVariables(root.Variables)
 	request = parseRequest(name, variables, envVars, version, root.Requests)
 

@@ -8,11 +8,11 @@ import (
 func parseVariables(parsedVars []*VariableCfg) map[string]cty.Value {
 	variables := map[string]cty.Value{}
 	for _, v := range parsedVars {
-		if len(v.Default) == 0 {
+		if len(v.Value) == 0 {
 			continue
 		}
 
-		val, diags := v.Default["default"].Expr.Value(nil)
+		val, diags := v.Value["default"].Expr.Value(nil)
 		if len(diags) != 0 {
 			for _, diag := range diags {
 				fmt.Printf("decoding - %s\n", diag)

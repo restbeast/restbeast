@@ -6,12 +6,13 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hcldec"
 	"github.com/zclconf/go-cty/cty"
+	"github.com/zclconf/go-cty/cty/gocty"
+	"os"
 )
 
 type Environments map[string]cty.Value
 
 func parseEnv(env string, rawEnvironments []*EnvironmentCfg) (cty.Value, error) {
-	evalContext := &hcl.EvalContext{}
 	spec := &hcldec.ObjectSpec{
 		"default": &hcldec.AttrSpec{
 			Name:     "default",
@@ -27,6 +28,30 @@ func parseEnv(env string, rawEnvironments []*EnvironmentCfg) (cty.Value, error) 
 
 	for i := range rawEnvironments {
 		if (env != "" && rawEnvironments[i].Name == env) || (env == "" && rawEnvironments[i].Default) {
+
+			secrets := map[string]map[string]string{}
+			for _, secret := range rawEnvironments[i].Secrets {
+				secrets[secret.Name] = map[string]string{}
+
+				switch secret.Type {
+				case "env-var":
+					secrets[secret.Name] = secretEngineEnvVar(secret.Paths)
+				}
+			}
+
+			value, err := gocty.ToCtyValue(secrets, cty.Map(cty.Map(cty.String)))
+
+			if err != nil {
+				fmt.Println("failed to load secrets", err)
+				os.Exit(1)
+			}
+
+			evalContext := &hcl.EvalContext{
+				Variables: map[string]cty.Value{
+					"secret": value,
+				},
+			}
+
 			cfg, diags := hcldec.Decode(rawEnvironments[i].Variables, spec, evalContext)
 			if len(diags) != 0 {
 				for _, diag := range diags {
