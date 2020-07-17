@@ -12,7 +12,7 @@ dep: ## Get the dependencies
 	@go get -v -d ./...
 
 build: dep ## Build the binary file
-	GOOS=$$GOOS GOARCH=$$GOARCH go build -i -o $(PROJECT_NAME) -ldflags "-X main.version=$(VERSION)" -v -buildmode=exe $(PKG)
+	GOOS=$$GOOS GOARCH=$$GOARCH go build -i -o $(PROJECT_NAME) -ldflags "-X 'main.version=$(VERSION)' -X 'main.sentryDsn=$(SENTRY_DSN)'" -v -buildmode=exe $(PKG)
 	tar zcvf restbeast_$(VERSION)_$(GOOS)_$(GOARCH).tar.gz restbeast
 
 clean: ## Remove previous build
