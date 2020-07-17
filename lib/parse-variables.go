@@ -12,7 +12,7 @@ func parseVariables(parsedVars []*VariableCfg) map[string]cty.Value {
 			continue
 		}
 
-		val, diags := v.Value["default"].Expr.Value(nil)
+		val, diags := v.Value["value"].Expr.Value(nil)
 		if len(diags) != 0 {
 			for _, diag := range diags {
 				fmt.Printf("decoding - %s\n", diag)

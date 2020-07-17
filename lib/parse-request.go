@@ -127,7 +127,11 @@ func processDependencies(dependencies []string, variables map[string]cty.Value, 
 func getRequest(cfg cty.Value) Request {
 	body, _ := json.MarshalIndent(ctyjson.SimpleJSONValue{cfg.GetAttr("body")}, "", "  ")
 	var headers map[string]string
-	_ = gocty.FromCtyValue(cfg.GetAttr("headers"), &headers)
+	headerErr := gocty.FromCtyValue(cfg.GetAttr("headers"), &headers)
+
+	if headerErr != nil {
+
+	}
 
 	request := Request{
 		Method:  cfg.GetAttr("method").AsString(),
@@ -152,8 +156,15 @@ func parseRequest(name string, variables map[string]cty.Value, envVars cty.Value
 	spec := getObjSpec()
 
 	cfg, diags := hcldec.Decode(request.Body, spec, &evalContext)
-	dependencies := getPossibleDependencies(diags)
+	if len(diags) > 0 {
+		for _, diag := range diags {
+			fmt.Printf("- %s\n", diag)
+		}
 
+		os.Exit(0)
+	}
+
+	dependencies := getPossibleDependencies(diags)
 	if len(dependencies) > 0 {
 		requestAsVars := processDependencies(dependencies, variables, envVars, version, rawRequests)
 		evalContext = getEvalContext(variables, envVars, requestAsVars)
