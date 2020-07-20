@@ -30,7 +30,7 @@ func doRequest(cmd *cobra.Command, args []string) {
 
 	request, err := lib.LoadOne(args[0], env, version)
 	if err != nil {
-		fmt.Println("Error: Failed to load given request")
+		fmt.Printf("Error: Failed to load given request, %s\n", err)
 		os.Exit(1)
 	}
 

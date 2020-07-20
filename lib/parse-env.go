@@ -42,7 +42,7 @@ func parseEnv(env string, rawEnvironments []*EnvironmentCfg) (cty.Value, error) 
 			value, err := gocty.ToCtyValue(secrets, cty.Map(cty.Map(cty.String)))
 
 			if err != nil {
-				fmt.Println("failed to load secrets", err)
+				fmt.Printf("Error: failed to load secrets, %s\n", err)
 				os.Exit(1)
 			}
 
@@ -64,5 +64,5 @@ func parseEnv(env string, rawEnvironments []*EnvironmentCfg) (cty.Value, error) 
 		}
 	}
 
-	return cty.Value{}, errors.New("environment not found")
+	return cty.Value{}, nil
 }

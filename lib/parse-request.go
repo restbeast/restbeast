@@ -14,6 +14,8 @@ import (
 	"regexp"
 )
 
+var dependencyDiagMessageRegex = regexp.MustCompile(`This object does not have an attribute named "(?P<name>[\w\d-_]+)"`)
+
 func getObjSpec() hcldec.ObjectSpec {
 	return hcldec.ObjectSpec{
 		"method": &hcldec.AttrSpec{
@@ -65,30 +67,22 @@ func findRequest(name string, rawRequests []*RequestCfg) (err error, request Req
 	return errors.New("request not found"), RequestCfg{}
 }
 
-func getPossibleDependencies(diags hcl.Diagnostics) (dependencies []string) {
+func getPossibleDependencies(diags hcl.Diagnostics) (dependencies []string, restDiagMsgs []string) {
 	if len(diags) != 0 {
-		diagMessageRegex := regexp.MustCompile(`This object does not have an attribute named "(?P<name>[\w\d-_]+)"`)
-
 		for _, diag := range diags {
 			if diag.Summary == "Unsupported attribute" {
-				findString := diagMessageRegex.FindStringSubmatch(diag.Detail)
+				findString := dependencyDiagMessageRegex.FindStringSubmatch(diag.Detail)
 
 				if len(findString) > 1 {
 					dependencies = append(dependencies, findString[1])
+				} else {
+					restDiagMsgs = append(restDiagMsgs, findString[1])
 				}
 			}
 		}
-
-		if len(dependencies) == 0 {
-			for _, diag := range diags {
-				fmt.Printf("- %s\n", diag)
-			}
-
-			os.Exit(0)
-		}
 	}
 
-	return dependencies
+	return dependencies, restDiagMsgs
 }
 
 func getUniqueDependencies(intSlice []string) []string {
@@ -156,15 +150,16 @@ func parseRequest(name string, variables map[string]cty.Value, envVars cty.Value
 	spec := getObjSpec()
 
 	cfg, diags := hcldec.Decode(request.Body, spec, &evalContext)
-	if len(diags) > 0 {
-		for _, diag := range diags {
+	dependencies, restDiagMsgs := getPossibleDependencies(diags)
+
+	if len(restDiagMsgs) > 0 {
+		for _, diag := range restDiagMsgs {
 			fmt.Printf("- %s\n", diag)
 		}
 
-		os.Exit(0)
+		os.Exit(1)
 	}
 
-	dependencies := getPossibleDependencies(diags)
 	if len(dependencies) > 0 {
 		requestAsVars := processDependencies(dependencies, variables, envVars, version, rawRequests)
 		evalContext = getEvalContext(variables, envVars, requestAsVars)
@@ -176,7 +171,7 @@ func parseRequest(name string, variables map[string]cty.Value, envVars cty.Value
 				fmt.Printf("- %s\n", diag)
 			}
 
-			os.Exit(0)
+			os.Exit(1)
 		}
 	}
 

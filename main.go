@@ -1,11 +1,12 @@
 package main
 
 import (
+	"fmt"
+	"github.com/getsentry/sentry-go"
+	"github.com/go-errors/errors"
 	"gitlab.com/restbeast/cli/cmds"
 	"log"
 	"time"
-
-	"github.com/getsentry/sentry-go"
 )
 
 var version, sentryDsn string
@@ -21,9 +22,17 @@ func main() {
 		log.Fatalf("sentry.Init: %s", err)
 	}
 
-	// Flush buffered events before the program terminates.
 	defer sentry.Flush(2 * time.Second)
-	defer sentry.Recover()
+
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("restbeast encountered an unknown error")
+			sentry.WithScope(func(scope *sentry.Scope) {
+				scope.SetLevel(sentry.LevelFatal)
+				sentry.CaptureException(errors.Wrap(r,4))
+			})
+		}
+	}()
 
 	cmds.Execute(version)
 }

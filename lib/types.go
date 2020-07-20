@@ -7,7 +7,7 @@ import (
 
 type VariableCfg struct {
 	Name string `hcl:"name,label"`
-	Value hcl.Attributes `hcl:"value,remain"`
+	Value string `hcl:"value,attr"`
 }
 
 type RequestCfg struct {

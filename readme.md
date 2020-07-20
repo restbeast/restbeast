@@ -9,22 +9,22 @@ Best way to share restbeast configuration is to commit your `hcl` files to vcs.
 
 Example of a simple request
 ```hcl
-request "get-users" {
+request get-example {
   method = "GET"
-  url = "https://${env.url}/users"
+  url = "http://httpbin.org/get"
 }
 ```
 
 Executing the given example and piping output to `jq`
 ```shell script
-restbeast r get-users | jq
+restbeast r get-example | jq
 ```
 
 A more complex example for adding a user
 ```hcl
-request "new-user" {
+request post-example {
   method = "POST"
-  url = "https://${env.url}/users"
+  url = "http://httpbin.org/post"
   headers = {
     "content-type" = "application/json"
   }
@@ -35,6 +35,10 @@ request "new-user" {
 }
 ```
 
+```shell script
+restbeast r post-example | jq
+```
+
 #### Functions
 A variety of functions are available. 
 See [built-in go-cty functions](https://gitlab.com/restbeast/cli/-/blob/master/docs/functions.md) and [gofakeit functions](https://gitlab.com/restbeast/cli/-/blob/master/docs/gofakeit-functions.md) 
@@ -43,17 +47,24 @@ See [built-in go-cty functions](https://gitlab.com/restbeast/cli/-/blob/master/d
 Environment variables and related secrets can be changed with just a simple env flag.
 
 ```hcl
-env local {
-  default = true
+env prod {
   variables = {
-    url = "localhost"
+    url = "http://httpbin.org"
     apiKey = "oh-my-secret"
   }
 }
 
-request "get-users" {
+env local {
+  default = true
+  variables = {
+    url = "http://localhost"
+    apiKey = "not-so-important-secret"
+  }
+}
+
+request env-example {
   method = "GET"
-  url = "https://${env.url}/users"
+  url = "${env.url}/get"
   headers = {
     "x-api-key" = env.apiKey
   }
@@ -62,7 +73,7 @@ request "get-users" {
 
 Execute with `-e`, useful for testing against various environments or testing in CI pipelines
 ```shell script
-restbeast request get-users --env dev
+restbeast request env-example --env dev
 ```
 
 #### Secrets
@@ -76,30 +87,23 @@ env local {
     }
   }
 
-  // SSM secret engine isn't implemented yet.
-  secrets from_aws_ssm {
-    type = "aws-ssm"
-    paths = {
-      apikey = "/path/to/apikey"
-    }
-    provider = "aws.dev-acc-eu-west-1"
-  }
-
-  // SSM secret engine isn't implemented yet.
-  secrets from_aws_ssm {
-    type = "aws-ssm"
-    paths = {
-      apikey = "/path/to/apikey"
-    }
-    provider = "aws.dev-acc-eu-west-1"
-  }
-
   variables = {
-    url = "localhost"
+    url = "http://localhost:8080"
     apiKey = secret.from_shell_env.apikey
-    anOtherKey = secret.aws-ssm.apikey
   }
 }
+
+request secret-example {
+  method = "GET"
+  url = "${env.url}/get"
+  headers = {
+    "x-api-key" = env.apiKey
+  }
+}
+```
+
+```shell script
+restbeast_var_APIKEY="very-secret-key" restbeast r secret-example --env local
 ```
 
 ##### Secrets from environment variables
@@ -125,9 +129,9 @@ Leverage `https://github.com/brianvoe/gofakeit` library in your requests.
 
 An example with randomized user data
 ```hcl
-request "new-user" {
+request random-example {
   method = "POST"
-  url = "https://${env.url}/users"
+  url = "https://httpbin.org/post"
   headers = {
     "content-type" = "application/json"
   }
@@ -140,12 +144,12 @@ request "new-user" {
 
 #### Chaining requests
 
-When `update-user` request executed, it will do a `new-user` request first and use it's response as a depencency in `update-user` request.
+When `patch-example` request executed, it will do a `post-example` request first and use it's response as a depencency in `patch-example` request.
 
 ```hcl
-request "new-user" {
+request post-example {
   method = "POST"
-  url = "https://${env.url}/users"
+  url = "https://httpbin.org/post"
   headers = {
     "content-type" = "application/json"
   }
@@ -155,16 +159,47 @@ request "new-user" {
   }
 }
 
-request "update-user" {
+request patch-example {
   method = "PATCH"
-  url = "https://${env.url}/users/${request.new-user.id}"
+  url = "https://httpbin.org/patch"
   headers = {
     "content-type" = "application/json"
+    "X-Amzn-Trace-Id": request.post-example.headers.X-Amzn-Trace-Id
   }
   body = {
-    firstName = "Mr. ${upper(request.new-user.firstName)}"
-    lastName = gofakeitLastName()
+    firstName = "Mr. ${upper(request.post-example.json.firstName)}"
+    lastName = "Mr. ${upper(request.post-example.json.lastName)}"
   }
+}
+```
+ 
+```shell script
+restbeast r patch-example | jq
+```
+
+Example response will containt the first and the second `X-Amzn-Trace-Id` also 
+it will include upper cased values of firstName and lastName generated in `post-example` request
+
+```json
+{
+  "args": {},
+  "data": "{\n  \"firstName\": \"Mr. JUNIOR\",\n  \"lastName\": \"Mr. RUSSEL\"\n}",
+  "files": {},
+  "form": {},
+  "headers": {
+    "Accept-Encoding": "gzip",
+    "Content-Length": "59",
+    "Content-Type": "application/json",
+    "Host": "httpbin.org",
+    "User-Agent": "RestBeast-v0.4.0",
+    "X-Amzn-Trace-Id": "Self=1-5f15a0f8-cd3f68948e10488e520dcb5a;Root=1-5f15a0f8-26cd99544146b6540841f272"
+  },
+  "json": {
+    "firstName": "Mr. JUNIOR",
+    "lastName": "Mr. RUSSEL"
+  },
+  "origin": "213.127.104.191",
+  "url": "https://httpbin.org/patch"
 }
 ```
 
@@ -187,18 +222,6 @@ request "new-user" {
       name = assertNotNil()
     }
   }
-}
-```
-
-#### Secrets
-```hcl
-env local {
-  default = true
-  variables = {
-    url = "localhost"
-    apiKey = "${secret.apiKey}"
-  }
-  secretEngine = "env-vars"
 }
 ```
 

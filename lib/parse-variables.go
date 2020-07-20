@@ -1,7 +1,6 @@
 package lib
 
 import (
-	"fmt"
 	"github.com/zclconf/go-cty/cty"
 )
 
@@ -12,15 +11,7 @@ func parseVariables(parsedVars []*VariableCfg) map[string]cty.Value {
 			continue
 		}
 
-		val, diags := v.Value["value"].Expr.Value(nil)
-		if len(diags) != 0 {
-			for _, diag := range diags {
-				fmt.Printf("decoding - %s\n", diag)
-			}
-			return nil
-		}
-
-		variables[v.Name] = val
+		variables[v.Name] = cty.StringVal(v.Value)
 	}
 
 	return variables
