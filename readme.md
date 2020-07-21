@@ -73,13 +73,15 @@ request env-example {
 
 Execute with `-e`, useful for testing against various environments or testing in CI pipelines
 ```shell script
-restbeast request env-example --env dev
+restbeast request env-example --env prod
 ```
 
 #### Secrets
 
 ```hcl
 env local {
+  default = true
+
   secrets from_shell_env {
     type = "env-var"
     paths = {

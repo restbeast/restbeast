@@ -124,11 +124,24 @@ func getRequest(cfg cty.Value) Request {
 	headerErr := gocty.FromCtyValue(cfg.GetAttr("headers"), &headers)
 
 	if headerErr != nil {
+		fmt.Printf("Error: failed to parse headers, %s\n", headerErr)
+		os.Exit(1)
+	}
 
+	var method string
+	if !cfg.GetAttr("method").IsNull() {
+		method = cfg.GetAttr("method").AsString()
+	} else {
+		method = "GET"
+	}
+
+	if !cfg.GetAttr("url").IsWhollyKnown() {
+		fmt.Printf("Error: failed to parse url, possible unknown variable used.")
+		os.Exit(1)
 	}
 
 	request := Request{
-		Method:  cfg.GetAttr("method").AsString(),
+		Method:  method,
 		Url:     cfg.GetAttr("url").AsString(),
 		Headers: headers,
 		Body:    string(body),
