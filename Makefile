@@ -13,7 +13,7 @@ BUILD_PAIRS = \
 ASSET_LINKS := $(foreach PAIR,$(BUILD_PAIRS), \
 	$(eval GOOS = $(word 1,$(subst :, ,$(PAIR)))) \
 	$(eval GOARCH = $(word 2,$(subst :, ,$(PAIR)))) \
-	{ \"name\": \"binary $(GOOS)/$(GOARCH)\", \"link_type\": \"package\",\"url\": \"https://cli-releases.restbeast.com/restbeast_$(CI_COMMIT_TAG)_$(GOOS)_$(GOARCH).tar.gz\" },\
+	{ \"name\": \"binary $(GOOS)/$(GOARCH)\", \"link_type\": \"package\", \"url\": \"https://cli-releases.restbeast.com/restbeast_$(CI_COMMIT_TAG)_$(GOOS)_$(GOARCH).tar.gz\" },\
 )
 
 ASSET_LINKS_JSON := $(shell echo $(ASSET_LINKS) | sed -e 's/,$$//')
