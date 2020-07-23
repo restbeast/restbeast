@@ -6,38 +6,10 @@ stages:
   - release
 
 build:
-  image: golang:1.13.5
-  only:
-    - tags
+  image: registry.gitlab.com/restbeast/cli-build-image-ci:latest
   stage: build
   script:
-    - make build GOOS=linux GOARCH=amd64
-    - make build GOOS=darwin GOARCH=amd64
-  artifacts:
-    paths:
-      - restbeast_${CI_COMMIT_TAG}_linux_amd64.tar.gz
-      - restbeast_${CI_COMMIT_TAG}_darwin_amd64.tar.gz
-    expire_in: 1 day
-
-upload:
-  image: quay.io/coreos/awscli
-  script:
-    - aws s3 cp restbeast_${CI_COMMIT_TAG}_linux_amd64.tar.gz s3://restbeast-cli-release/ --region eu-central-1
-    - aws s3 cp restbeast_${CI_COMMIT_TAG}_darwin_amd64.tar.gz s3://restbeast-cli-release/ --region eu-central-1
-  stage: upload
+    - make release-all
   only:
     - tags
-
-release:
-  stage: release
-  image: registry.gitlab.com/gitlab-org/release-cli
-  only:
-    - tags
-  script:
-    - >
-      release-cli create --name release-${CI_COMMIT_TAG} --description release-${CI_COMMIT_TAG}
-      --tag-name $CI_COMMIT_TAG --ref $CI_COMMIT_SHA
-      --assets-links-name "linux/amd64 Binary"
-      --assets-links-url "https://cli-releases.restbeast.com/restbeast_${CI_COMMIT_TAG}_linux_amd64.tar.gz"
-      --assets-links-name "darwin/amd64 Binary"
-      --assets-links-url "https://cli-releases.restbeast.com/restbeast_${CI_COMMIT_TAG}_darwin_amd64.tar.gz"
+    - master
