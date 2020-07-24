@@ -1,12 +1,6 @@
-variables:
-
-stages:
-  - release
-
-build:
+release:
   image: registry.gitlab.com/restbeast/cli-build-image-ci:latest
-  stage: build
   script:
-    - make release-all
+    - make release
   only:
     - tags

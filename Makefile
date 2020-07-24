@@ -1,57 +1,81 @@
 PROJECT_NAME= "restbeast"
 PKG = "gitlab.com/restbeast/cli"
-PKG_LIST := $(shell go list ${PKG}/... | grep -v /vendor/)
-GO_FILES := $(shell find . -name '*.go' | grep -v /vendor/ | grep -v _test.go)
 VERSION := $(CI_COMMIT_TAG)
-BUILD_PAIRS = \
-	linux:amd64 \
-	linux:386 \
-	linux:arm64 \
-	freebsd:amd64 \
-	darwin:amd64 \
-	darwin:arm64
-ASSET_LINKS := $(foreach PAIR,$(BUILD_PAIRS), \
-	$(eval GOOS = $(word 1,$(subst :, ,$(PAIR)))) \
-	$(eval GOARCH = $(word 2,$(subst :, ,$(PAIR)))) \
-	{ \"name\": \"binary $(GOOS)/$(GOARCH)\", \"link_type\": \"package\", \"url\": \"https://cli-releases.restbeast.com/restbeast_$(CI_COMMIT_TAG)_$(GOOS)_$(GOARCH).tar.gz\" },\
-)
+CGO_ENABLED = 0
+BUILD_CMD := CGO_ENABLED=0 go build -i -o $(PROJECT_NAME) -ldflags "-X 'main.version=$(VERSION)' -X 'main.sentryDsn=$(SENTRY_DSN)'" -v -buildmode=exe $(PKG)
 
-ASSET_LINKS_JSON := $(shell echo $(ASSET_LINKS) | sed -e 's/,$$//')
+define GITLAB_REQUEST_BODY
+{
+	"name": "release-$(VERSION)",
+	"tag_name": "$(VERSION)",
+	"ref": "$(CI_COMMIT_SHA)",
+	"description": "release-$(VERSION)",
+	"assets": {
+		"links": [
+			{ "name": "binary linux/386", "link_type": "package", "url": "https://cli-releases.restbeast.com/restbeast_$(CI_COMMIT_TAG)_linux_386.tar.gz" },
+			{ "name": "binary linux/amd64", "link_type": "package", "url": "https://cli-releases.restbeast.com/restbeast_$(CI_COMMIT_TAG)_linux_amd64.tar.gz" },
+			{ "name": "binary linux/arm64", "link_type": "package", "url": "https://cli-releases.restbeast.com/restbeast_$(CI_COMMIT_TAG)_linux_arm64.tar.gz" },
+			{ "name": "binary darwin/amd64", "link_type": "package", "url": "https://cli-releases.restbeast.com/restbeast_$(CI_COMMIT_TAG)_darwin_amd64.tar.gz" },
+			{ "name": "binary freebsd/amd64", "link_type": "package", "url": "https://cli-releases.restbeast.com/restbeast_$(CI_COMMIT_TAG)_freebsd_amd64.tar.gz" },
+			{ "name": "binary freebsd/arm", "link_type": "package", "url": "https://cli-releases.restbeast.com/restbeast_$(CI_COMMIT_TAG)_freebsd_arm.tar.gz" }
+		]
+	}
+}
+endef
 
-.PHONY: build-all dep build upload-binaries release-all clean
+.PHONY: all dep build upload release clean linux linux-386 linux-amd64 linux-arm64 darwin darwin-amd64 freebsd freebsd-amd64 freebsd-arm
 
 dep: ## Get the dependencies
-	@go get -v -d ./...
+	@go get -d ./...
 
-build: dep ## Build the binary file with args GOOS and GOARCH
-	@GOOS=$$GOOS GOARCH=$$GOARCH go build -i -o $(PROJECT_NAME) -ldflags "-X 'main.version=$(VERSION)' -X 'main.sentryDsn=$(SENTRY_DSN)'" -v -buildmode=exe $(PKG)
-	@tar zcvf restbeast_$(VERSION)_$(GOOS)_$(GOARCH).tar.gz restbeast
+linux-386: clean dep ## Build linux/386
+	@GOOS=linux GOARCH=386 $(BUILD_CMD)
+	@tar zcf restbeast_$(VERSION)_linux_386.tar.gz restbeast
+	@rm -rf restbeast
 
-build-all: dep ## Build all binary files
-	@- $(foreach PAIR,$(BUILD_PAIRS), \
-		$(eval GOOS = $(word 1,$(subst :, ,$(PAIR)))) \
-		$(eval GOARCH = $(word 2,$(subst :, ,$(PAIR)))) \
-		\
-		GOOS=$$GOOS GOARCH=$$GOARCH go build -i -o $(PROJECT_NAME) -ldflags "-X 'main.version=$(VERSION)' -X 'main.sentryDsn=$(SENTRY_DSN)'" -v -buildmode=exe $(PKG) ; \
-		tar zcf restbeast_$(VERSION)_$(GOOS)_$(GOARCH).tar.gz restbeast ; \
-		echo "restbeast_$(VERSION)_$(GOOS)_$(GOARCH).tar.gz" ; \
-	)
+linux-amd64: clean dep ## Build linux/amd64
+	@GOOS=linux GOARCH=amd64 $(BUILD_CMD)
+	@tar zcf restbeast_$(VERSION)_linux_amd64.tar.gz restbeast
+	@rm -rf restbeast
 
-upload-binaries:
-	@- $(foreach PAIR,$(BUILD_PAIRS), \
-		$(eval GOOS = $(word 1,$(subst :, ,$(PAIR)))) \
-		$(eval GOARCH = $(word 2,$(subst :, ,$(PAIR)))) \
-		\
-		aws s3 cp "restbeast_$(VERSION)_$(GOOS)_$(GOARCH).tar.gz" s3://restbeast-cli-release/ --region eu-central-1 ; \
-	)
+linux-arm64: clean dep ## Build linux/arm64
+	@GOOS=linux GOARCH=arm64 $(BUILD_CMD)
+	@tar zcf restbeast_$(VERSION)_linux_arm64.tar.gz restbeast
+	@rm -rf restbeast
 
-create-gitlab-release:
+linux: linux-386 linux-amd64 linux-arm64 ## Build all linux
+
+darwin-amd64: clean dep ## Build darwin amd64
+	@GOOS=darwin GOARCH=amd64 $(BUILD_CMD)
+	@tar zcf restbeast_$(VERSION)_darwin_amd64.tar.gz restbeast
+	@rm -rf restbeast
+
+darwin: darwin-amd64 ## Build all darwin
+
+freebsd-amd64: clean dep ## Build freebsd/amd64
+	@GOOS=freebsd GOARCH=amd64 $(BUILD_CMD)
+	@tar zcf restbeast_$(VERSION)_freebsd_amd64.tar.gz restbeast
+	@rm -rf restbeast
+
+freebsd-arm: clean dep ## Build freebsd/arm
+	@GOOS=freebsd GOARCH=arm $(BUILD_CMD)
+	@tar zcf restbeast_$(VERSION)_freebsd_arm.tar.gz restbeast
+	@rm -rf restbeast
+
+freebsd: freebsd-amd64 freebsd-arm ## Build all freebsd
+
+all: linux darwin freebsd ## Build all
+
+upload: ## Upload binaries to S3
+	@aws s3 cp ./ s3://restbeast-cli-release/ --region eu-central-1 --exclude "*" --include "restbeast_$(VERSION)_*.tar.gz" --recursive
+
+gitlab-release: ## Release given tag in gitlab
 	curl -i \
 		 --header "content-type: application/json" --header "JOB-TOKEN: $(CI_JOB_TOKEN)" \
-         --data '{ "name": "release-$(VERSION)", "tag_name": "$(VERSION)", "ref": "$(CI_COMMIT_SHA)", "description": "release-$(VERSION)", "assets": { "links": [ $(ASSET_LINKS_JSON) ] } }' \
-         --request POST $(CI_SERVER_URL)/api/v4/projects/$(CI_PROJECT_ID)/releases
+		 --data '$(GITLAB_REQUEST_BODY:\n=)' \
+		 --request POST $(CI_SERVER_URL)/api/v4/projects/$(CI_PROJECT_ID)/releases
 
-release-all: build-all upload-binaries create-gitlab-release
+release: all upload gitlab-release
 
 clean: ## Remove previous build
 	@rm -f $(PROJECT_NAME)
