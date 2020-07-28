@@ -1,4 +1,6 @@
 # RestBeast Terminal Client
+In a nut shell; A terminal API client, testing tool in terminal and in CI, easy load testing tool.
+
 This open source terminal client is part of restbeast project which aims to simplify api development, api testing, service health checks and load testing by putting them together under one roof.
 
 ## Features
