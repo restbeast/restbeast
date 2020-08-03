@@ -45,6 +45,62 @@ restbeast r post-example | jq
 A variety of functions are available. 
 See [built-in go-cty functions](https://gitlab.com/restbeast/cli/-/blob/master/docs/functions.md) and [gofakeit functions](https://gitlab.com/restbeast/cli/-/blob/master/docs/gofakeit-functions.md) 
 
+#### External Functions
+It's possible to define external programs or scripts as functions. 
+
+Possible argument types are `string`, `list`, `map`, `number`.
+
+Given contents of `test-function.js` as follows.
+```javascript
+process.stdout.write(process.argv[2].toUpperCase());
+```
+```hcl
+external-function testFunction {
+  interpreter = "node"
+  script = "test-function.js"
+  args = ["string"]
+}
+
+request function-example {
+  method = "GET"
+  url = "localhost/${testFunction("hello")}"
+}
+```
+
+It's possible to use external functions with `variable` blocks. 
+
+```javascript
+process.stdout.write(
+  JSON.stringify(
+    {
+      key1: process.argv[2].toUpperCase(),
+      key2: process.argv[2].toLowerCase()
+    }
+  )
+);
+```
+```hcl
+external-function testFunction {
+  interpreter = "node"
+  script = "test-function.js"
+  args = ["string", "string"]
+}
+
+variable test {
+  value = jsonDecode(testFunction("value1", "value2"))
+}
+
+request function-example {
+  method = "POST"
+  url = "localhost/"
+
+  body = {
+    key1 = var.test.key1,
+    key2 = var.test.key2
+  }
+}
+```
+
 #### Execute requests in various environments
 Environment variables and related secrets can be changed with just a simple env flag.
 

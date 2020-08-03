@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hcldec"
 	"github.com/zclconf/go-cty/cty"
+	"github.com/zclconf/go-cty/cty/function"
 	"github.com/zclconf/go-cty/cty/gocty"
 	ctyjson "github.com/zclconf/go-cty/cty/json"
 	"os"
@@ -46,14 +47,14 @@ func getObjSpec() hcldec.ObjectSpec {
 	}
 }
 
-func getEvalContext(variables map[string]cty.Value, envVars cty.Value, requestAsVars map[string]cty.Value) hcl.EvalContext {
+func getEvalContext(variables map[string]cty.Value, envVars cty.Value, requestAsVars map[string]cty.Value, functions map[string]function.Function) hcl.EvalContext {
 	return hcl.EvalContext{
 		Variables: map[string]cty.Value{
-			"var": cty.ObjectVal(variables),
-			"env": envVars,
+			"var":     cty.ObjectVal(variables),
+			"env":     envVars,
 			"request": cty.ObjectVal(requestAsVars),
 		},
-		Functions: getCtyFunctions(),
+		Functions: functions,
 	}
 }
 
@@ -97,11 +98,11 @@ func getUniqueDependencies(intSlice []string) []string {
 	return list
 }
 
-func processDependencies(dependencies []string, variables map[string]cty.Value, envVars cty.Value, version string, rawRequests RequestCfgs) (requestAsVars map[string]cty.Value) {
+func processDependencies(dependencies []string, variables map[string]cty.Value, envVars cty.Value, version string, functions map[string]function.Function, rawRequests RequestCfgs) (requestAsVars map[string]cty.Value) {
 	requestAsVars = make(map[string]cty.Value)
 
 	for _, dep := range getUniqueDependencies(dependencies) {
-		request := parseRequest(dep, variables, envVars, version, rawRequests)
+		request := parseRequest(dep, variables, envVars, version, functions, rawRequests)
 		response := DoRequest(request, version)
 
 		var decoded interface{}
@@ -150,16 +151,16 @@ func getRequest(cfg cty.Value) Request {
 	return request
 }
 
-func parseRequest(name string, variables map[string]cty.Value, envVars cty.Value, version string, rawRequests RequestCfgs) Request {
-  err, request := findRequest(name, rawRequests)
+func parseRequest(name string, variables map[string]cty.Value, envVars cty.Value, version string, functions map[string]function.Function, rawRequests RequestCfgs) Request {
+	err, request := findRequest(name, rawRequests)
 
-  if err != nil {
-  	fmt.Println("Error: Request not found")
-  	os.Exit(1)
+	if err != nil {
+		fmt.Println("Error: Request not found")
+		os.Exit(1)
 	}
 
 	requestAsVars := map[string]cty.Value{}
-	evalContext := getEvalContext(variables, envVars, requestAsVars)
+	evalContext := getEvalContext(variables, envVars, requestAsVars, functions)
 	spec := getObjSpec()
 
 	cfg, diags := hcldec.Decode(request.Body, spec, &evalContext)
@@ -174,8 +175,8 @@ func parseRequest(name string, variables map[string]cty.Value, envVars cty.Value
 	}
 
 	if len(dependencies) > 0 {
-		requestAsVars := processDependencies(dependencies, variables, envVars, version, rawRequests)
-		evalContext = getEvalContext(variables, envVars, requestAsVars)
+		requestAsVars := processDependencies(dependencies, variables, envVars, version, functions, rawRequests)
+		evalContext = getEvalContext(variables, envVars, requestAsVars, functions)
 
 		cfg, diags = hcldec.Decode(request.Body, spec, &evalContext)
 

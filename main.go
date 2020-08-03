@@ -13,8 +13,8 @@ var version, sentryDsn string
 
 func main() {
 	err := sentry.Init(sentry.ClientOptions{
-		Dsn: sentryDsn,
-		Release: version,
+		Dsn:              sentryDsn,
+		Release:          version,
 		AttachStacktrace: true,
 	})
 
@@ -29,7 +29,7 @@ func main() {
 			fmt.Println("restbeast encountered an unknown error")
 			sentry.WithScope(func(scope *sentry.Scope) {
 				scope.SetLevel(sentry.LevelFatal)
-				sentry.CaptureException(errors.Wrap(r,4))
+				sentry.CaptureException(errors.Wrap(r, 4))
 			})
 		}
 	}()

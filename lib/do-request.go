@@ -21,10 +21,10 @@ type RequestTiming struct {
 
 type Response struct {
 	StatusCode int
-	Proto string
-	Body []byte
-	Headers http.Header
-	Timing RequestTiming
+	Proto      string
+	Body       []byte
+	Headers    http.Header
+	Timing     RequestTiming
 }
 
 func DoRequest(request Request, version string) (response Response) {
@@ -77,9 +77,9 @@ func DoRequest(request Request, version string) (response Response) {
 
 	return Response{
 		StatusCode: res.StatusCode,
-		Proto: res.Proto,
-		Body: data,
-		Headers: res.Header,
-		Timing: timing,
+		Proto:      res.Proto,
+		Body:       data,
+		Headers:    res.Header,
+		Timing:     timing,
 	}
 }

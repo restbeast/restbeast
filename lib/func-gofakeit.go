@@ -12,7 +12,7 @@ import (
 func gofakeitName() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.Name()), nil
@@ -23,7 +23,7 @@ func gofakeitName() function.Function {
 func gofakeitNamePrefix() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.NamePrefix()), nil
@@ -34,7 +34,7 @@ func gofakeitNamePrefix() function.Function {
 func gofakeitNameSuffix() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.NamePrefix()), nil
@@ -45,7 +45,7 @@ func gofakeitNameSuffix() function.Function {
 func gofakeitFirstName() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.FirstName()), nil
@@ -56,7 +56,7 @@ func gofakeitFirstName() function.Function {
 func gofakeitLastName() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.LastName()), nil
@@ -67,7 +67,7 @@ func gofakeitLastName() function.Function {
 func gofakeitGender() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.Gender()), nil
@@ -78,7 +78,7 @@ func gofakeitGender() function.Function {
 func gofakeitSSN() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.SSN()), nil
@@ -89,7 +89,7 @@ func gofakeitSSN() function.Function {
 func gofakeitEmail() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.Email()), nil
@@ -100,7 +100,7 @@ func gofakeitEmail() function.Function {
 func gofakeitPhone() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.Phone()), nil
@@ -111,7 +111,7 @@ func gofakeitPhone() function.Function {
 func gofakeitPhoneFormatted() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.PhoneFormatted()), nil
@@ -122,7 +122,7 @@ func gofakeitPhoneFormatted() function.Function {
 func gofakeitUsername() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.Username()), nil
@@ -134,33 +134,33 @@ func gofakeitPassword() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{
 			{
-				Name: "lower",
-				Type: cty.Bool,
+				Name:             "lower",
+				Type:             cty.Bool,
 				AllowDynamicType: false,
 			},
 			{
-				Name: "upper",
-				Type: cty.Bool,
+				Name:             "upper",
+				Type:             cty.Bool,
 				AllowDynamicType: false,
 			},
 			{
-				Name: "numeric",
-				Type: cty.Bool,
+				Name:             "numeric",
+				Type:             cty.Bool,
 				AllowDynamicType: false,
 			},
 			{
-				Name: "special",
-				Type: cty.Bool,
+				Name:             "special",
+				Type:             cty.Bool,
 				AllowDynamicType: false,
 			},
 			{
-				Name: "space",
-				Type: cty.Bool,
+				Name:             "space",
+				Type:             cty.Bool,
 				AllowDynamicType: false,
 			},
 			{
-				Name: "length",
-				Type: cty.Number,
+				Name:             "length",
+				Type:             cty.Number,
 				AllowDynamicType: false,
 			},
 		},
@@ -178,7 +178,7 @@ func gofakeitPassword() function.Function {
 func gofakeitCity() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.City()), nil
@@ -189,7 +189,7 @@ func gofakeitCity() function.Function {
 func gofakeitCountry() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.Country()), nil
@@ -200,7 +200,7 @@ func gofakeitCountry() function.Function {
 func gofakeitCountryAbr() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.CountryAbr()), nil
@@ -211,7 +211,7 @@ func gofakeitCountryAbr() function.Function {
 func gofakeitState() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.State()), nil
@@ -222,7 +222,7 @@ func gofakeitState() function.Function {
 func gofakeitStateAbr() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.StateAbr()), nil
@@ -233,7 +233,7 @@ func gofakeitStateAbr() function.Function {
 func gofakeitStreet() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.Street()), nil
@@ -244,7 +244,7 @@ func gofakeitStreet() function.Function {
 func gofakeitStreetName() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.StreetName()), nil
@@ -255,7 +255,7 @@ func gofakeitStreetName() function.Function {
 func gofakeitStreetNumber() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.StreetNumber()), nil
@@ -266,7 +266,7 @@ func gofakeitStreetNumber() function.Function {
 func gofakeitStreetPrefix() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.StreetPrefix()), nil
@@ -277,7 +277,7 @@ func gofakeitStreetPrefix() function.Function {
 func gofakeitStreetSuffix() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.StreetSuffix()), nil
@@ -288,7 +288,7 @@ func gofakeitStreetSuffix() function.Function {
 func gofakeitZip() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.Zip()), nil
@@ -299,7 +299,7 @@ func gofakeitZip() function.Function {
 func gofakeitLatitude() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.NumberFloatVal(gofakeit.Latitude()), nil
@@ -311,13 +311,13 @@ func gofakeitLatitudeInRange() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{
 			{
-				Name: "min",
-				Type: cty.Number,
+				Name:             "min",
+				Type:             cty.Number,
 				AllowDynamicType: false,
 			},
 			{
-				Name: "max",
-				Type: cty.Number,
+				Name:             "max",
+				Type:             cty.Number,
 				AllowDynamicType: false,
 			},
 		},
@@ -336,7 +336,7 @@ func gofakeitLatitudeInRange() function.Function {
 func gofakeitLongitude() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.NumberFloatVal(gofakeit.Longitude()), nil
@@ -348,13 +348,13 @@ func gofakeitLongitudeInRange() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{
 			{
-				Name: "min",
-				Type: cty.Number,
+				Name:             "min",
+				Type:             cty.Number,
 				AllowDynamicType: false,
 			},
 			{
-				Name: "max",
-				Type: cty.Number,
+				Name:             "max",
+				Type:             cty.Number,
 				AllowDynamicType: false,
 			},
 		},
@@ -373,7 +373,7 @@ func gofakeitLongitudeInRange() function.Function {
 func gofakeitGamertag() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.Gamertag()), nil
@@ -384,7 +384,7 @@ func gofakeitGamertag() function.Function {
 func gofakeitBeerAlcohol() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.BeerAlcohol()), nil
@@ -395,7 +395,7 @@ func gofakeitBeerAlcohol() function.Function {
 func gofakeitBeerBlg() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.BeerBlg()), nil
@@ -406,7 +406,7 @@ func gofakeitBeerBlg() function.Function {
 func gofakeitBeerHop() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.BeerHop()), nil
@@ -417,7 +417,7 @@ func gofakeitBeerHop() function.Function {
 func gofakeitBeerIbu() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.BeerIbu()), nil
@@ -428,7 +428,7 @@ func gofakeitBeerIbu() function.Function {
 func gofakeitBeerMalt() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.BeerMalt()), nil
@@ -439,7 +439,7 @@ func gofakeitBeerMalt() function.Function {
 func gofakeitBeerName() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.BeerName()), nil
@@ -450,7 +450,7 @@ func gofakeitBeerName() function.Function {
 func gofakeitBeerStyle() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.BeerStyle()), nil
@@ -461,7 +461,7 @@ func gofakeitBeerStyle() function.Function {
 func gofakeitBeerYeast() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.BeerYeast()), nil
@@ -472,7 +472,7 @@ func gofakeitBeerYeast() function.Function {
 func gofakeitCarMaker() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.CarMaker()), nil
@@ -483,7 +483,7 @@ func gofakeitCarMaker() function.Function {
 func gofakeitCarModel() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.CarModel()), nil
@@ -494,7 +494,7 @@ func gofakeitCarModel() function.Function {
 func gofakeitCarType() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.CarType()), nil
@@ -505,7 +505,7 @@ func gofakeitCarType() function.Function {
 func gofakeitCarFuelType() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.CarFuelType()), nil
@@ -516,7 +516,7 @@ func gofakeitCarFuelType() function.Function {
 func gofakeitCarTransmissionType() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.CarTransmissionType()), nil
@@ -527,7 +527,7 @@ func gofakeitCarTransmissionType() function.Function {
 func gofakeitNoun() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.Noun()), nil
@@ -538,7 +538,7 @@ func gofakeitNoun() function.Function {
 func gofakeitVerb() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.Verb()), nil
@@ -549,7 +549,7 @@ func gofakeitVerb() function.Function {
 func gofakeitAdverb() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.Adverb()), nil
@@ -560,7 +560,7 @@ func gofakeitAdverb() function.Function {
 func gofakeitPreposition() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.Preposition()), nil
@@ -571,7 +571,7 @@ func gofakeitPreposition() function.Function {
 func gofakeitAdjective() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.Adjective()), nil
@@ -582,7 +582,7 @@ func gofakeitAdjective() function.Function {
 func gofakeitWord() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.Word()), nil
@@ -594,8 +594,8 @@ func gofakeitSentence() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{
 			{
-				Name: "wordCount",
-				Type: cty.Number,
+				Name:             "wordCount",
+				Type:             cty.Number,
 				AllowDynamicType: false,
 			},
 		},
@@ -614,23 +614,23 @@ func gofakeitParagraph() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{
 			{
-				Name: "paragraphCount",
-				Type: cty.Number,
+				Name:             "paragraphCount",
+				Type:             cty.Number,
 				AllowDynamicType: false,
 			},
 			{
-				Name: "sentenceCount",
-				Type: cty.Number,
+				Name:             "sentenceCount",
+				Type:             cty.Number,
 				AllowDynamicType: false,
 			},
 			{
-				Name: "wordCount",
-				Type: cty.Number,
+				Name:             "wordCount",
+				Type:             cty.Number,
 				AllowDynamicType: false,
 			},
 			{
-				Name: "separator",
-				Type: cty.String,
+				Name:             "separator",
+				Type:             cty.String,
 				AllowDynamicType: false,
 			},
 		},
@@ -650,7 +650,7 @@ func gofakeitParagraph() function.Function {
 func gofakeitLoremIpsumWord() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.LoremIpsumWord()), nil
@@ -662,8 +662,8 @@ func gofakeitLoremIpsumSentence() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{
 			{
-				Name: "wordCount",
-				Type: cty.Number,
+				Name:             "wordCount",
+				Type:             cty.Number,
 				AllowDynamicType: false,
 			},
 		},
@@ -682,23 +682,23 @@ func gofakeitLoremIpsumParagraph() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{
 			{
-				Name: "paragraphCount",
-				Type: cty.Number,
+				Name:             "paragraphCount",
+				Type:             cty.Number,
 				AllowDynamicType: false,
 			},
 			{
-				Name: "sentenceCount",
-				Type: cty.Number,
+				Name:             "sentenceCount",
+				Type:             cty.Number,
 				AllowDynamicType: false,
 			},
 			{
-				Name: "wordCount",
-				Type: cty.Number,
+				Name:             "wordCount",
+				Type:             cty.Number,
 				AllowDynamicType: false,
 			},
 			{
-				Name: "separator",
-				Type: cty.String,
+				Name:             "separator",
+				Type:             cty.String,
 				AllowDynamicType: false,
 			},
 		},
@@ -718,7 +718,7 @@ func gofakeitLoremIpsumParagraph() function.Function {
 func gofakeitQuestion() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.Question()), nil
@@ -729,7 +729,7 @@ func gofakeitQuestion() function.Function {
 func gofakeitQuote() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.Quote()), nil
@@ -740,7 +740,7 @@ func gofakeitQuote() function.Function {
 func gofakeitPhrase() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.Phrase()), nil
@@ -751,7 +751,7 @@ func gofakeitPhrase() function.Function {
 func gofakeitFruit() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.Fruit()), nil
@@ -762,7 +762,7 @@ func gofakeitFruit() function.Function {
 func gofakeitVegetable() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.Vegetable()), nil
@@ -773,7 +773,7 @@ func gofakeitVegetable() function.Function {
 func gofakeitBreakfast() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.Breakfast()), nil
@@ -784,7 +784,7 @@ func gofakeitBreakfast() function.Function {
 func gofakeitLunch() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.Lunch()), nil
@@ -795,7 +795,7 @@ func gofakeitLunch() function.Function {
 func gofakeitDinner() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.Dinner()), nil
@@ -806,7 +806,7 @@ func gofakeitDinner() function.Function {
 func gofakeitSnack() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.Snack()), nil
@@ -817,7 +817,7 @@ func gofakeitSnack() function.Function {
 func gofakeitDessert() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.Dessert()), nil
@@ -828,7 +828,7 @@ func gofakeitDessert() function.Function {
 func gofakeitBool() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.Bool),
+		Type:   function.StaticReturnType(cty.Bool),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.BoolVal(gofakeit.Bool()), nil
@@ -839,7 +839,7 @@ func gofakeitBool() function.Function {
 func gofakeitUUID() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.UUID()), nil
@@ -850,7 +850,7 @@ func gofakeitUUID() function.Function {
 func gofakeitColor() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.Color()), nil
@@ -861,7 +861,7 @@ func gofakeitColor() function.Function {
 func gofakeitHexColor() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.HexColor()), nil
@@ -872,7 +872,7 @@ func gofakeitHexColor() function.Function {
 func gofakeitRGBColor() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.List(cty.Number)),
+		Type:   function.StaticReturnType(cty.List(cty.Number)),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			rgbcolor, err := gocty.ToCtyValue(gofakeit.RGBColor(), cty.List(cty.Number))
@@ -885,7 +885,7 @@ func gofakeitRGBColor() function.Function {
 func gofakeitSafeColor() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.SafeColor()), nil
@@ -896,7 +896,7 @@ func gofakeitSafeColor() function.Function {
 func gofakeitURL() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.URL()), nil
@@ -907,7 +907,7 @@ func gofakeitURL() function.Function {
 func gofakeitImageURL() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			var width, height int
 			_ = gocty.FromCtyValue(args[0], &width)
@@ -922,7 +922,7 @@ func gofakeitImageURL() function.Function {
 func gofakeitDomainName() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.DomainName()), nil
@@ -933,7 +933,7 @@ func gofakeitDomainName() function.Function {
 func gofakeitDomainSuffix() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.DomainSuffix()), nil
@@ -944,7 +944,7 @@ func gofakeitDomainSuffix() function.Function {
 func gofakeitIPv4Address() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.IPv4Address()), nil
@@ -955,7 +955,7 @@ func gofakeitIPv4Address() function.Function {
 func gofakeitIPv6Address() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.IPv6Address()), nil
@@ -966,7 +966,7 @@ func gofakeitIPv6Address() function.Function {
 func gofakeitHTTPStatusCode() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.Number),
+		Type:   function.StaticReturnType(cty.Number),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			value, err := gocty.ToCtyValue(gofakeit.HTTPStatusCode(), cty.Number)
@@ -979,7 +979,7 @@ func gofakeitHTTPStatusCode() function.Function {
 func gofakeitHTTPSimpleStatusCode() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.Number),
+		Type:   function.StaticReturnType(cty.Number),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			value, err := gocty.ToCtyValue(gofakeit.HTTPStatusCodeSimple(), cty.Number)
@@ -993,8 +993,8 @@ func gofakeitLogLevel() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{
 			{
-				Name: "logType",
-				Type: cty.String,
+				Name:             "logType",
+				Type:             cty.String,
 				AllowDynamicType: false,
 			},
 		},
@@ -1009,7 +1009,7 @@ func gofakeitLogLevel() function.Function {
 func gofakeitHTTPMethod() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.HTTPMethod()), nil
@@ -1020,7 +1020,7 @@ func gofakeitHTTPMethod() function.Function {
 func gofakeitUserAgent() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.UserAgent()), nil
@@ -1031,7 +1031,7 @@ func gofakeitUserAgent() function.Function {
 func gofakeitChromeUserAgent() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.ChromeUserAgent()), nil
@@ -1042,7 +1042,7 @@ func gofakeitChromeUserAgent() function.Function {
 func gofakeitFirefoxUserAgent() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.FirefoxUserAgent()), nil
@@ -1053,7 +1053,7 @@ func gofakeitFirefoxUserAgent() function.Function {
 func gofakeitOperaUserAgent() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.OperaUserAgent()), nil
@@ -1064,7 +1064,7 @@ func gofakeitOperaUserAgent() function.Function {
 func gofakeitSafariUserAgent() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.SafariUserAgent()), nil
@@ -1075,7 +1075,7 @@ func gofakeitSafariUserAgent() function.Function {
 func gofakeitDate() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 
@@ -1088,8 +1088,8 @@ func gofakeitDateRange() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{
 			{
-				Name: "separator",
-				Type: cty.String,
+				Name:             "separator",
+				Type:             cty.String,
 				AllowDynamicType: false,
 			},
 		},
@@ -1115,7 +1115,7 @@ func gofakeitDateRange() function.Function {
 func gofakeitNanoSecond() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.Number),
+		Type:   function.StaticReturnType(cty.Number),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 
@@ -1127,7 +1127,7 @@ func gofakeitNanoSecond() function.Function {
 func gofakeitSecond() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.Number),
+		Type:   function.StaticReturnType(cty.Number),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 
@@ -1139,7 +1139,7 @@ func gofakeitSecond() function.Function {
 func gofakeitMinute() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.Number),
+		Type:   function.StaticReturnType(cty.Number),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 
@@ -1151,7 +1151,7 @@ func gofakeitMinute() function.Function {
 func gofakeitHour() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.Number),
+		Type:   function.StaticReturnType(cty.Number),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 
@@ -1163,7 +1163,7 @@ func gofakeitHour() function.Function {
 func gofakeitMonth() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.Month()), nil
@@ -1174,7 +1174,7 @@ func gofakeitMonth() function.Function {
 func gofakeitDay() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.Number),
+		Type:   function.StaticReturnType(cty.Number),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 
@@ -1186,7 +1186,7 @@ func gofakeitDay() function.Function {
 func gofakeitWeekDay() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.WeekDay()), nil
@@ -1197,7 +1197,7 @@ func gofakeitWeekDay() function.Function {
 func gofakeitYear() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.Number),
+		Type:   function.StaticReturnType(cty.Number),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 
@@ -1210,7 +1210,7 @@ func gofakeitYear() function.Function {
 func gofakeitTimeZone() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.TimeZone()), nil
@@ -1221,7 +1221,7 @@ func gofakeitTimeZone() function.Function {
 func gofakeitTimeZoneAbv() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.TimeZoneAbv()), nil
@@ -1232,7 +1232,7 @@ func gofakeitTimeZoneAbv() function.Function {
 func gofakeitTimeZoneFull() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.TimeZoneFull()), nil
@@ -1243,7 +1243,7 @@ func gofakeitTimeZoneFull() function.Function {
 func gofakeitTimeZoneOffset() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.Number),
+		Type:   function.StaticReturnType(cty.Number),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return gocty.ToCtyValue(gofakeit.TimeZoneOffset(), cty.Number)
@@ -1254,7 +1254,7 @@ func gofakeitTimeZoneOffset() function.Function {
 func gofakeitTimeZoneRegion() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.TimeZoneRegion()), nil
@@ -1266,13 +1266,13 @@ func gofakeitPrice() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{
 			{
-				Name: "min",
-				Type: cty.Number,
+				Name:             "min",
+				Type:             cty.Number,
 				AllowDynamicType: false,
 			},
 			{
-				Name: "max",
-				Type: cty.Number,
+				Name:             "max",
+				Type:             cty.Number,
 				AllowDynamicType: false,
 			},
 		},
@@ -1290,7 +1290,7 @@ func gofakeitPrice() function.Function {
 func gofakeitCreditCardCvv() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.CreditCardCvv()), nil
@@ -1301,7 +1301,7 @@ func gofakeitCreditCardCvv() function.Function {
 func gofakeitCreditCardExp() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.CreditCardExp()), nil
@@ -1313,18 +1313,18 @@ func gofakeitCreditCardNumber() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{
 			{
-				Name: "types",
-				Type: cty.List(cty.String),
+				Name:             "types",
+				Type:             cty.List(cty.String),
 				AllowDynamicType: false,
 			},
 			{
-				Name: "bins",
-				Type: cty.List(cty.String),
+				Name:             "bins",
+				Type:             cty.List(cty.String),
 				AllowDynamicType: false,
 			},
 			{
-				Name: "gaps",
-				Type: cty.Bool,
+				Name:             "gaps",
+				Type:             cty.Bool,
 				AllowDynamicType: false,
 			},
 		},
@@ -1344,7 +1344,7 @@ func gofakeitCreditCardNumber() function.Function {
 			validTypes := []string{"visa", "mastercard", "american-express", "diners-club", "discover", "jcb", "unionpay", "maestro", "elo", "hiper", "hipercard"}
 			for _, t := range types {
 				if !sliceContains(validTypes, t) {
-					return cty.Value{}, errors.New("given type("+t+") isn't allowed. Pick one from visa, mastercard, american-express, diners-club, discover, jcb, unionpay, maestro, elo, hiper, hipercard")
+					return cty.Value{}, errors.New("given type(" + t + ") isn't allowed. Pick one from visa, mastercard, american-express, diners-club, discover, jcb, unionpay, maestro, elo, hiper, hipercard")
 				}
 			}
 
@@ -1369,7 +1369,7 @@ func gofakeitCreditCardNumber() function.Function {
 func gofakeitCreditCardType() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.CreditCardType()), nil
@@ -1380,7 +1380,7 @@ func gofakeitCreditCardType() function.Function {
 func gofakeitCurrencyLong() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.CurrencyLong()), nil
@@ -1391,7 +1391,7 @@ func gofakeitCurrencyLong() function.Function {
 func gofakeitCurrencyShort() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.CurrencyShort()), nil
@@ -1402,7 +1402,7 @@ func gofakeitCurrencyShort() function.Function {
 func gofakeitAchRouting() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.AchRouting()), nil
@@ -1413,7 +1413,7 @@ func gofakeitAchRouting() function.Function {
 func gofakeitAchAccount() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.AchAccount()), nil
@@ -1424,7 +1424,7 @@ func gofakeitAchAccount() function.Function {
 func gofakeitBitcoinAddress() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.BitcoinAddress()), nil
@@ -1435,7 +1435,7 @@ func gofakeitBitcoinAddress() function.Function {
 func gofakeitBitcoinPrivateKey() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.BitcoinPrivateKey()), nil
@@ -1446,7 +1446,7 @@ func gofakeitBitcoinPrivateKey() function.Function {
 func gofakeitBS() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.BS()), nil
@@ -1457,7 +1457,7 @@ func gofakeitBS() function.Function {
 func gofakeitBuzzWord() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.BuzzWord()), nil
@@ -1468,7 +1468,7 @@ func gofakeitBuzzWord() function.Function {
 func gofakeitCompany() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.Company()), nil
@@ -1479,7 +1479,7 @@ func gofakeitCompany() function.Function {
 func gofakeitCompanySuffix() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.CompanySuffix()), nil
@@ -1490,7 +1490,7 @@ func gofakeitCompanySuffix() function.Function {
 func gofakeitJobDescriptor() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.JobDescriptor()), nil
@@ -1501,7 +1501,7 @@ func gofakeitJobDescriptor() function.Function {
 func gofakeitJobLevel() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.JobLevel()), nil
@@ -1512,7 +1512,7 @@ func gofakeitJobLevel() function.Function {
 func gofakeitJobTitle() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.JobTitle()), nil
@@ -1523,7 +1523,7 @@ func gofakeitJobTitle() function.Function {
 func gofakeitHackerAbbreviation() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.HackerAbbreviation()), nil
@@ -1534,7 +1534,7 @@ func gofakeitHackerAbbreviation() function.Function {
 func gofakeitHackerAdjective() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.HackerAdjective()), nil
@@ -1545,7 +1545,7 @@ func gofakeitHackerAdjective() function.Function {
 func gofakeitHackeringVerb() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.HackeringVerb()), nil
@@ -1556,7 +1556,7 @@ func gofakeitHackeringVerb() function.Function {
 func gofakeitHackerNoun() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.HackerNoun()), nil
@@ -1567,7 +1567,7 @@ func gofakeitHackerNoun() function.Function {
 func gofakeitHackerPhrase() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.HackerPhrase()), nil
@@ -1578,7 +1578,7 @@ func gofakeitHackerPhrase() function.Function {
 func gofakeitHackerVerb() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.HackerVerb()), nil
@@ -1589,7 +1589,7 @@ func gofakeitHackerVerb() function.Function {
 func gofakeitHipsterWord() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.HipsterWord()), nil
@@ -1601,8 +1601,8 @@ func gofakeitHipsterSentence() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{
 			{
-				Name: "wordCount",
-				Type: cty.Number,
+				Name:             "wordCount",
+				Type:             cty.Number,
 				AllowDynamicType: false,
 			},
 		},
@@ -1621,23 +1621,23 @@ func gofakeitHipsterParagraph() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{
 			{
-				Name: "paragraphCount",
-				Type: cty.Number,
+				Name:             "paragraphCount",
+				Type:             cty.Number,
 				AllowDynamicType: false,
 			},
 			{
-				Name: "sentenceCount",
-				Type: cty.Number,
+				Name:             "sentenceCount",
+				Type:             cty.Number,
 				AllowDynamicType: false,
 			},
 			{
-				Name: "wordCount",
-				Type: cty.Number,
+				Name:             "wordCount",
+				Type:             cty.Number,
 				AllowDynamicType: false,
 			},
 			{
-				Name: "separator",
-				Type: cty.String,
+				Name:             "separator",
+				Type:             cty.String,
 				AllowDynamicType: false,
 			},
 		},
@@ -1657,7 +1657,7 @@ func gofakeitHipsterParagraph() function.Function {
 func gofakeitAppName() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.AppName()), nil
@@ -1668,7 +1668,7 @@ func gofakeitAppName() function.Function {
 func gofakeitAppVersion() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.AppVersion()), nil
@@ -1679,7 +1679,7 @@ func gofakeitAppVersion() function.Function {
 func gofakeitAppAuthor() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.AppAuthor()), nil
@@ -1690,7 +1690,7 @@ func gofakeitAppAuthor() function.Function {
 func gofakeitPetName() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.PetName()), nil
@@ -1701,7 +1701,7 @@ func gofakeitPetName() function.Function {
 func gofakeitAnimal() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.Animal()), nil
@@ -1712,7 +1712,7 @@ func gofakeitAnimal() function.Function {
 func gofakeitAnimalType() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.AnimalType()), nil
@@ -1723,7 +1723,7 @@ func gofakeitAnimalType() function.Function {
 func gofakeitFarmAnimal() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.FarmAnimal()), nil
@@ -1734,7 +1734,7 @@ func gofakeitFarmAnimal() function.Function {
 func gofakeitCat() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.Cat()), nil
@@ -1745,7 +1745,7 @@ func gofakeitCat() function.Function {
 func gofakeitDog() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.Dog()), nil
@@ -1756,7 +1756,7 @@ func gofakeitDog() function.Function {
 func gofakeitEmoji() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.Emoji()), nil
@@ -1767,7 +1767,7 @@ func gofakeitEmoji() function.Function {
 func gofakeitEmojiDescription() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.EmojiDescription()), nil
@@ -1778,7 +1778,7 @@ func gofakeitEmojiDescription() function.Function {
 func gofakeitEmojiCategory() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.EmojiCategory()), nil
@@ -1789,7 +1789,7 @@ func gofakeitEmojiCategory() function.Function {
 func gofakeitEmojiAlias() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.EmojiAlias()), nil
@@ -1800,7 +1800,7 @@ func gofakeitEmojiAlias() function.Function {
 func gofakeitEmojiTag() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.EmojiTag()), nil
@@ -1811,7 +1811,7 @@ func gofakeitEmojiTag() function.Function {
 func gofakeitLanguage() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.Language()), nil
@@ -1822,7 +1822,7 @@ func gofakeitLanguage() function.Function {
 func gofakeitLanguageAbbreviation() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.LanguageAbbreviation()), nil
@@ -1833,7 +1833,7 @@ func gofakeitLanguageAbbreviation() function.Function {
 func gofakeitProgrammingLanguage() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.ProgrammingLanguage()), nil
@@ -1844,7 +1844,7 @@ func gofakeitProgrammingLanguage() function.Function {
 func gofakeitProgrammingLanguageBest() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.ProgrammingLanguageBest()), nil
@@ -1856,13 +1856,13 @@ func gofakeitNumber() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{
 			{
-				Name: "min",
-				Type: cty.Number,
+				Name:             "min",
+				Type:             cty.Number,
 				AllowDynamicType: false,
 			},
 			{
-				Name: "max",
-				Type: cty.Number,
+				Name:             "max",
+				Type:             cty.Number,
 				AllowDynamicType: false,
 			},
 		},
@@ -1890,7 +1890,7 @@ func gofakeitNumber() function.Function {
 func gofakeitInt8() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.Number),
+		Type:   function.StaticReturnType(cty.Number),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.NumberIntVal(int64(gofakeit.Int8())), nil
@@ -1901,7 +1901,7 @@ func gofakeitInt8() function.Function {
 func gofakeitInt16() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.Number),
+		Type:   function.StaticReturnType(cty.Number),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.NumberIntVal(int64(gofakeit.Int16())), nil
@@ -1912,7 +1912,7 @@ func gofakeitInt16() function.Function {
 func gofakeitInt32() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.Number),
+		Type:   function.StaticReturnType(cty.Number),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.NumberIntVal(int64(gofakeit.Int32())), nil
@@ -1923,7 +1923,7 @@ func gofakeitInt32() function.Function {
 func gofakeitInt64() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.Number),
+		Type:   function.StaticReturnType(cty.Number),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.NumberIntVal(gofakeit.Int64()), nil
@@ -1934,7 +1934,7 @@ func gofakeitInt64() function.Function {
 func gofakeitUint8() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.Number),
+		Type:   function.StaticReturnType(cty.Number),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.NumberUIntVal(uint64(gofakeit.Uint8())), nil
@@ -1945,7 +1945,7 @@ func gofakeitUint8() function.Function {
 func gofakeitUint16() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.Number),
+		Type:   function.StaticReturnType(cty.Number),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.NumberUIntVal(uint64(gofakeit.Uint16())), nil
@@ -1956,7 +1956,7 @@ func gofakeitUint16() function.Function {
 func gofakeitUint32() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.Number),
+		Type:   function.StaticReturnType(cty.Number),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.NumberUIntVal(uint64(gofakeit.Uint32())), nil
@@ -1967,7 +1967,7 @@ func gofakeitUint32() function.Function {
 func gofakeitUint64() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.Number),
+		Type:   function.StaticReturnType(cty.Number),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.NumberUIntVal(gofakeit.Uint64()), nil
@@ -1978,7 +1978,7 @@ func gofakeitUint64() function.Function {
 func gofakeitFloat32() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.Number),
+		Type:   function.StaticReturnType(cty.Number),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.NumberFloatVal(float64(gofakeit.Float32())), nil
@@ -1989,7 +1989,7 @@ func gofakeitFloat32() function.Function {
 func gofakeitFloat32Range() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.Number),
+		Type:   function.StaticReturnType(cty.Number),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			var min, max float32
 			err := gocty.FromCtyValue(args[0], &min)
@@ -2013,7 +2013,7 @@ func gofakeitFloat32Range() function.Function {
 func gofakeitFloat64() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.Number),
+		Type:   function.StaticReturnType(cty.Number),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.NumberFloatVal(gofakeit.Float64()), nil
@@ -2024,7 +2024,7 @@ func gofakeitFloat64() function.Function {
 func gofakeitFloat64Range() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.Number),
+		Type:   function.StaticReturnType(cty.Number),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			var min, max float64
 			err := gocty.FromCtyValue(args[0], &min)
@@ -2049,8 +2049,8 @@ func gofakeitShuffleInts() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{
 			{
-				Name: "deck",
-				Type: cty.List(cty.Number),
+				Name:             "deck",
+				Type:             cty.List(cty.Number),
 				AllowDynamicType: false,
 			},
 		},
@@ -2075,8 +2075,8 @@ func gofakeitRandomInt() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{
 			{
-				Name: "deck",
-				Type: cty.List(cty.Number),
+				Name:             "deck",
+				Type:             cty.List(cty.Number),
 				AllowDynamicType: false,
 			},
 		},
@@ -2098,7 +2098,7 @@ func gofakeitRandomInt() function.Function {
 func gofakeitDigit() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.Digit()), nil
@@ -2109,7 +2109,7 @@ func gofakeitDigit() function.Function {
 func gofakeitLetter() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{},
-		Type: function.StaticReturnType(cty.String),
+		Type:   function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			gofakeit.Seed(0)
 			return cty.StringVal(gofakeit.Letter()), nil
@@ -2121,8 +2121,8 @@ func gofakeitLexify() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{
 			{
-				Name: "str",
-				Type: cty.String,
+				Name:             "str",
+				Type:             cty.String,
 				AllowDynamicType: false,
 			},
 		},
@@ -2138,8 +2138,8 @@ func gofakeitNumerify() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{
 			{
-				Name: "str",
-				Type: cty.String,
+				Name:             "str",
+				Type:             cty.String,
 				AllowDynamicType: false,
 			},
 		},
@@ -2155,8 +2155,8 @@ func gofakeitShuffleStrings() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{
 			{
-				Name: "deck",
-				Type: cty.List(cty.String),
+				Name:             "deck",
+				Type:             cty.List(cty.String),
 				AllowDynamicType: false,
 			},
 		},
@@ -2181,8 +2181,8 @@ func gofakeitRandomString() function.Function {
 	return function.New(&function.Spec{
 		Params: []function.Parameter{
 			{
-				Name: "list",
-				Type: cty.List(cty.String),
+				Name:             "list",
+				Type:             cty.List(cty.String),
 				AllowDynamicType: false,
 			},
 		},
