@@ -3,7 +3,7 @@ package lib
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
+	. "fmt"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hcldec"
 	"github.com/zclconf/go-cty/cty"
@@ -65,7 +65,7 @@ func findRequest(name string, rawRequests []*RequestCfg) (err error, request Req
 		}
 	}
 
-	return errors.New("request not found"), RequestCfg{}
+	return errors.New(Sprintf("`%s` not found", name)), RequestCfg{}
 }
 
 func getPossibleDependencies(diags hcl.Diagnostics) (dependencies []string, restDiagMsgs []string) {
@@ -77,7 +77,7 @@ func getPossibleDependencies(diags hcl.Diagnostics) (dependencies []string, rest
 				if len(findString) > 1 {
 					dependencies = append(dependencies, findString[1])
 				} else {
-					restDiagMsgs = append(restDiagMsgs, findString[1])
+					restDiagMsgs = append(restDiagMsgs, Sprint(diag))
 				}
 			}
 		}
@@ -98,19 +98,19 @@ func getUniqueDependencies(intSlice []string) []string {
 	return list
 }
 
-func processDependencies(dependencies []string, variables map[string]cty.Value, envVars cty.Value, version string, functions map[string]function.Function, rawRequests RequestCfgs) (requestAsVars map[string]cty.Value) {
+func processDependencies(dependencies []string, variables map[string]cty.Value, envVars cty.Value, execCtx *ExecutionContext, functions map[string]function.Function, rawRequests RequestCfgs) (requestAsVars map[string]cty.Value) {
 	requestAsVars = make(map[string]cty.Value)
 
 	for _, dep := range getUniqueDependencies(dependencies) {
-		request := parseRequest(dep, variables, envVars, version, functions, rawRequests)
-		response := DoRequest(request, version)
+		request := parseRequest(dep, variables, envVars, execCtx, functions, rawRequests)
+		response := DoRequest(request, execCtx)
 
 		var decoded interface{}
 		err := json.Unmarshal(response.Body, &decoded)
 
 		if err != nil {
-			fmt.Println("Error: error decoding json response body", err)
-			os.Exit(0)
+			Println("Error: error decoding json response body", err)
+			os.Exit(1)
 		}
 
 		requestAsVars[dep] = walkThrough(reflect.ValueOf(decoded))
@@ -120,12 +120,17 @@ func processDependencies(dependencies []string, variables map[string]cty.Value, 
 }
 
 func getRequest(cfg cty.Value) Request {
-	body, _ := json.MarshalIndent(ctyjson.SimpleJSONValue{cfg.GetAttr("body")}, "", "  ")
+	body, jsonErr := json.MarshalIndent(ctyjson.SimpleJSONValue{cfg.GetAttr("body")}, "", "  ")
+	if jsonErr != nil {
+		Printf("Error: failed to parse body, %s\n", jsonErr)
+		os.Exit(1)
+	}
+
 	var headers map[string]string
 	headerErr := gocty.FromCtyValue(cfg.GetAttr("headers"), &headers)
 
 	if headerErr != nil {
-		fmt.Printf("Error: failed to parse headers, %s\n", headerErr)
+		Printf("Error: failed to parse headers, %s\n", headerErr)
 		os.Exit(1)
 	}
 
@@ -137,7 +142,7 @@ func getRequest(cfg cty.Value) Request {
 	}
 
 	if !cfg.GetAttr("url").IsWhollyKnown() {
-		fmt.Printf("Error: failed to parse url, possible unknown variable used.")
+		Printf("Error: failed to parse url, possible unknown variable used.\n")
 		os.Exit(1)
 	}
 
@@ -151,11 +156,11 @@ func getRequest(cfg cty.Value) Request {
 	return request
 }
 
-func parseRequest(name string, variables map[string]cty.Value, envVars cty.Value, version string, functions map[string]function.Function, rawRequests RequestCfgs) Request {
+func parseRequest(name string, variables map[string]cty.Value, envVars cty.Value, execCtx *ExecutionContext, functions map[string]function.Function, rawRequests RequestCfgs) Request {
 	err, request := findRequest(name, rawRequests)
 
 	if err != nil {
-		fmt.Println("Error: Request not found")
+		Printf("Error: %s\n", err)
 		os.Exit(1)
 	}
 
@@ -168,21 +173,21 @@ func parseRequest(name string, variables map[string]cty.Value, envVars cty.Value
 
 	if len(restDiagMsgs) > 0 {
 		for _, diag := range restDiagMsgs {
-			fmt.Printf("- %s\n", diag)
+			Printf("- %s\n", diag)
 		}
 
 		os.Exit(1)
 	}
 
 	if len(dependencies) > 0 {
-		requestAsVars := processDependencies(dependencies, variables, envVars, version, functions, rawRequests)
+		requestAsVars := processDependencies(dependencies, variables, envVars, execCtx, functions, rawRequests)
 		evalContext = getEvalContext(variables, envVars, requestAsVars, functions)
 
 		cfg, diags = hcldec.Decode(request.Body, spec, &evalContext)
 
 		if len(diags) > 0 {
 			for _, diag := range diags {
-				fmt.Printf("- %s\n", diag)
+				Printf("- %s\n", diag)
 			}
 
 			os.Exit(1)

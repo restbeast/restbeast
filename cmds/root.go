@@ -3,6 +3,7 @@ package cmds
 import (
 	"fmt"
 	"github.com/spf13/cobra"
+	"gitlab.com/restbeast/cli/lib"
 	"os"
 )
 
@@ -15,8 +16,11 @@ var rootCmd = &cobra.Command{
 	},
 }
 
-func Execute(appVersion string) {
-	version = appVersion
+var execCtx *lib.ExecutionContext
+
+func Execute(ctx *lib.ExecutionContext) {
+	execCtx = ctx
+
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)

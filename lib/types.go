@@ -6,7 +6,7 @@ import (
 )
 
 type VariableCfg struct {
-	Name  string `hcl:"name,label"`
+	Name  string   `hcl:"name,label"`
 	Value hcl.Body `hcl:"value,remain"`
 }
 
@@ -34,14 +34,14 @@ type ExternalFunctionCfg struct {
 	Name        string   `hcl:"name,label"`
 	Interpreter string   `hcl:"interpreter,attr"`
 	Script      string   `hcl:"script,attr"`
-	Args        []string `hcl:"args,attr"`
+	Args        []string `hcl:"args,optional"`
 }
 
 type RootCfg struct {
-	Requests     []*RequestCfg     `hcl:"request,block"`
-	Variables    []*VariableCfg    `hcl:"variable,block"`
-	Environments []*EnvironmentCfg `hcl:"env,block"`
-	ExternalFunctions    []*ExternalFunctionCfg      `hcl:"external-function,block"`
+	Requests          []*RequestCfg          `hcl:"request,block"`
+	Variables         []*VariableCfg         `hcl:"variable,block"`
+	Environments      []*EnvironmentCfg      `hcl:"env,block"`
+	ExternalFunctions []*ExternalFunctionCfg `hcl:"external-function,block"`
 }
 
 type Request struct {
@@ -52,3 +52,8 @@ type Request struct {
 }
 
 type Requests map[string]map[string]cty.Value
+
+type ExecutionContext struct {
+	Version string
+	Debug   bool
+}

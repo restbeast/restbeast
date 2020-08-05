@@ -5,7 +5,9 @@ import (
 	"github.com/getsentry/sentry-go"
 	"github.com/go-errors/errors"
 	"gitlab.com/restbeast/cli/cmds"
+	"gitlab.com/restbeast/cli/lib"
 	"log"
+	"os"
 	"time"
 )
 
@@ -34,5 +36,10 @@ func main() {
 		}
 	}()
 
-	cmds.Execute(version)
+	execCtx := lib.ExecutionContext{
+		Version: version,
+		Debug:   os.Getenv("DEBUG") != "",
+	}
+
+	cmds.Execute(&execCtx)
 }

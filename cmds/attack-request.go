@@ -49,7 +49,7 @@ func doAttackRequest(cmd *cobra.Command, args []string) {
 	var wg sync.WaitGroup
 
 	var request lib.Request
-	request, err = lib.LoadOne(args[0], env, version)
+	request, err = lib.LoadOne(args[0], env, execCtx)
 	if err != nil {
 		fmt.Println("Error: Failed to load request")
 		os.Exit(1)
@@ -66,7 +66,7 @@ func doAttackRequest(cmd *cobra.Command, args []string) {
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
-				response := lib.DoRequest(request, version)
+				response := lib.DoRequest(request, execCtx)
 				responses = append(responses, response)
 			}()
 		}

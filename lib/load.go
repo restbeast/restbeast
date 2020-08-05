@@ -5,7 +5,7 @@ import (
 	"github.com/hashicorp/hcl/v2/gohcl"
 )
 
-func LoadOne(name, env, version string) (request Request, err error) {
+func LoadOne(name, env string, execCtx *ExecutionContext) (request Request, err error) {
 	mergedBody, err := readFiles()
 	if err != nil {
 		return Request{}, err
@@ -23,7 +23,7 @@ func LoadOne(name, env, version string) (request Request, err error) {
 		return
 	}
 
-	functions := parseExternalFunctions(internalFunctions, root.ExternalFunctions)
+	functions := parseExternalFunctions(internalFunctions, root.ExternalFunctions, execCtx)
 
 	envVars, envErr := parseEnv(env, root.Environments)
 	if envErr != nil {
@@ -31,7 +31,7 @@ func LoadOne(name, env, version string) (request Request, err error) {
 	}
 
 	variables := parseVariables(root.Variables, functions)
-	request = parseRequest(name, variables, envVars, version, functions, root.Requests)
+	request = parseRequest(name, variables, envVars, execCtx, functions, root.Requests)
 
 	return request, nil
 }

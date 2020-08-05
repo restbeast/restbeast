@@ -2,7 +2,7 @@ package lib
 
 import (
 	"errors"
-	"fmt"
+	. "fmt"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hcldec"
 	"github.com/zclconf/go-cty/cty"
@@ -42,7 +42,7 @@ func parseEnv(env string, rawEnvironments []*EnvironmentCfg) (cty.Value, error) 
 			value, err := gocty.ToCtyValue(secrets, cty.Map(cty.Map(cty.String)))
 
 			if err != nil {
-				fmt.Printf("Error: failed to load secrets, %s\n", err)
+				Printf("Error: failed to load secrets, %s\n", err)
 				os.Exit(1)
 			}
 
@@ -55,7 +55,7 @@ func parseEnv(env string, rawEnvironments []*EnvironmentCfg) (cty.Value, error) 
 			cfg, diags := hcldec.Decode(rawEnvironments[i].Variables, spec, evalContext)
 			if len(diags) != 0 {
 				for _, diag := range diags {
-					fmt.Printf("- %s\n", diag)
+					Printf("- %s\n", diag)
 				}
 				return cty.Value{}, errors.New("environment definition contains errors")
 			}

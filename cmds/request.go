@@ -28,13 +28,13 @@ func doRequest(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
-	request, err := lib.LoadOne(args[0], env, version)
+	request, err := lib.LoadOne(args[0], env, execCtx)
 	if err != nil {
 		fmt.Printf("Error: Failed to load given request, %s\n", err)
 		os.Exit(1)
 	}
 
-	response := lib.DoRequest(request, version)
+	response := lib.DoRequest(request, execCtx)
 
 	// Check if output is terminal or pipe
 	if isTerminal {

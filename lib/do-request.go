@@ -3,6 +3,7 @@ package lib
 import (
 	"bytes"
 	"crypto/tls"
+	. "fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -27,15 +28,27 @@ type Response struct {
 	Timing     RequestTiming
 }
 
-func DoRequest(request Request, version string) (response Response) {
+func DoRequest(request Request, execCtx *ExecutionContext) (response Response) {
 	start := time.Now()
 	var dnsTime, connectionTime, tlsHandshakeTime, firstByteTime, totalTime time.Duration
 
 	req, _ := http.NewRequest(strings.ToUpper(request.Method), request.Url, bytes.NewReader([]byte(request.Body)))
 
-	req.Header.Set("user-agent", "RestBeast-"+version)
+	ctx := *execCtx
+	req.Header.Set("user-agent", Sprintf("RestBeast-%s", ctx.Version))
 	for key, value := range request.Headers {
 		req.Header.Set(key, value)
+	}
+
+	if ctx.Debug {
+		log.Printf("method: %s", request.Method)
+		log.Printf("url: %s", request.Url)
+
+		for k, v := range req.Header {
+			log.Printf("header: %s=%s", k, v)
+		}
+
+		log.Printf("body: %s", request.Body)
 	}
 
 	trace := &httptrace.ClientTrace{
