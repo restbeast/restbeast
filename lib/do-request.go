@@ -41,14 +41,14 @@ func DoRequest(request Request, execCtx *ExecutionContext) (response Response) {
 	}
 
 	if ctx.Debug {
-		log.Printf("method: %s", request.Method)
-		log.Printf("url: %s", request.Url)
+		log.Printf("request method: %s", request.Method)
+		log.Printf("request url: %s", request.Url)
 
 		for k, v := range req.Header {
-			log.Printf("header: %s=%s", k, v)
+			log.Printf("request header: %s=%s", k, v)
 		}
 
-		log.Printf("body: %s", request.Body)
+		log.Printf("request body: %s", request.Body)
 	}
 
 	trace := &httptrace.ClientTrace{
@@ -78,6 +78,15 @@ func DoRequest(request Request, execCtx *ExecutionContext) (response Response) {
 
 	defer res.Body.Close()
 	data, _ := ioutil.ReadAll(res.Body)
+
+	if ctx.Debug {
+		log.Printf("request status: %d %s", res.StatusCode, res.Status)
+		for k, v := range res.Header {
+			log.Printf("response header: %s=%s", k, v)
+		}
+
+		log.Printf("response body: %s", data)
+	}
 
 	totalTime = time.Since(start)
 	timing := RequestTiming{
