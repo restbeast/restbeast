@@ -30,39 +30,51 @@ dep: ## Get the dependencies
 
 linux-386: clean dep ## Build linux/386
 	@GOOS=linux GOARCH=386 $(BUILD_CMD)
+
+pack-linux-386: linux-386
 	@tar zcf restbeast_$(VERSION)_linux_386.tar.gz restbeast
 	@rm -rf restbeast
 
 linux-amd64: clean dep ## Build linux/amd64
 	@GOOS=linux GOARCH=amd64 $(BUILD_CMD)
+
+pack-linux-amd64: linux-amd64
 	@tar zcf restbeast_$(VERSION)_linux_amd64.tar.gz restbeast
 	@rm -rf restbeast
 
 linux-arm64: clean dep ## Build linux/arm64
 	@GOOS=linux GOARCH=arm64 $(BUILD_CMD)
+
+pack-linux-arm64: linux-arm64
 	@tar zcf restbeast_$(VERSION)_linux_arm64.tar.gz restbeast
 	@rm -rf restbeast
 
-linux: linux-386 linux-amd64 linux-arm64 ## Build all linux
+linux: pack-linux-386 pack-linux-amd64 pack-linux-arm64 ## Build all linux
 
 darwin-amd64: clean dep ## Build darwin amd64
 	@GOOS=darwin GOARCH=amd64 $(BUILD_CMD)
+
+pack-darwin-amd64: darwin-amd64
 	@tar zcf restbeast_$(VERSION)_darwin_amd64.tar.gz restbeast
 	@rm -rf restbeast
 
-darwin: darwin-amd64 ## Build all darwin
+darwin: pack-darwin-amd64 ## Build all darwin
 
 freebsd-amd64: clean dep ## Build freebsd/amd64
 	@GOOS=freebsd GOARCH=amd64 $(BUILD_CMD)
+
+pack-freebsd-amd64: freebsd-amd64
 	@tar zcf restbeast_$(VERSION)_freebsd_amd64.tar.gz restbeast
 	@rm -rf restbeast
 
 freebsd-arm: clean dep ## Build freebsd/arm
 	@GOOS=freebsd GOARCH=arm $(BUILD_CMD)
+
+pack-freebsd-arm: freebsd-arm
 	@tar zcf restbeast_$(VERSION)_freebsd_arm.tar.gz restbeast
 	@rm -rf restbeast
 
-freebsd: freebsd-amd64 freebsd-arm ## Build all freebsd
+freebsd: pack-freebsd-amd64 pack-freebsd-arm ## Build all freebsd
 
 all: linux darwin freebsd ## Build all
 
