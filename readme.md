@@ -1,5 +1,8 @@
 # RestBeast Terminal Client
-In a nut shell; A terminal API client, testing tool in terminal and in CI, easy load testing tool.
+In a nut shell;
+- A terminal API client
+- Testing tool either in terminal or in CI
+- Easy load testing tool.
 
 This open source terminal client is part of restbeast project which aims to simplify api development, api testing, service health checks and load testing by putting them together under one roof.
 
@@ -305,21 +308,23 @@ AverageTime: 585.411933ms
 
 ## Install
 
-Get the latest build from [gitlab release page](https://gitlab.com/restbeast/cli/-/releases)
-
-Decompress file
+### Install From Binary
+Get the latest build from [gitlab release page](https://gitlab.com/restbeast/cli/-/releases).   
+Decompress file and Move the executable file to a location in $PATH
 ```shell script
-tar zxvf restbeast.tar.gz
-```
-
-Set permissions
-```shell script
-chmod +x restbeast
-```
-
-Move the executable file to a location in $PATH 
-```shell script
+tar zxvf restbeast_v0.5.2_linux_amd64.tar.gz
 sudo mv restbeast /usr/local/bin/
+```
+
+### Compile From Source
+Install `go` [](https://golang.org/doc/install)
+
+Get the latest source from [gitlab release page](https://gitlab.com/restbeast/cli/-/releases).  
+Or clone from gitlab
+```shell script
+git clone https://gitlab.com/restbeast/cli.git restbeast-cli
+make build
+sudo make install
 ```
 
 ### Help
