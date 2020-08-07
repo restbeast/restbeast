@@ -3,6 +3,7 @@ PKG = "gitlab.com/restbeast/cli"
 VERSION := $(CI_COMMIT_TAG)
 CGO_ENABLED = 0
 BUILD_CMD := CGO_ENABLED=0 go build -i -o $(PROJECT_NAME) -ldflags "-X 'main.version=$(VERSION)' -X 'main.sentryDsn=$(SENTRY_DSN)'" -v -buildmode=exe $(PKG)
+PREFIX = /usr/local
 
 define GITLAB_REQUEST_BODY
 {
@@ -24,6 +25,9 @@ define GITLAB_REQUEST_BODY
 endef
 
 .PHONY: all dep build upload release clean linux linux-386 linux-amd64 linux-arm64 darwin darwin-amd64 freebsd freebsd-amd64 freebsd-arm
+
+build: clean dep
+	@$(BUILD_CMD)
 
 dep: ## Get the dependencies
 	@go get -d ./...
@@ -88,6 +92,9 @@ gitlab-release: ## Release given tag in gitlab
 		 --request POST $(CI_SERVER_URL)/api/v4/projects/$(CI_PROJECT_ID)/releases
 
 release: all upload gitlab-release
+
+install:
+	@cp restbeast $(PREFIX)/bin/
 
 clean: ## Remove previous build
 	@rm -f $(PROJECT_NAME)
