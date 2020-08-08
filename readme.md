@@ -317,13 +317,21 @@ sudo mv restbeast /usr/local/bin/
 ```
 
 ### Compile From Source
-Install `go` [](https://golang.org/doc/install)
+Install `go >= 1.13` [](https://golang.org/doc/install)
 
-Get the latest source from [gitlab release page](https://gitlab.com/restbeast/cli/-/releases).  
+Get the latest source from [gitlab release page](https://gitlab.com/restbeast/cli/-/releases) and unzip
+```shell script
+unzip cli-v0.5.3.zip
+cd cli-v0.5.3
+```
 Or clone from gitlab
 ```shell script
 git clone https://gitlab.com/restbeast/cli.git restbeast-cli
-make build
+cd restbeast-cli
+```
+
+```shell script
+make
 sudo make install
 ```
 
