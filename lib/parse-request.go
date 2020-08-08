@@ -7,7 +7,6 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hcldec"
 	"github.com/zclconf/go-cty/cty"
-	"github.com/zclconf/go-cty/cty/function"
 	"github.com/zclconf/go-cty/cty/gocty"
 	ctyjson "github.com/zclconf/go-cty/cty/json"
 	"os"
@@ -47,14 +46,14 @@ func getObjSpec() hcldec.ObjectSpec {
 	}
 }
 
-func getEvalContext(variables map[string]cty.Value, envVars cty.Value, requestAsVars map[string]cty.Value, functions map[string]function.Function) hcl.EvalContext {
+func getCtxEvalContext(requestAsVars map[string]cty.Value, evCtx EvalContext) hcl.EvalContext {
 	return hcl.EvalContext{
 		Variables: map[string]cty.Value{
-			"var":     cty.ObjectVal(variables),
-			"env":     envVars,
+			"var":     cty.ObjectVal(evCtx.Variables),
+			"env":     evCtx.Environment,
 			"request": cty.ObjectVal(requestAsVars),
 		},
-		Functions: functions,
+		Functions: evCtx.Functions,
 	}
 }
 
@@ -98,25 +97,28 @@ func getUniqueDependencies(intSlice []string) []string {
 	return list
 }
 
-func processDependencies(dependencies []string, variables map[string]cty.Value, envVars cty.Value, execCtx *ExecutionContext, functions map[string]function.Function, rawRequests RequestCfgs) (requestAsVars map[string]cty.Value) {
+func processDependencies(dependencies []string, evCtx EvalContext, execCtx ExecutionContext) (requestAsVars map[string]cty.Value, err error) {
 	requestAsVars = make(map[string]cty.Value)
 
 	for _, dep := range getUniqueDependencies(dependencies) {
-		request := parseRequest(dep, variables, envVars, execCtx, functions, rawRequests)
-		response := DoRequest(request, execCtx)
+		request, parseErr := parseRequest(dep, evCtx, execCtx)
+		if parseErr != nil {
+			return nil, parseErr
+		}
+
+		response := DoRequest(*request, &execCtx)
 
 		var decoded interface{}
 		err := json.Unmarshal(response.Body, &decoded)
 
 		if err != nil {
-			Println("Error: error decoding json response body", err)
-			os.Exit(1)
+			return nil, errors.New(Sprintf("error decoding json response body, %s\n", err))
 		}
 
 		requestAsVars[dep] = walkThrough(reflect.ValueOf(decoded))
 	}
 
-	return requestAsVars
+	return requestAsVars, nil
 }
 
 func getRequest(cfg cty.Value) Request {
@@ -156,43 +158,50 @@ func getRequest(cfg cty.Value) Request {
 	return request
 }
 
-func parseRequest(name string, variables map[string]cty.Value, envVars cty.Value, execCtx *ExecutionContext, functions map[string]function.Function, rawRequests RequestCfgs) Request {
-	err, request := findRequest(name, rawRequests)
+func parseRequest(name string, evCtx EvalContext, execCtx ExecutionContext) (*Request, error) {
+	err, request := findRequest(name, evCtx.RawRequests)
 
 	if err != nil {
-		Printf("Error: %s\n", err)
-		os.Exit(1)
+		return nil, err
 	}
 
 	requestAsVars := map[string]cty.Value{}
-	evalContext := getEvalContext(variables, envVars, requestAsVars, functions)
+	evalContext := getCtxEvalContext(requestAsVars, evCtx)
 	spec := getObjSpec()
 
 	cfg, diags := hcldec.Decode(request.Body, spec, &evalContext)
 	dependencies, restDiagMsgs := getPossibleDependencies(diags)
 
 	if len(restDiagMsgs) > 0 {
+		errTxt := ""
 		for _, diag := range restDiagMsgs {
-			Printf("- %s\n", diag)
+			errTxt += Sprintf("- %s\n", diag)
 		}
 
-		os.Exit(1)
+		return nil, errors.New(errTxt)
 	}
 
 	if len(dependencies) > 0 {
-		requestAsVars := processDependencies(dependencies, variables, envVars, execCtx, functions, rawRequests)
-		evalContext = getEvalContext(variables, envVars, requestAsVars, functions)
+		requestAsVars, depErr := processDependencies(dependencies, evCtx, execCtx)
+		if depErr != nil {
+			return nil, err
+		}
+
+		evalContext = getCtxEvalContext(requestAsVars, evCtx)
 
 		cfg, diags = hcldec.Decode(request.Body, spec, &evalContext)
 
 		if len(diags) > 0 {
+			errTxt := ""
 			for _, diag := range diags {
-				Printf("- %s\n", diag)
+				errTxt += Sprintf("- %s\n", diag)
 			}
 
-			os.Exit(1)
+			return nil, errors.New(errTxt)
 		}
 	}
 
-	return getRequest(cfg)
+	finalRequest := getRequest(cfg)
+
+	return &finalRequest, nil
 }

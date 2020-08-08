@@ -3,6 +3,7 @@ package lib
 import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/zclconf/go-cty/cty"
+	"github.com/zclconf/go-cty/cty/function"
 )
 
 type VariableCfg struct {
@@ -49,6 +50,14 @@ type Request struct {
 	Url     string
 	Headers map[string]string
 	Body    string
+	EvalContext
+}
+
+type EvalContext struct {
+	Functions   map[string]function.Function
+	Variables   map[string]cty.Value
+	Environment cty.Value
+	RawRequests RequestCfgs
 }
 
 type Requests map[string]map[string]cty.Value

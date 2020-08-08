@@ -48,17 +48,16 @@ func doAttackRequest(cmd *cobra.Command, args []string) {
 
 	var wg sync.WaitGroup
 
-	var request lib.Request
-	request, err = lib.LoadOne(args[0], env, execCtx)
-	if err != nil {
-		fmt.Println("Error: Failed to load request")
-		os.Exit(1)
-	}
-
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
 
 	var responses []lib.Response
+	evCtx, err := lib.LoadEvalCtx(env, execCtx)
+
+	if err != nil {
+		fmt.Printf("Error: Failed to load, %s", err)
+		os.Exit(1)
+	}
 
 	for {
 		<-ticker.C
@@ -66,7 +65,14 @@ func doAttackRequest(cmd *cobra.Command, args []string) {
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
-				response := lib.DoRequest(request, execCtx)
+
+				request, err := lib.LoadOnlyRequest(args[0], evCtx, execCtx)
+				if err != nil {
+					fmt.Printf("Error: Failed to load request, %s\n", err)
+					os.Exit(1)
+				}
+
+				response := lib.DoRequest(*request, execCtx)
 				responses = append(responses, response)
 			}()
 		}
