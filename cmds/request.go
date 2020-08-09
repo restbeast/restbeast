@@ -34,7 +34,11 @@ func doRequest(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
-	response := lib.DoRequest(*request, execCtx)
+	response, requestErr := lib.DoRequest(*request, execCtx)
+	if requestErr != nil {
+		fmt.Printf("Error: Failed to execute request, %s\n", requestErr)
+		os.Exit(1)
+	}
 
 	// Check if output is terminal or pipe
 	if isTerminal {

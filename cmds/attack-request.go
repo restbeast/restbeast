@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"gitlab.com/restbeast/cli/lib"
+	"log"
 	"os"
 	"sort"
 	"sync"
@@ -13,7 +14,7 @@ import (
 var count int
 var period string
 
-type sortByTime []lib.Response
+type sortByTime []*lib.Response
 
 func (a sortByTime) Len() int           { return len(a) }
 func (a sortByTime) Less(i, j int) bool { return a[i].Timing.Total < a[j].Timing.Total }
@@ -43,15 +44,15 @@ func doAttackRequest(cmd *cobra.Command, args []string) {
 
 	perSecond := count / (int(duration) / int(time.Second))
 
-	var requestsMade int
-	requestsMade = 0
+	requestsMade := 0
+	failedRequests := 0
 
 	var wg sync.WaitGroup
 
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
 
-	var responses []lib.Response
+	var responses []*lib.Response
 	evCtx, err := lib.LoadEvalCtx(env, execCtx)
 
 	if err != nil {
@@ -67,12 +68,27 @@ func doAttackRequest(cmd *cobra.Command, args []string) {
 				defer wg.Done()
 
 				request, err := lib.LoadOnlyRequest(args[0], evCtx, execCtx)
+
+				// Skip this execution if there is an error while loading the request
 				if err != nil {
-					fmt.Printf("Error: Failed to load request, %s\n", err)
-					os.Exit(1)
+					if execCtx.Debug {
+						log.Fatalf("Request load error: %s", err)
+					}
+					failedRequests += 1
+					return
 				}
 
-				response := lib.DoRequest(*request, execCtx)
+				response, requestErr := lib.DoRequest(*request, execCtx)
+
+				// Skip this execution if there is an error while doing the request
+				if requestErr != nil {
+					if execCtx.Debug {
+						log.Fatalf("Request error: %s", requestErr)
+					}
+					failedRequests += 1
+					return
+				}
+
 				responses = append(responses, response)
 			}()
 		}
@@ -116,6 +132,7 @@ func doAttackRequest(cmd *cobra.Command, args []string) {
 
 	fmt.Printf("95 Percentile: %s\n", responses[p95].Timing.Total)
 	fmt.Printf("99 Percentile: %s\n", responses[p99].Timing.Total)
+	fmt.Printf("Failed request count: %d\n", failedRequests)
 	fmt.Printf("AverageTime: %s\n", averageTime)
 }
 

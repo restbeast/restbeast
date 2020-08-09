@@ -106,7 +106,10 @@ func processDependencies(dependencies []string, evCtx EvalContext, execCtx Execu
 			return nil, parseErr
 		}
 
-		response := DoRequest(*request, &execCtx)
+		response, requestErr := DoRequest(*request, &execCtx)
+		if requestErr != nil {
+			return nil, requestErr
+		}
 
 		var decoded interface{}
 		err := json.Unmarshal(response.Body, &decoded)

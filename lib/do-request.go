@@ -3,6 +3,7 @@ package lib
 import (
 	"bytes"
 	"crypto/tls"
+	"errors"
 	. "fmt"
 	"io/ioutil"
 	"log"
@@ -28,11 +29,14 @@ type Response struct {
 	Timing     RequestTiming
 }
 
-func DoRequest(request Request, execCtx *ExecutionContext) (response Response) {
+func DoRequest(request Request, execCtx *ExecutionContext) (*Response, error) {
 	start := time.Now()
 	var dnsTime, connectionTime, tlsHandshakeTime, firstByteTime, totalTime time.Duration
 
-	req, _ := http.NewRequest(strings.ToUpper(request.Method), request.Url, bytes.NewReader([]byte(request.Body)))
+	req, err := http.NewRequest(strings.ToUpper(request.Method), request.Url, bytes.NewReader([]byte(request.Body)))
+	if err != nil {
+		return nil, errors.New(Sprintf("unable to construct request, %s\n", err))
+	}
 
 	ctx := *execCtx
 	req.Header.Set("user-agent", Sprintf("RestBeast-%s", ctx.Version))
@@ -71,13 +75,15 @@ func DoRequest(request Request, execCtx *ExecutionContext) (response Response) {
 
 	req = req.WithContext(httptrace.WithClientTrace(req.Context(), trace))
 	res, err := http.DefaultTransport.RoundTrip(req)
-
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	defer res.Body.Close()
-	data, _ := ioutil.ReadAll(res.Body)
+	data, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
 
 	if ctx.Debug {
 		log.Printf("request status: %d %s", res.StatusCode, res.Status)
@@ -97,11 +103,11 @@ func DoRequest(request Request, execCtx *ExecutionContext) (response Response) {
 		Total:     totalTime,
 	}
 
-	return Response{
+	return &Response{
 		StatusCode: res.StatusCode,
 		Proto:      res.Proto,
 		Body:       data,
 		Headers:    res.Header,
 		Timing:     timing,
-	}
+	}, nil
 }
