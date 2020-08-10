@@ -187,7 +187,7 @@ func parseRequest(name string, evCtx EvalContext, execCtx ExecutionContext) (*Re
 	if len(dependencies) > 0 {
 		requestAsVars, depErr := processDependencies(dependencies, evCtx, execCtx)
 		if depErr != nil {
-			return nil, err
+			return nil, depErr
 		}
 
 		evalContext = getCtxEvalContext(requestAsVars, evCtx)

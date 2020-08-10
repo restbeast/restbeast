@@ -8,6 +8,7 @@ import (
 	"gitlab.com/restbeast/cli/lib"
 	"log"
 	"os"
+	"runtime/debug"
 	"time"
 )
 
@@ -24,22 +25,28 @@ func main() {
 		log.Fatalf("sentry.Init: %s", err)
 	}
 
+	execCtx := lib.ExecutionContext{
+		Version: version,
+		Debug:   os.Getenv("DEBUG") != "",
+	}
+
 	defer sentry.Flush(2 * time.Second)
 
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println("restbeast encountered an unknown error")
+
+			if execCtx.Debug {
+				log.Printf("%s", r)
+				log.Printf("%s", debug.Stack())
+			}
+
 			sentry.WithScope(func(scope *sentry.Scope) {
 				scope.SetLevel(sentry.LevelFatal)
 				sentry.CaptureException(errors.Wrap(r, 4))
 			})
 		}
 	}()
-
-	execCtx := lib.ExecutionContext{
-		Version: version,
-		Debug:   os.Getenv("DEBUG") != "",
-	}
 
 	cmds.Execute(&execCtx)
 }

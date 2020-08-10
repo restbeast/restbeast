@@ -2,6 +2,7 @@ PROJECT_NAME= "restbeast"
 PKG = "gitlab.com/restbeast/cli"
 VERSION := $(CI_COMMIT_TAG)
 CGO_ENABLED = 0
+SENTRY_DSN = "https://9c22d42ad3594172b24f9f5fc4db9d73@o421531.ingest.sentry.io/5341476"
 BUILD_CMD := CGO_ENABLED=0 go build -i -o $(PROJECT_NAME) -ldflags "-X 'main.version=$(VERSION)' -X 'main.sentryDsn=$(SENTRY_DSN)'" -v -buildmode=exe $(PKG)
 PREFIX = /usr/local
 

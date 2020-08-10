@@ -86,7 +86,7 @@ func DoRequest(request Request, execCtx *ExecutionContext) (*Response, error) {
 	}
 
 	if ctx.Debug {
-		log.Printf("request status: %d %s", res.StatusCode, res.Status)
+		log.Printf("response status: %d %s", res.StatusCode, res.Status)
 		for k, v := range res.Header {
 			log.Printf("response header: %s=%s", k, v)
 		}
