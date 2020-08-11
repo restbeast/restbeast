@@ -67,6 +67,7 @@ func doAttackRequest(cmd *cobra.Command, args []string) {
 			go func() {
 				defer wg.Done()
 
+				evCtx.RequestAsVars = lib.RequestAsVars{}
 				request, err := lib.LoadOnlyRequest(args[0], evCtx, execCtx)
 
 				// Skip this execution if there is an error while loading the request
@@ -132,7 +133,11 @@ func doAttackRequest(cmd *cobra.Command, args []string) {
 
 	fmt.Printf("95 Percentile: %s\n", responses[p95].Timing.Total)
 	fmt.Printf("99 Percentile: %s\n", responses[p99].Timing.Total)
-	fmt.Printf("Failed request count: %d\n", failedRequests)
+
+	if failedRequests > 0 {
+		fmt.Printf("Failed request count: %d\n", failedRequests)
+	}
+
 	fmt.Printf("AverageTime: %s\n", averageTime)
 }
 
