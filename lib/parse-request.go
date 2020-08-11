@@ -12,9 +12,11 @@ import (
 	"os"
 	"reflect"
 	"regexp"
+	"sort"
 )
 
 var dependencyDiagMessageRegex = regexp.MustCompile(`This object does not have an attribute named "(?P<name>[\w\d-_]+)"`)
+var requestDependencyRegex = regexp.MustCompile(`^request.([\w\d-_]+)`)
 
 func getObjSpec() hcldec.ObjectSpec {
 	return hcldec.ObjectSpec{
@@ -46,18 +48,8 @@ func getObjSpec() hcldec.ObjectSpec {
 	}
 }
 
-func getCtxEvalContext(requestAsVars map[string]cty.Value, evCtx EvalContext) hcl.EvalContext {
-	return hcl.EvalContext{
-		Variables: map[string]cty.Value{
-			"var":     cty.ObjectVal(evCtx.Variables),
-			"env":     evCtx.Environment,
-			"request": cty.ObjectVal(requestAsVars),
-		},
-		Functions: evCtx.Functions,
-	}
-}
-
-func findRequest(name string, rawRequests []*RequestCfg) (err error, request RequestCfg) {
+// Find a request by .Name property
+func findRequest(name string, rawRequests RequestCfgs) (err error, request RequestCfg) {
 	for _, r := range rawRequests {
 		if name == r.Name {
 			return nil, *r
@@ -65,6 +57,17 @@ func findRequest(name string, rawRequests []*RequestCfg) (err error, request Req
 	}
 
 	return errors.New(Sprintf("`%s` not found", name)), RequestCfg{}
+}
+
+func getCtxEvalContext(evCtx EvalContext) hcl.EvalContext {
+	return hcl.EvalContext{
+		Variables: map[string]cty.Value{
+			"var":     cty.ObjectVal(evCtx.Variables),
+			"env":     evCtx.Environment,
+			"request": cty.ObjectVal(evCtx.RequestAsVars),
+		},
+		Functions: evCtx.Functions,
+	}
 }
 
 func getPossibleDependencies(diags hcl.Diagnostics) (dependencies []string, restDiagMsgs []string) {
@@ -97,31 +100,67 @@ func getUniqueDependencies(intSlice []string) []string {
 	return list
 }
 
-func processDependencies(dependencies []string, evCtx EvalContext, execCtx ExecutionContext) (requestAsVars map[string]cty.Value, err error) {
-	requestAsVars = make(map[string]cty.Value)
-
-	for _, dep := range getUniqueDependencies(dependencies) {
-		request, parseErr := parseRequest(dep, evCtx, execCtx)
-		if parseErr != nil {
-			return nil, parseErr
-		}
-
-		response, requestErr := DoRequest(*request, &execCtx)
-		if requestErr != nil {
-			return nil, requestErr
-		}
-
-		var decoded interface{}
-		err := json.Unmarshal(response.Body, &decoded)
-
-		if err != nil {
-			return nil, errors.New(Sprintf("error decoding json response body, %s\n", err))
-		}
-
-		requestAsVars[dep] = walkThrough(reflect.ValueOf(decoded))
+// TODO: This needs a lot more thinking
+// Right now it can handle chained dependencies based on dependency count
+// This obviously might cause unexpected dependency problems
+func sortCrossDependency(deps []string, evCtx EvalContext) ([]string, error) {
+	if len(deps) < 2 {
+		return deps, nil
 	}
 
-	return requestAsVars, nil
+	depsWithDeps := make(map[string]int)
+
+	for _, dep := range deps {
+		ctxEvalContext := getCtxEvalContext(evCtx)
+		spec := getObjSpec()
+
+		err, request := findRequest(dep, evCtx.RawRequests)
+
+		if err != nil {
+			return nil, err
+		}
+
+		_, diags := hcldec.Decode(request.Body, spec, &ctxEvalContext)
+		dependencies, _ := getPossibleDependencies(diags)
+
+		var relevantDeps []string
+		for _, innerDep := range dependencies {
+			if sliceContains(deps, innerDep) {
+				relevantDeps = append(relevantDeps, innerDep)
+			}
+		}
+
+		depsWithDeps[dep] = len(relevantDeps)
+	}
+
+	sort.Slice(deps, func(i, j int) bool {
+		return depsWithDeps[deps[i]] > depsWithDeps[deps[j]]
+	})
+
+	return deps, nil
+}
+
+func processDependency(dependency string, evCtx *EvalContext, execCtx ExecutionContext) (*EvalContext, error) {
+	request, parseErr := parseRequest(dependency, *evCtx, execCtx)
+	if parseErr != nil {
+		return nil, parseErr
+	}
+
+	response, requestErr := DoRequest(*request, &execCtx)
+	if requestErr != nil {
+		return nil, requestErr
+	}
+
+	var decoded interface{}
+	err := json.Unmarshal(response.Body, &decoded)
+
+	if err != nil {
+		return nil, errors.New(Sprintf("error decoding json response body\n%s\n", err))
+	}
+
+	evCtx.RequestAsVars[dependency] = walkThrough(reflect.ValueOf(decoded))
+
+	return evCtx, nil
 }
 
 func getRequest(cfg cty.Value) Request {
@@ -168,11 +207,27 @@ func parseRequest(name string, evCtx EvalContext, execCtx ExecutionContext) (*Re
 		return nil, err
 	}
 
-	requestAsVars := map[string]cty.Value{}
-	evalContext := getCtxEvalContext(requestAsVars, evCtx)
-	spec := getObjSpec()
+	if request.DependsOn != nil {
+		for _, v := range request.DependsOn {
+			findString := requestDependencyRegex.FindStringSubmatch(v)
 
-	cfg, diags := hcldec.Decode(request.Body, spec, &evalContext)
+			if len(findString) > 1 {
+				if _, ok := evCtx.RequestAsVars[findString[1]]; !ok {
+					evCtxP, err := processDependency(findString[1], &evCtx, execCtx)
+
+					if err != nil {
+						return nil, err
+					}
+
+					evCtx = *evCtxP
+				}
+			}
+		}
+	}
+
+	ctxEvalContext := getCtxEvalContext(evCtx)
+	spec := getObjSpec()
+	cfg, diags := hcldec.Decode(request.Body, spec, &ctxEvalContext)
 	dependencies, restDiagMsgs := getPossibleDependencies(diags)
 
 	if len(restDiagMsgs) > 0 {
@@ -185,14 +240,27 @@ func parseRequest(name string, evCtx EvalContext, execCtx ExecutionContext) (*Re
 	}
 
 	if len(dependencies) > 0 {
-		requestAsVars, depErr := processDependencies(dependencies, evCtx, execCtx)
-		if depErr != nil {
-			return nil, depErr
+		uniqueDeps := getUniqueDependencies(dependencies)
+		sortedDeps, err := sortCrossDependency(uniqueDeps, evCtx)
+
+		if err != nil {
+			return nil, err
 		}
 
-		evalContext = getCtxEvalContext(requestAsVars, evCtx)
+		for _, dependency := range sortedDeps {
+			if _, ok := evCtx.RequestAsVars[dependency]; !ok {
+				evCtxP, err := processDependency(dependency, &evCtx, execCtx)
 
-		cfg, diags = hcldec.Decode(request.Body, spec, &evalContext)
+				if err != nil {
+					return nil, err
+				}
+
+				evCtx = *evCtxP
+			}
+		}
+
+		ctxEvalContext = getCtxEvalContext(evCtx)
+		cfg, diags = hcldec.Decode(request.Body, spec, &ctxEvalContext)
 
 		if len(diags) > 0 {
 			errTxt := ""

@@ -30,13 +30,13 @@ func doRequest(cmd *cobra.Command, args []string) {
 
 	request, err := lib.LoadWhole(args[0], env, execCtx)
 	if err != nil {
-		fmt.Printf("Error: Failed to load given request, %s\n", err)
+		fmt.Printf("Error: Failed to load given request\n%s\n", err)
 		os.Exit(1)
 	}
 
 	response, requestErr := lib.DoRequest(*request, execCtx)
 	if requestErr != nil {
-		fmt.Printf("Error: Failed to execute request, %s\n", requestErr)
+		fmt.Printf("Error: Failed to execute request\n%s\n", requestErr)
 		os.Exit(1)
 	}
 

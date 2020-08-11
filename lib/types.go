@@ -13,6 +13,7 @@ type VariableCfg struct {
 
 type RequestCfg struct {
 	Name string   `hcl:"name,label"`
+	DependsOn []string `hcl:"depends_on,optional"`
 	Body hcl.Body `hcl:",remain"`
 }
 
@@ -57,9 +58,11 @@ type EvalContext struct {
 	Functions   map[string]function.Function
 	Variables   map[string]cty.Value
 	Environment cty.Value
+	RequestAsVars RequestAsVars
 	RawRequests RequestCfgs
 }
 
+type RequestAsVars map[string]cty.Value
 type Requests map[string]map[string]cty.Value
 
 type ExecutionContext struct {
