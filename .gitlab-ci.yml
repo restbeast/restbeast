@@ -1,3 +1,10 @@
+test:
+  image: registry.gitlab.com/restbeast/cli-build-image-ci:latest
+  only:
+    - branches
+  script:
+    - make test
+
 release:
   image: registry.gitlab.com/restbeast/cli-build-image-ci:latest
   script:

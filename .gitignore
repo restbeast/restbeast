@@ -2,3 +2,4 @@
 *.iml
 /restbeast
 .env
+profile.cov

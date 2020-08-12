@@ -25,7 +25,7 @@ define GITLAB_REQUEST_BODY
 }
 endef
 
-.PHONY: all dep build upload release clean linux linux-386 linux-amd64 linux-arm64 darwin darwin-amd64 freebsd freebsd-amd64 freebsd-arm
+.PHONY: all dep build upload release clean linux linux-386 linux-amd64 linux-arm64 darwin darwin-amd64 freebsd freebsd-amd64 freebsd-arm clean test help
 
 build: clean dep
 	@$(BUILD_CMD)
@@ -99,6 +99,10 @@ install:
 
 clean: ## Remove previous build
 	@rm -f $(PROJECT_NAME)
+
+test:
+	@go test -coverpkg=./... -coverprofile=profile.cov ./...
+	@go tool cover -func profile.cov
 
 help: ## Display this help screen
 	@grep -h -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
