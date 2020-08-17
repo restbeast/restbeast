@@ -7,12 +7,35 @@ import (
 	"github.com/hashicorp/hcl/v2/hcldec"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/gocty"
-	"os"
 )
 
-type Environments map[string]cty.Value
+type ParsedSecret map[string]string
+type ParsedSecretGroup map[string]ParsedSecret
+type AllParsedSecrets map[string]ParsedSecretGroup
 
-func parseEnv(env string, rawEnvironments []*EnvironmentCfg) (cty.Value, error) {
+func parseSecret(secretCfg *SecretCfg) ParsedSecretGroup {
+	cfg := *secretCfg
+	parsedSecret := make(ParsedSecretGroup)
+
+	switch cfg.Type {
+	case "env-var":
+		parsedSecret[cfg.Name] = secretEngineEnvVar(cfg.Paths)
+	}
+
+	return parsedSecret
+}
+
+func parseSecrets(secretCfgs SecretCfgs) AllParsedSecrets {
+	parsedSecrets := make(AllParsedSecrets)
+
+	for _, secret := range secretCfgs {
+		parseSecret(secret)
+	}
+
+	return parsedSecrets
+}
+
+func parseEnv(env string, rawEnvironments EnvironmentCfgs) (*cty.Value, error) {
 	spec := &hcldec.ObjectSpec{
 		"default": &hcldec.AttrSpec{
 			Name:     "default",
@@ -29,21 +52,11 @@ func parseEnv(env string, rawEnvironments []*EnvironmentCfg) (cty.Value, error) 
 	for i := range rawEnvironments {
 		if (env != "" && rawEnvironments[i].Name == env) || (env == "" && rawEnvironments[i].Default) {
 
-			secrets := map[string]map[string]string{}
-			for _, secret := range rawEnvironments[i].Secrets {
-				secrets[secret.Name] = map[string]string{}
-
-				switch secret.Type {
-				case "env-var":
-					secrets[secret.Name] = secretEngineEnvVar(secret.Paths)
-				}
-			}
-
+			secrets := parseSecrets(rawEnvironments[i].Secrets)
 			value, err := gocty.ToCtyValue(secrets, cty.Map(cty.Map(cty.String)))
 
 			if err != nil {
-				Printf("Error: failed to load secrets, %s\n", err)
-				os.Exit(1)
+				return nil, Errorf("failed to load secrets, %s\n", err)
 			}
 
 			evalContext := &hcl.EvalContext{
@@ -57,12 +70,13 @@ func parseEnv(env string, rawEnvironments []*EnvironmentCfg) (cty.Value, error) 
 				for _, diag := range diags {
 					Printf("- %s\n", diag)
 				}
-				return cty.Value{}, errors.New("environment definition contains errors")
+				return nil, errors.New("environment definition contains errors")
 			}
 
-			return cfg.GetAttr("variables"), nil
+			vars := cfg.GetAttr("variables")
+			return &vars, nil
 		}
 	}
 
-	return cty.Value{}, nil
+	return nil, nil
 }

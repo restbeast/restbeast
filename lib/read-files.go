@@ -20,7 +20,7 @@ func readFiles() (body hcl.Body, err error) {
 	for _, fileName := range files {
 		f, diags := parser.ParseHCLFile(fileName)
 		if diags != nil {
-			fmt.Println(diags)
+			return nil, fmt.Errorf("can not parse parsing hcl file %s\n%s", fileName, diags)
 		}
 
 		parsedFiles = append(parsedFiles, f)

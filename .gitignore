@@ -3,3 +3,4 @@
 /restbeast
 .env
 profile.cov
+coverage.html

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"github.com/getsentry/sentry-go"
 	"github.com/go-errors/errors"
@@ -9,6 +10,7 @@ import (
 	"log"
 	"os"
 	"runtime/debug"
+	"strings"
 	"time"
 )
 
@@ -34,17 +36,24 @@ func main() {
 
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Println("restbeast encountered an unknown error")
+			fmt.Println("RestBeast encountered an unknown error")
 
 			if execCtx.Debug {
 				log.Printf("%s", r)
 				log.Printf("%s", debug.Stack())
 			}
 
-			sentry.WithScope(func(scope *sentry.Scope) {
-				scope.SetLevel(sentry.LevelFatal)
-				sentry.CaptureException(errors.Wrap(r, 4))
-			})
+			stdinReader := bufio.NewReader(os.Stdin)
+			fmt.Print("Do you want to send crash report [y/N]: ")
+			choice, _ := stdinReader.ReadString('\n')
+
+			if strings.Trim(strings.ToLower(choice), "\t \n") == "y" {
+				sentry.WithScope(func(scope *sentry.Scope) {
+					scope.SetLevel(sentry.LevelFatal)
+					sentry.CaptureException(errors.Wrap(r, 4))
+				})
+				fmt.Println("Crash report sent.")
+			}
 		}
 	}()
 

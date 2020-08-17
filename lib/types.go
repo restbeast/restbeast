@@ -11,6 +11,8 @@ type VariableCfg struct {
 	Value hcl.Body `hcl:"value,remain"`
 }
 
+type VariableCfgs []*VariableCfg
+
 type RequestCfg struct {
 	Name      string   `hcl:"name,label"`
 	DependsOn []string `hcl:"depends_on,optional"`
@@ -25,12 +27,16 @@ type SecretCfg struct {
 	Paths map[string]string `hcl:"paths,attr"`
 }
 
+type SecretCfgs []*SecretCfg
+
 type EnvironmentCfg struct {
-	Name      string       `hcl:"name,label"`
-	Default   bool         `hcl:"default,optional"`
-	Secrets   []*SecretCfg `hcl:"secrets,block"`
-	Variables hcl.Body     `hcl:",remain"`
+	Name      string     `hcl:"name,label"`
+	Default   bool       `hcl:"default,optional"`
+	Secrets   SecretCfgs `hcl:"secrets,block"`
+	Variables hcl.Body   `hcl:",remain"`
 }
+
+type EnvironmentCfgs []*EnvironmentCfg
 
 type ExternalFunctionCfg struct {
 	Name        string   `hcl:"name,label"`
@@ -39,11 +45,13 @@ type ExternalFunctionCfg struct {
 	Args        []string `hcl:"args,optional"`
 }
 
+type ExternalFunctionCfgs []*ExternalFunctionCfg
+
 type RootCfg struct {
-	Requests          []*RequestCfg          `hcl:"request,block"`
-	Variables         []*VariableCfg         `hcl:"variable,block"`
-	Environments      []*EnvironmentCfg      `hcl:"env,block"`
-	ExternalFunctions []*ExternalFunctionCfg `hcl:"external-function,block"`
+	Requests          RequestCfgs          `hcl:"request,block"`
+	Variables         VariableCfgs         `hcl:"variable,block"`
+	Environments      EnvironmentCfgs      `hcl:"env,block"`
+	ExternalFunctions ExternalFunctionCfgs `hcl:"external-function,block"`
 }
 
 type Request struct {
