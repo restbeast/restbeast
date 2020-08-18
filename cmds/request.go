@@ -7,12 +7,14 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 	"net/http"
 	"os"
+	"strings"
 )
 
-var outputTiming, outputDetailedTiming bool
+var outputTiming, outputDetailedTiming, showHeaders bool
 var env string
 
 func init() {
+	requestCmd.Flags().BoolVarP(&showHeaders, "headers", "H", false, "Show response headers")
 	requestCmd.Flags().BoolVar(&outputTiming, "timing", false, "Displays timings")
 	requestCmd.Flags().BoolVar(&outputDetailedTiming, "detailed-timing", false, "Displays detailed timings")
 	requestCmd.Flags().StringVar(&env, "env", "", "Selected environment")
@@ -69,6 +71,15 @@ func printTiming(outputTiming bool, outputDetailedTiming bool, request lib.Reque
 	}
 }
 
+func printHeaders(response lib.Response) {
+	if showHeaders {
+		Printf("\n")
+		for k, v := range response.Headers {
+			Printf("\033[1m%s\033[0m: %s\n", k, strings.Join(v, ","))
+		}
+	}
+}
+
 func doRequest(cmd *cobra.Command, args []string) {
 	isTerminal := terminal.IsTerminal(int(os.Stdout.Fd()))
 
@@ -94,7 +105,7 @@ func doRequest(cmd *cobra.Command, args []string) {
 		// Print out response information
 		Printf("%s %d %s\n", response.Proto, response.StatusCode, http.StatusText(response.StatusCode))
 		printTiming(outputTiming, outputDetailedTiming, *request, *response, "")
-
+		printHeaders(*response)
 		Printf("\n\n%s", response.Body)
 	} else { // piped output
 		Printf("%s", response.Body)
