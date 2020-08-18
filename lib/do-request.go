@@ -22,11 +22,14 @@ type RequestTiming struct {
 }
 
 type Response struct {
+	Method     string
+	Url        string
 	StatusCode int
 	Proto      string
 	Body       []byte
 	Headers    http.Header
 	Timing     RequestTiming
+	Request    *Request
 }
 
 func DoRequest(request Request, execCtx *ExecutionContext) (*Response, error) {
@@ -104,10 +107,13 @@ func DoRequest(request Request, execCtx *ExecutionContext) (*Response, error) {
 	}
 
 	return &Response{
+		Method:     request.Method,
+		Url:        request.Url,
 		StatusCode: res.StatusCode,
 		Proto:      res.Proto,
 		Body:       data,
 		Headers:    res.Header,
 		Timing:     timing,
+		Request:    &request,
 	}, nil
 }

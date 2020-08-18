@@ -60,12 +60,17 @@ func findRequest(name string, rawRequests RequestCfgs) (err error, request Reque
 }
 
 func getCtxEvalContext(evCtx EvalContext) hcl.EvalContext {
+	vars := map[string]cty.Value{
+		"var":     cty.ObjectVal(evCtx.Variables),
+		"request": cty.ObjectVal(evCtx.RequestAsVars),
+	}
+
+	if evCtx.Environment != nil {
+		vars["env"] = *evCtx.Environment
+	}
+
 	return hcl.EvalContext{
-		Variables: map[string]cty.Value{
-			"var":     cty.ObjectVal(evCtx.Variables),
-			"env":     evCtx.Environment,
-			"request": cty.ObjectVal(evCtx.RequestAsVars),
-		},
+		Variables: vars,
 		Functions: evCtx.Functions,
 	}
 }
@@ -140,33 +145,33 @@ func sortCrossDependency(deps []string, evCtx EvalContext) ([]string, error) {
 	return deps, nil
 }
 
-func processDependency(dependency string, evCtx *EvalContext, execCtx ExecutionContext) (*EvalContext, error) {
+func processDependency(dependency string, evCtx *EvalContext, execCtx ExecutionContext) (*EvalContext, *Response, error) {
 	request, parseErr := parseRequest(dependency, *evCtx, execCtx)
 	if parseErr != nil {
-		return nil, parseErr
+		return nil, nil, parseErr
 	}
 
 	response, requestErr := DoRequest(*request, &execCtx)
 	if requestErr != nil {
-		return nil, requestErr
+		return nil, nil, requestErr
 	}
 
 	var decoded interface{}
 	err := json.Unmarshal(response.Body, &decoded)
 
 	if err != nil {
-		return nil, errors.New(Sprintf("error decoding json response body\n%s\n", err))
+		return nil, nil, errors.New(Sprintf("error decoding json response body\n%s\n", err))
 	}
 
 	evCtx.RequestAsVars[dependency] = walkThrough(reflect.ValueOf(decoded))
 
-	return evCtx, nil
+	return evCtx, response, nil
 }
 
 func getRequest(cfg cty.Value) Request {
 	body, jsonErr := json.MarshalIndent(ctyjson.SimpleJSONValue{cfg.GetAttr("body")}, "", "  ")
 	if jsonErr != nil {
-		Printf("Error: failed to parse body, %s\n", jsonErr)
+		Printf("Error: failed to parse request body, \n%s\n", jsonErr)
 		os.Exit(1)
 	}
 
@@ -174,7 +179,7 @@ func getRequest(cfg cty.Value) Request {
 	headerErr := gocty.FromCtyValue(cfg.GetAttr("headers"), &headers)
 
 	if headerErr != nil {
-		Printf("Error: failed to parse headers, %s\n", headerErr)
+		Printf("Error: failed to parse headers, \n%s\n", headerErr)
 		os.Exit(1)
 	}
 
@@ -207,13 +212,16 @@ func parseRequest(name string, evCtx EvalContext, execCtx ExecutionContext) (*Re
 		return nil, err
 	}
 
+	var responses []*Response
+
 	if request.DependsOn != nil {
 		for _, v := range request.DependsOn {
 			findString := requestDependencyRegex.FindStringSubmatch(v)
 
 			if len(findString) > 1 {
 				if _, ok := evCtx.RequestAsVars[findString[1]]; !ok {
-					evCtxP, err := processDependency(findString[1], &evCtx, execCtx)
+					evCtxP, response, err := processDependency(findString[1], &evCtx, execCtx)
+					responses = append(responses, response)
 
 					if err != nil {
 						return nil, err
@@ -249,7 +257,8 @@ func parseRequest(name string, evCtx EvalContext, execCtx ExecutionContext) (*Re
 
 		for _, dependency := range sortedDeps {
 			if _, ok := evCtx.RequestAsVars[dependency]; !ok {
-				evCtxP, err := processDependency(dependency, &evCtx, execCtx)
+				evCtxP, response, err := processDependency(dependency, &evCtx, execCtx)
+				responses = append(responses, response)
 
 				if err != nil {
 					return nil, err
@@ -273,6 +282,7 @@ func parseRequest(name string, evCtx EvalContext, execCtx ExecutionContext) (*Re
 	}
 
 	finalRequest := getRequest(cfg)
+	finalRequest.PrecedingRequests = responses
 
 	return &finalRequest, nil
 }

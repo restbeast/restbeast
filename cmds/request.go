@@ -1,7 +1,7 @@
 package cmds
 
 import (
-	"fmt"
+	. "fmt"
 	"github.com/spf13/cobra"
 	"gitlab.com/restbeast/cli/lib"
 	"golang.org/x/crypto/ssh/terminal"
@@ -20,46 +20,84 @@ func init() {
 	rootCmd.AddCommand(requestCmd)
 }
 
+func printJustTiming(response lib.Response, padding string) {
+	var extraPadding string
+	if len(padding) > 0 {
+		extraPadding = "  "
+	} else {
+		padding = "  "
+	}
+
+	Printf("%s %s\n", response.Method, response.Url)
+	Printf("%s%s│  Total Time: %d ms\n", padding, extraPadding, response.Timing.Total.Milliseconds())
+}
+
+func printDetailedTiming(response lib.Response, padding string) {
+	var extraPadding string
+	if len(padding) > 0 {
+		extraPadding = "  "
+	} else {
+		padding = "  "
+	}
+
+	Printf("%s %s\n", response.Method, response.Url)
+	Printf("%s%s│  DNS Resolve Time: %d ms\n", padding, extraPadding, response.Timing.Dns.Milliseconds())
+	Printf("%s%s│  Conenction Time: %d ms\n", padding, extraPadding, response.Timing.Conn.Milliseconds())
+	if response.Timing.Tls > 0 {
+		Printf("%s%s│  TLS Handshake Time: %d ms\n", padding, extraPadding, response.Timing.Tls.Milliseconds())
+	}
+	Printf("%s%s│  First Byte Time: %d ms\n", padding, extraPadding, response.Timing.FirstByte.Milliseconds())
+	Printf("%s%s│  Total Time: %d ms\n", padding, extraPadding, response.Timing.Total.Milliseconds())
+}
+
+func printTiming(outputTiming bool, outputDetailedTiming bool, request lib.Request, response lib.Response, padding string) {
+	if outputTiming {
+		Printf("%s  │\n", padding)
+		Printf("%s  ├──", padding)
+		printJustTiming(response, padding)
+	} else if outputDetailedTiming {
+		Printf("%s  │\n", padding)
+		Printf("%s  ├──", padding)
+		printDetailedTiming(response, padding)
+	}
+
+	if len(request.PrecedingRequests) > 0 {
+		for _, resP := range request.PrecedingRequests {
+			res := *resP
+			printTiming(outputTiming, outputDetailedTiming, *res.Request, res, padding + "  │  ")
+		}
+	}
+}
+
 func doRequest(cmd *cobra.Command, args []string) {
 	isTerminal := terminal.IsTerminal(int(os.Stdout.Fd()))
 
 	if len(args) == 0 {
-		fmt.Println("Error: Specify a request name")
+		Println("Error: Specify a request name")
 		os.Exit(1)
 	}
 
 	request, err := lib.LoadWhole(args[0], env, execCtx)
 	if err != nil {
-		fmt.Printf("Error: Failed to load given request\n%s\n", err)
+		Printf("Error: Failed to load given request\n%s\n", err)
 		os.Exit(1)
 	}
 
 	response, requestErr := lib.DoRequest(*request, execCtx)
 	if requestErr != nil {
-		fmt.Printf("Error: Failed to execute request\n%s\n", requestErr)
+		Printf("Error: Failed to execute request\n%s\n", requestErr)
 		os.Exit(1)
 	}
 
 	// Check if output is terminal or pipe
 	if isTerminal {
 		// Print out response information
-		fmt.Printf("%s %d %s", response.Proto, response.StatusCode, http.StatusText(response.StatusCode))
+		Printf("%s %d %s\n", response.Proto, response.StatusCode, http.StatusText(response.StatusCode))
+		printTiming(outputTiming, outputDetailedTiming, *request, *response, "")
 
-		if outputTiming {
-			fmt.Printf("\nTotal Time: %s", response.Timing.Total)
-		} else if outputDetailedTiming {
-			fmt.Printf("\nDNS Resolve Time: %s", response.Timing.Dns)
-			fmt.Printf("\nConenction Time: %s", response.Timing.Conn)
-			if response.Timing.Tls > 0 {
-				fmt.Printf("\nTLS Handshake Time: %s", response.Timing.Tls)
-			}
-			fmt.Printf("\nFirst Byte Time: %s", response.Timing.FirstByte)
-			fmt.Printf("\nTotal Time: %s", response.Timing.Total)
-		}
-
-		fmt.Printf("\n\n%s", response.Body)
+		Printf("\n\n%s", response.Body)
 	} else { // piped output
-		fmt.Printf("%s", response.Body)
+		Printf("%s", response.Body)
 	}
 }
 

@@ -60,12 +60,13 @@ type Request struct {
 	Headers map[string]string
 	Body    string
 	EvalContext
+	PrecedingRequests []*Response
 }
 
 type EvalContext struct {
 	Functions     map[string]function.Function
 	Variables     map[string]cty.Value
-	Environment   cty.Value
+	Environment   *cty.Value
 	RequestAsVars RequestAsVars
 	RawRequests   RequestCfgs
 }

@@ -57,7 +57,7 @@ func LoadEvalCtx(env string, execCtx *ExecutionContext) (*EvalContext, error) {
 	return &EvalContext{
 		Functions:     functions,
 		Variables:     variables,
-		Environment:   *envVars,
+		Environment:   envVars,
 		RawRequests:   root.Requests,
 		RequestAsVars: RequestAsVars{},
 	}, nil
