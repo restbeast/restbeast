@@ -106,7 +106,10 @@ func doRequest(cmd *cobra.Command, args []string) {
 		Printf("%s %d %s\n", response.Proto, response.StatusCode, http.StatusText(response.StatusCode))
 		printTiming(outputTiming, outputDetailedTiming, *request, *response, "")
 		printHeaders(*response)
-		Printf("\n\n%s", response.Body)
+
+		if len(response.Body) > 0 {
+			Printf("\n\n%s", response.Body)
+		}
 	} else { // piped output
 		Printf("%s", response.Body)
 	}
