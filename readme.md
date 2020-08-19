@@ -266,28 +266,6 @@ it will include upper cased values of firstName and lastName generated in `post-
 }
 ```
 
-#### Testing / Assertion (Not Implemented Yet)
-```hcl
-request "new-user" {
-  method = "POST"
-  url = "https://${env.url}/users"
-  headers = {
-    "content-type" = "application/json"
-  }
-  body = {
-    firstName = gofakeitFirstName()
-    lastName = gofakeitLastName()
-  }
-  expect = {
-    status = 201
-    body = {
-      id = assertUuidV4()
-      name = assertNotNil()
-    }
-  }
-}
-```
-
 #### Attack request
 Keep targeted server busy. This command will execute given request `c` times in given `p` period.
 Request count has to be equal or higher than 1 request per second.
