@@ -7,35 +7,26 @@ import (
 	"github.com/hashicorp/hcl/v2/hcldec"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/gocty"
+	"log"
 )
 
 type ParsedSecret map[string]string
-type ParsedSecretGroup map[string]ParsedSecret
-type AllParsedSecrets map[string]ParsedSecretGroup
-
-func parseSecret(secretCfg *SecretCfg) ParsedSecretGroup {
-	cfg := *secretCfg
-	parsedSecret := make(ParsedSecretGroup)
-
-	switch cfg.Type {
-	case "env-var":
-		parsedSecret[cfg.Name] = secretEngineEnvVar(cfg.Paths)
-	}
-
-	return parsedSecret
-}
+type AllParsedSecrets map[string]ParsedSecret
 
 func parseSecrets(secretCfgs SecretCfgs) AllParsedSecrets {
 	parsedSecrets := make(AllParsedSecrets)
 
-	for _, secret := range secretCfgs {
-		parseSecret(secret)
+	for _, secretCfg := range secretCfgs {
+		switch secretCfg.Type {
+		case "env-var":
+			parsedSecrets[secretCfg.Name] = secretEngineEnvVar(secretCfg.Paths)
+		}
 	}
 
 	return parsedSecrets
 }
 
-func parseEnv(env string, rawEnvironments EnvironmentCfgs) (*cty.Value, error) {
+func parseEnv(env string, rawEnvironments EnvironmentCfgs, execCtx *ExecutionContext) (*cty.Value, error) {
 	spec := &hcldec.ObjectSpec{
 		"default": &hcldec.AttrSpec{
 			Name:     "default",
@@ -51,6 +42,9 @@ func parseEnv(env string, rawEnvironments EnvironmentCfgs) (*cty.Value, error) {
 
 	for i := range rawEnvironments {
 		if (env != "" && rawEnvironments[i].Name == env) || (env == "" && rawEnvironments[i].Default) {
+			if execCtx.Debug {
+				log.Printf("parser: loading env '%s'", rawEnvironments[i].Name)
+			}
 
 			secrets := parseSecrets(rawEnvironments[i].Secrets)
 			value, err := gocty.ToCtyValue(secrets, cty.Map(cty.Map(cty.String)))

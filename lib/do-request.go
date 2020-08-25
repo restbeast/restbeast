@@ -3,7 +3,6 @@ package lib
 import (
 	"bytes"
 	"crypto/tls"
-	"errors"
 	. "fmt"
 	"io/ioutil"
 	"log"
@@ -38,7 +37,7 @@ func DoRequest(request Request, execCtx *ExecutionContext) (*Response, error) {
 
 	req, err := http.NewRequest(strings.ToUpper(request.Method), request.Url, bytes.NewReader([]byte(request.Body)))
 	if err != nil {
-		return nil, errors.New(Sprintf("unable to construct request, %s\n", err))
+		return nil, Errorf("unable to construct request, %s\n", err)
 	}
 
 	ctx := *execCtx

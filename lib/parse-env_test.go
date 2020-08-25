@@ -13,6 +13,11 @@ func Test_parseEnv(t *testing.T) {
 		rawEnvironments EnvironmentCfgs
 	}
 
+	execCtx := ExecutionContext{
+		Version: "test",
+		Debug:   false,
+	}
+
 	set1 := EnvironmentCfgs{
 		&EnvironmentCfg{
 			Name:      "",
@@ -36,7 +41,7 @@ func Test_parseEnv(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := parseEnv(tt.args.env, tt.args.rawEnvironments)
+			got, err := parseEnv(tt.args.env, tt.args.rawEnvironments, &execCtx)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("parseEnv() error = %v, wantErr %v", err, tt.wantErr)
 				return
