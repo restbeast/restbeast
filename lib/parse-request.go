@@ -9,10 +9,12 @@ import (
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/gocty"
 	ctyjson "github.com/zclconf/go-cty/cty/json"
+	"net/http"
 	"os"
 	"reflect"
 	"regexp"
 	"sort"
+	"strings"
 )
 
 var dependencyDiagMessageRegex = regexp.MustCompile(`This object does not have an attribute named "(?P<name>[\w\d-_]+)"`)
@@ -56,7 +58,7 @@ func findRequest(name string, rawRequests RequestCfgs) (err error, request Reque
 		}
 	}
 
-	return errors.New(Sprintf("`%s` not found", name)), RequestCfg{}
+	return Errorf("`%s` not found", name), RequestCfg{}
 }
 
 func getCtxEvalContext(evCtx EvalContext) hcl.EvalContext {
@@ -145,6 +147,15 @@ func sortCrossDependency(deps []string, evCtx EvalContext) ([]string, error) {
 	return deps, nil
 }
 
+// Make headers accessible with lowercase variations
+func lowercaseHeaders(headers http.Header) http.Header {
+	for k, v := range headers {
+		headers[strings.ToLower(k)] = v
+	}
+
+	return headers
+}
+
 func processDependency(dependency string, evCtx *EvalContext, execCtx ExecutionContext) (*EvalContext, *Response, error) {
 	request, parseErr := parseRequest(dependency, *evCtx, execCtx)
 	if parseErr != nil {
@@ -156,14 +167,23 @@ func processDependency(dependency string, evCtx *EvalContext, execCtx ExecutionC
 		return nil, nil, requestErr
 	}
 
-	var decoded interface{}
-	err := json.Unmarshal(response.Body, &decoded)
+	var decodedBody interface{}
+	err := json.Unmarshal(response.Body, &decodedBody)
 
 	if err != nil {
-		return nil, nil, errors.New(Sprintf("error decoding json response body\n%s\n", err))
+		return nil, nil, Errorf("error decoding json response body\n%s\n", err)
 	}
 
-	evCtx.RequestAsVars[dependency] = walkThrough(reflect.ValueOf(decoded))
+	var responseAsCty = map[string]cty.Value{}
+	responseAsCty["body"] = walkThrough(reflect.ValueOf(decodedBody))
+
+	convertedHeaders := lowercaseHeaders(response.Headers)
+	headersAsCty := walkThrough(reflect.ValueOf(convertedHeaders))
+
+	responseAsCty["headers"] = headersAsCty
+	responseAsCty["status"] = cty.NumberIntVal(int64(response.StatusCode))
+
+	evCtx.RequestAsVars[dependency] = cty.ObjectVal(responseAsCty)
 
 	return evCtx, response, nil
 }

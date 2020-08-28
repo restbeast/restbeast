@@ -66,7 +66,7 @@ func printTiming(outputTiming bool, outputDetailedTiming bool, request lib.Reque
 	if len(request.PrecedingRequests) > 0 {
 		for _, resP := range request.PrecedingRequests {
 			res := *resP
-			printTiming(outputTiming, outputDetailedTiming, *res.Request, res, padding + "  │  ")
+			printTiming(outputTiming, outputDetailedTiming, *res.Request, res, padding+"  │  ")
 		}
 	}
 }

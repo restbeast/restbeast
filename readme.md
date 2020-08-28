@@ -227,11 +227,12 @@ request patch-example {
   url = "https://httpbin.org/patch"
   headers = {
     "content-type" = "application/json"
-    "X-Amzn-Trace-Id": request.post-example.headers.X-Amzn-Trace-Id
+    "X-Amzn-Trace-Id": request.post-example.body.headers.X-Amzn-Trace-Id
   }
   body = {
-    firstName = "Mr. ${upper(request.post-example.json.firstName)}"
-    lastName = "Mr. ${upper(request.post-example.json.lastName)}"
+    firstName = "Mr. ${upper(request.post-example.body.json.firstName)}"
+    lastName = "Mr. ${upper(request.post-example.body.json.lastName)}"
+    contentLengthOfFirstResponse = request.post-example.headers["content-length"][0]
   }
 }
 ```
