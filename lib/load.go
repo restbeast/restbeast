@@ -3,7 +3,9 @@ package lib
 import (
 	"errors"
 	"fmt"
+	"github.com/Masterminds/semver"
 	"github.com/hashicorp/hcl/v2/gohcl"
+	"strings"
 )
 
 // Reads all files in present folder
@@ -33,6 +35,25 @@ func readAndDecodeBody() (*RootCfg, error) {
 	return &root, nil
 }
 
+func compareVersion(constraint, actual string) error {
+	cnst, err := semver.NewConstraint(constraint)
+	if err != nil {
+		return fmt.Errorf("Invalid version,\n got: %s\n", constraint)
+	}
+
+	if actual == "" {
+		return nil
+	}
+
+	actl, _ := semver.NewVersion(strings.TrimLeft(actual, "v"))
+
+	if !cnst.Check(actl) {
+		return fmt.Errorf("Invalid restbeast version,\n expected: %s\n got: %s\n", constraint, actual)
+	}
+
+	return nil
+}
+
 // Get all internal functions
 // Parse external functions
 // Parse environment variables
@@ -42,6 +63,14 @@ func LoadEvalCtx(env string, execCtx *ExecutionContext) (*EvalContext, error) {
 	root, err := readAndDecodeBody()
 	if err != nil {
 		return nil, err
+	}
+
+	if root.Version != "" {
+		err := compareVersion(root.Version, execCtx.Version)
+
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	internalFunctions := getCtyFunctions()

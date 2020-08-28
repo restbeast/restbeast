@@ -52,6 +52,7 @@ type RootCfg struct {
 	Variables         VariableCfgs         `hcl:"variable,block"`
 	Environments      EnvironmentCfgs      `hcl:"env,block"`
 	ExternalFunctions ExternalFunctionCfgs `hcl:"external-function,block"`
+	Version						string							 `hcl:"version,optional"`
 }
 
 type Request struct {

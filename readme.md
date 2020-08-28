@@ -284,6 +284,13 @@ Status 500 response: %6 (4)
 AverageTime: 585.411933ms
 ```
 
+#### Fixing Version
+It's possible to fix your restbeast configuration to a specific version. See [here](https://gitlab.com/restbeast/cli/-/blob/master/docs/semver.md) for extra comparison options.
+
+```hcl
+version = "~0.7"
+```
+
 ## Install
 
 ### Install From Binary
