@@ -19,6 +19,7 @@ func Test_compareVersion(t *testing.T) {
 		{"correct", args{"=1.5.0", "v1.5.5"}, true},
 		{"correct", args{"!=1.5.0", "v1.5.5"}, false},
 		{"correct", args{"~1.5", "v1.5.5"}, false},
+		{"no err on empty actual", args{"~1.5", ""}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

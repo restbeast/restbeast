@@ -8,7 +8,6 @@ import (
 	ctyjson "github.com/zclconf/go-cty/cty/json"
 	"io"
 	"log"
-	"os"
 	"os/exec"
 	"strings"
 	"syscall"
@@ -90,13 +89,13 @@ func prepImpl(exFn *ExternalFunctionCfg, execCtx *ExecutionContext) function.Imp
 		cmd := exec.Command(exFn.Interpreter, execArgs...)
 
 		stdout, stdoutErr := cmd.StdoutPipe()
-		stderr, stdoutErr := cmd.StderrPipe()
+		stderr, stderrErr := cmd.StderrPipe()
 
 		if stdoutErr != nil {
 			return cty.Value{}, errors.New(Sprintf("couldn't get stdout %s, %s", exFn.Name, stdoutErr))
 		}
 
-		if stdoutErr != nil {
+		if stderrErr != nil {
 			return cty.Value{}, errors.New(Sprintf("couldn't get stderr %s, %s", exFn.Name, stdoutErr))
 		}
 
@@ -121,10 +120,10 @@ func prepImpl(exFn *ExternalFunctionCfg, execCtx *ExecutionContext) function.Imp
 						log.Printf("external function stderr %s", stdErrBuffer.String())
 					}
 
-					return cty.Value{}, errors.New(Sprintf("external function %s exited with status: %d", exFn.Name, status.ExitStatus()))
+					return cty.Value{}, Errorf("external function %s exited with status: %d", exFn.Name, status.ExitStatus())
 				}
 			} else {
-				return cty.Value{}, errors.New(Sprintf("external function %s error %s, %s", exFn.Name, err, exiterr))
+				return cty.Value{}, Errorf("external function %s error %s, %s", exFn.Name, err, exiterr)
 			}
 		}
 
@@ -137,11 +136,10 @@ func prepImpl(exFn *ExternalFunctionCfg, execCtx *ExecutionContext) function.Imp
 	}
 }
 
-func parseExternalFunctions(internalFunctions map[string]function.Function, externalFunctions []*ExternalFunctionCfg, execCtx *ExecutionContext) map[string]function.Function {
+func parseExternalFunctions(internalFunctions map[string]function.Function, externalFunctions []*ExternalFunctionCfg, execCtx *ExecutionContext) (*map[string]function.Function, error) {
 	for _, exFn := range externalFunctions {
 		if _, chk := internalFunctions[exFn.Name]; chk {
-			Printf("Error: overwriting an internal function isn't allowed, %s\n", exFn.Name)
-			os.Exit(1)
+			return nil, Errorf("Error: overwriting an internal function isn't allowed, %s\n", exFn.Name)
 		}
 
 		internalFunctions[exFn.Name] = function.New(&function.Spec{
@@ -151,5 +149,5 @@ func parseExternalFunctions(internalFunctions map[string]function.Function, exte
 		})
 	}
 
-	return internalFunctions
+	return &internalFunctions, nil
 }

@@ -2,7 +2,6 @@ package lib
 
 import (
 	"encoding/json"
-	"errors"
 	. "fmt"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hcldec"
@@ -10,7 +9,6 @@ import (
 	"github.com/zclconf/go-cty/cty/gocty"
 	ctyjson "github.com/zclconf/go-cty/cty/json"
 	"net/http"
-	"os"
 	"reflect"
 	"regexp"
 	"sort"
@@ -51,19 +49,19 @@ func getObjSpec() hcldec.ObjectSpec {
 }
 
 // Find a request by .Name property
-func findRequest(name string, rawRequests RequestCfgs) (err error, request RequestCfg) {
+func findRequest(name string, rawRequests RequestCfgs) (*RequestCfg, error) {
 	for _, r := range rawRequests {
 		if name == r.Name {
-			return nil, *r
+			return r, nil
 		}
 	}
 
-	return Errorf("`%s` not found", name), RequestCfg{}
+	return nil, Errorf("`%s` not found", name)
 }
 
 func getCtxEvalContext(evCtx EvalContext) hcl.EvalContext {
 	vars := map[string]cty.Value{
-		"var":     cty.ObjectVal(evCtx.Variables),
+		"var":     cty.ObjectVal(*evCtx.Variables),
 		"request": cty.ObjectVal(evCtx.RequestAsVars),
 	}
 
@@ -73,7 +71,7 @@ func getCtxEvalContext(evCtx EvalContext) hcl.EvalContext {
 
 	return hcl.EvalContext{
 		Variables: vars,
-		Functions: evCtx.Functions,
+		Functions: *evCtx.Functions,
 	}
 }
 
@@ -121,12 +119,13 @@ func sortCrossDependency(deps []string, evCtx EvalContext) ([]string, error) {
 		ctxEvalContext := getCtxEvalContext(evCtx)
 		spec := getObjSpec()
 
-		err, request := findRequest(dep, evCtx.RawRequests)
+		request, findRequestErr := findRequest(dep, evCtx.RawRequests)
 
-		if err != nil {
-			return nil, err
+		if findRequestErr != nil {
+			return nil, findRequestErr
 		}
 
+		// We don't care about the decoded body at this point
 		_, diags := hcldec.Decode(request.Body, spec, &ctxEvalContext)
 		dependencies, _ := getPossibleDependencies(diags)
 
@@ -188,19 +187,19 @@ func processDependency(dependency string, evCtx *EvalContext, execCtx ExecutionC
 	return evCtx, response, nil
 }
 
-func getRequest(cfg cty.Value) Request {
-	body, jsonErr := json.MarshalIndent(ctyjson.SimpleJSONValue{cfg.GetAttr("body")}, "", "  ")
+func getRequest(cfg cty.Value) (*Request, error) {
+	bodyAsCtyObj := cfg.GetAttr("body")
+
+	bodyJSON, jsonErr := json.MarshalIndent(ctyjson.SimpleJSONValue{bodyAsCtyObj}, "", "  ")
 	if jsonErr != nil {
-		Printf("Error: failed to parse request body, \n%s\n", jsonErr)
-		os.Exit(1)
+		return nil, Errorf("Error: failed to parse request body, \n%s\n", jsonErr)
 	}
 
 	var headers map[string]string
 	headerErr := gocty.FromCtyValue(cfg.GetAttr("headers"), &headers)
 
 	if headerErr != nil {
-		Printf("Error: failed to parse headers, \n%s\n", headerErr)
-		os.Exit(1)
+		return nil, Errorf("Error: failed to parse headers, \n%s\n", headerErr)
 	}
 
 	var method string
@@ -211,22 +210,21 @@ func getRequest(cfg cty.Value) Request {
 	}
 
 	if !cfg.GetAttr("url").IsWhollyKnown() {
-		Printf("Error: failed to parse url, possible unknown variable used.\n")
-		os.Exit(1)
+		return nil, Errorf("Error: failed to parse url, possible unknown variable used.\n")
 	}
 
-	request := Request{
+	request := &Request{
 		Method:  method,
 		Url:     cfg.GetAttr("url").AsString(),
 		Headers: headers,
-		Body:    string(body),
+		Body:    string(bodyJSON),
 	}
 
-	return request
+	return request, nil
 }
 
 func parseRequest(name string, evCtx EvalContext, execCtx ExecutionContext) (*Request, error) {
-	err, request := findRequest(name, evCtx.RawRequests)
+	request, err := findRequest(name, evCtx.RawRequests)
 
 	if err != nil {
 		return nil, err
@@ -234,6 +232,7 @@ func parseRequest(name string, evCtx EvalContext, execCtx ExecutionContext) (*Re
 
 	var responses []*Response
 
+	// This feature haven't been documented yet.
 	if request.DependsOn != nil {
 		for _, v := range request.DependsOn {
 			findString := requestDependencyRegex.FindStringSubmatch(v)
@@ -264,7 +263,7 @@ func parseRequest(name string, evCtx EvalContext, execCtx ExecutionContext) (*Re
 			errTxt += Sprintf("- %s\n", diag)
 		}
 
-		return nil, errors.New(errTxt)
+		return nil, Errorf(errTxt)
 	}
 
 	if len(dependencies) > 0 {
@@ -297,12 +296,16 @@ func parseRequest(name string, evCtx EvalContext, execCtx ExecutionContext) (*Re
 				errTxt += Sprintf("- %s\n", diag)
 			}
 
-			return nil, errors.New(errTxt)
+			return nil, Errorf(errTxt)
 		}
 	}
 
-	finalRequest := getRequest(cfg)
+	finalRequest, err := getRequest(cfg)
+	if err != nil {
+		return nil, err
+	}
+
 	finalRequest.PrecedingRequests = responses
 
-	return &finalRequest, nil
+	return finalRequest, nil
 }

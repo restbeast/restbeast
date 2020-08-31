@@ -65,8 +65,8 @@ type Request struct {
 }
 
 type EvalContext struct {
-	Functions     map[string]function.Function
-	Variables     map[string]cty.Value
+	Functions     *map[string]function.Function
+	Variables     *map[string]cty.Value
 	Environment   *cty.Value
 	RequestAsVars RequestAsVars
 	RawRequests   RequestCfgs

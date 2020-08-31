@@ -74,14 +74,20 @@ func LoadEvalCtx(env string, execCtx *ExecutionContext) (*EvalContext, error) {
 	}
 
 	internalFunctions := getCtyFunctions()
-	functions := parseExternalFunctions(internalFunctions, root.ExternalFunctions, execCtx)
+	functions, fnErr := parseExternalFunctions(internalFunctions, root.ExternalFunctions, execCtx)
+	if fnErr != nil {
+		return nil, fnErr
+	}
 
 	envVars, envErr := parseEnv(env, root.Environments, execCtx)
 	if envErr != nil {
 		return nil, envErr
 	}
 
-	variables := parseVariables(root.Variables, functions)
+	variables, varErr := parseVariables(root.Variables, *functions)
+	if varErr != nil {
+		return nil, varErr
+	}
 
 	return &EvalContext{
 		Functions:     functions,
