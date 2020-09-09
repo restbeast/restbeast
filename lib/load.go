@@ -101,7 +101,7 @@ func LoadEvalCtx(env string, execCtx *ExecutionContext) (*EvalContext, error) {
 // Load only request with given EvalContext
 func LoadOnlyRequest(name string, evCtx *EvalContext, execCtx *ExecutionContext) (request *Request, err error) {
 
-	return parseRequest(name, *evCtx, *execCtx)
+	return parseRequest(name, *evCtx, execCtx)
 }
 
 // Gather EvalContext and load given request
@@ -111,5 +111,5 @@ func LoadWhole(name, env string, execCtx *ExecutionContext) (request *Request, e
 		return nil, err
 	}
 
-	return parseRequest(name, *evCtx, *execCtx)
+	return parseRequest(name, *evCtx, execCtx)
 }

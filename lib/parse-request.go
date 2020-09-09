@@ -75,6 +75,10 @@ func getCtxEvalContext(evCtx EvalContext) hcl.EvalContext {
 	}
 }
 
+// Read the tea leafs
+// Try to find dependecies from error messages.
+// HCL diag will have "Unsupported attribute" as summary and
+// detail wil be "This object does not have an attribute named xxx" for unknown attributes.
 func getPossibleDependencies(diags hcl.Diagnostics) (dependencies []string, restDiagMsgs []string) {
 	if len(diags) != 0 {
 		for _, diag := range diags {
@@ -93,6 +97,8 @@ func getPossibleDependencies(diags hcl.Diagnostics) (dependencies []string, rest
 	return dependencies, restDiagMsgs
 }
 
+// Traverse dependencies
+// Remove duplicates
 func getUniqueDependencies(intSlice []string) []string {
 	keys := make(map[string]bool)
 	var list []string
@@ -155,19 +161,19 @@ func lowercaseHeaders(headers http.Header) http.Header {
 	return headers
 }
 
-func processDependency(dependency string, evCtx *EvalContext, execCtx ExecutionContext) (*EvalContext, *Response, error) {
+func processDependency(dependency string, evCtx *EvalContext, execCtx *ExecutionContext) (*EvalContext, *Response, error) {
 	request, parseErr := parseRequest(dependency, *evCtx, execCtx)
 	if parseErr != nil {
 		return nil, nil, parseErr
 	}
 
-	response, requestErr := DoRequest(*request, &execCtx)
+	requestErr := request.Exec()
 	if requestErr != nil {
 		return nil, nil, requestErr
 	}
 
 	var decodedBody interface{}
-	err := json.Unmarshal(response.Body, &decodedBody)
+	err := json.Unmarshal(request.Response.Body, &decodedBody)
 
 	if err != nil {
 		return nil, nil, Errorf("error decoding json response body\n%s\n", err)
@@ -176,18 +182,18 @@ func processDependency(dependency string, evCtx *EvalContext, execCtx ExecutionC
 	var responseAsCty = map[string]cty.Value{}
 	responseAsCty["body"] = walkThrough(reflect.ValueOf(decodedBody))
 
-	convertedHeaders := lowercaseHeaders(response.Headers)
+	convertedHeaders := lowercaseHeaders(request.Response.Headers)
 	headersAsCty := walkThrough(reflect.ValueOf(convertedHeaders))
 
 	responseAsCty["headers"] = headersAsCty
-	responseAsCty["status"] = cty.NumberIntVal(int64(response.StatusCode))
+	responseAsCty["status"] = cty.NumberIntVal(int64(request.Response.StatusCode))
 
 	evCtx.RequestAsVars[dependency] = cty.ObjectVal(responseAsCty)
 
-	return evCtx, response, nil
+	return evCtx, request.Response, nil
 }
 
-func getRequest(cfg cty.Value) (*Request, error) {
+func getRequest(cfg cty.Value, execCtx *ExecutionContext) (*Request, error) {
 	bodyAsCtyObj := cfg.GetAttr("body")
 
 	bodyJSON, jsonErr := json.MarshalIndent(ctyjson.SimpleJSONValue{bodyAsCtyObj}, "", "  ")
@@ -212,19 +218,25 @@ func getRequest(cfg cty.Value) (*Request, error) {
 	if !cfg.GetAttr("url").IsWhollyKnown() {
 		return nil, Errorf("Error: failed to parse url, possible unknown variable used.\n")
 	}
+	bodyAsString := string(bodyJSON)
+	url := cfg.GetAttr("url").AsString()
+
+	roundTripper := http.DefaultTransport
 
 	request := &Request{
-		Method:  method,
-		Url:     cfg.GetAttr("url").AsString(),
-		Headers: headers,
-		Body:    string(bodyJSON),
+		Method:           method,
+		Url:              url,
+		Headers:          headers,
+		Body:             bodyAsString,
+		ExecutionContext: execCtx,
+		RoundTripper:     roundTripper,
 	}
 
 	return request, nil
 }
 
-func parseRequest(name string, evCtx EvalContext, execCtx ExecutionContext) (*Request, error) {
-	request, err := findRequest(name, evCtx.RawRequests)
+func parseRequest(name string, evCtx EvalContext, execCtx *ExecutionContext) (*Request, error) {
+	requestCfg, err := findRequest(name, evCtx.RawRequests)
 
 	if err != nil {
 		return nil, err
@@ -233,8 +245,8 @@ func parseRequest(name string, evCtx EvalContext, execCtx ExecutionContext) (*Re
 	var responses []*Response
 
 	// This feature haven't been documented yet.
-	if request.DependsOn != nil {
-		for _, v := range request.DependsOn {
+	if requestCfg.DependsOn != nil {
+		for _, v := range requestCfg.DependsOn {
 			findString := requestDependencyRegex.FindStringSubmatch(v)
 
 			if len(findString) > 1 {
@@ -254,7 +266,7 @@ func parseRequest(name string, evCtx EvalContext, execCtx ExecutionContext) (*Re
 
 	ctxEvalContext := getCtxEvalContext(evCtx)
 	spec := getObjSpec()
-	cfg, diags := hcldec.Decode(request.Body, spec, &ctxEvalContext)
+	cfg, diags := hcldec.Decode(requestCfg.Body, spec, &ctxEvalContext)
 	dependencies, restDiagMsgs := getPossibleDependencies(diags)
 
 	if len(restDiagMsgs) > 0 {
@@ -288,7 +300,7 @@ func parseRequest(name string, evCtx EvalContext, execCtx ExecutionContext) (*Re
 		}
 
 		ctxEvalContext = getCtxEvalContext(evCtx)
-		cfg, diags = hcldec.Decode(request.Body, spec, &ctxEvalContext)
+		cfg, diags = hcldec.Decode(requestCfg.Body, spec, &ctxEvalContext)
 
 		if len(diags) > 0 {
 			errTxt := ""
@@ -300,7 +312,7 @@ func parseRequest(name string, evCtx EvalContext, execCtx ExecutionContext) (*Re
 		}
 	}
 
-	finalRequest, err := getRequest(cfg)
+	finalRequest, err := getRequest(cfg, execCtx)
 	if err != nil {
 		return nil, err
 	}

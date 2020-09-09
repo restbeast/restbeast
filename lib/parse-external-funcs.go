@@ -92,25 +92,25 @@ func prepImpl(exFn *ExternalFunctionCfg, execCtx *ExecutionContext) function.Imp
 		stderr, stderrErr := cmd.StderrPipe()
 
 		if stdoutErr != nil {
-			return cty.Value{}, errors.New(Sprintf("couldn't get stdout %s, %s", exFn.Name, stdoutErr))
+			return cty.Value{}, Errorf("couldn't get stdout %s, %s", exFn.Name, stdoutErr)
 		}
 
 		if stderrErr != nil {
-			return cty.Value{}, errors.New(Sprintf("couldn't get stderr %s, %s", exFn.Name, stdoutErr))
+			return cty.Value{}, Errorf("couldn't get stderr %s, %s", exFn.Name, stdoutErr)
 		}
 
 		if err := cmd.Start(); err != nil {
-			return cty.Value{}, errors.New(Sprintf("couldn't start command %s, %s", exFn.Name, err))
+			return cty.Value{}, Errorf("couldn't start command %s, %s", exFn.Name, err)
 		}
 
 		stdOutBuffer := new(strings.Builder)
 		if _, ioErr := io.Copy(stdOutBuffer, stdout); ioErr != nil {
-			return cty.Value{}, errors.New(Sprintf("io %s, %s", exFn.Name, ioErr))
+			return cty.Value{}, Errorf("io %s, %s", exFn.Name, ioErr)
 		}
 
 		stdErrBuffer := new(strings.Builder)
 		if _, ioErr := io.Copy(stdErrBuffer, stderr); ioErr != nil {
-			return cty.Value{}, errors.New(Sprintf("io %s, %s", exFn.Name, ioErr))
+			return cty.Value{}, Errorf("io %s, %s", exFn.Name, ioErr)
 		}
 
 		if err := cmd.Wait(); err != nil {

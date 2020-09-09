@@ -79,7 +79,7 @@ func doAttackRequest(cmd *cobra.Command, args []string) {
 					return
 				}
 
-				response, requestErr := lib.DoRequest(*request, execCtx)
+				requestErr := request.Exec()
 
 				// Skip this execution if there is an error while doing the request
 				if requestErr != nil {
@@ -90,7 +90,7 @@ func doAttackRequest(cmd *cobra.Command, args []string) {
 					return
 				}
 
-				responses = append(responses, response)
+				responses = append(responses, request.Response)
 			}()
 		}
 

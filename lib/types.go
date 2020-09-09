@@ -4,6 +4,8 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/function"
+	"net/http"
+	"time"
 )
 
 type VariableCfg struct {
@@ -55,6 +57,30 @@ type RootCfg struct {
 	Version           string               `hcl:"version,optional"`
 }
 
+type RequestTiming struct {
+	// DNS resolve time
+	Dns time.Duration
+	// Time to establish connection
+	Conn time.Duration
+	// TLS handshake time
+	Tls time.Duration
+	// Time to first byte
+	FirstByte time.Duration
+	// Total request duration
+	Total time.Duration
+}
+
+type Response struct {
+	Method     string
+	Url        string
+	StatusCode int
+	Proto      string
+	Body       []byte
+	Headers    http.Header
+	Timing     RequestTiming
+	Request    *Request
+}
+
 type Request struct {
 	Method  string
 	Url     string
@@ -62,6 +88,9 @@ type Request struct {
 	Body    string
 	EvalContext
 	PrecedingRequests []*Response
+	*Response
+	*ExecutionContext
+	RoundTripper http.RoundTripper
 }
 
 type EvalContext struct {

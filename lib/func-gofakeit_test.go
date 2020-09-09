@@ -598,7 +598,7 @@ func Test_gofakeitWordImpl(t *testing.T) {
 }
 
 func Test_gofakeitSentenceImpl(t *testing.T) {
-	argList := []cty.Value{ cty.NumberIntVal(5) }
+	argList := []cty.Value{cty.NumberIntVal(5)}
 
 	t.Run("success", func(t *testing.T) {
 		got, _ := gofakeitSentenceImpl(argList, cty.String)
@@ -1345,7 +1345,7 @@ func Test_gofakeitCreditCardNumberImpl(t *testing.T) {
 		{false, "discover", args{[]cty.Value{cty.ListVal([]cty.Value{cty.StringVal("discover")})}, cty.String}, false, "^65[4-9][0-9]{13}|64[4-9][0-9]{13}|6011[0-9]{12}|(622(?:12[6-9]|1[3-9][0-9]|[2-8][0-9][0-9]|9[01][0-9]|92[0-5])[0-9]{10})$"},
 		{true, "jcb", args{[]cty.Value{cty.ListVal([]cty.Value{cty.StringVal("jcb")})}, cty.String}, false, "^(?:2131|1800|35\\d{3})\\d{11}$"},
 		{true, "unionpay", args{[]cty.Value{cty.ListVal([]cty.Value{cty.StringVal("unionpay")})}, cty.String}, false, "^(62[0-9]{14,17})$"},
-		{true, "maestro", args{[]cty.Value{cty.ListVal([]cty.Value{cty.StringVal("maestro")})}, cty.String}, false, "^(5018|5020|5038|6304|6759|6761|6763)[0-9]{8,15}$"},
+		{false, "maestro", args{[]cty.Value{cty.ListVal([]cty.Value{cty.StringVal("maestro")})}, cty.String}, false, "^(50|5[6-9]|6[0-9])[0-9]{10,17}$"},
 		{true, "elo", args{[]cty.Value{cty.ListVal([]cty.Value{cty.StringVal("elo")})}, cty.String}, false, "^(?:401178|401179|431274|438935|451416|457393|457631|457632|504175|627780|636297|636368|655000|655001|651652|651653|651654|650485|650486|650487|650488|506699|5067[0-6][0-9]|50677[0-8]|509\\d{3})\\d{10}$"},
 		{false, "hipercard", args{[]cty.Value{cty.ListVal([]cty.Value{cty.StringVal("hipercard")})}, cty.String}, false, "^(606282\\d{10}(\\d{3})?)|(3841\\d{15})$"},
 		{false, "visa with binlist", args{[]cty.Value{cty.ListVal([]cty.Value{cty.StringVal("visa")}), cty.ListVal([]cty.Value{cty.StringVal("400115")})}, cty.String}, false, "^400115[0-9]{7}(?:[0-9]{3})?"},
@@ -1470,7 +1470,7 @@ func Test_gofakeitBitcoinPrivateKeyImpl(t *testing.T) {
 
 	var emptyArgList []cty.Value
 
-	valid := regexp.MustCompile("^[5KL][1-9A-HJ-NP-Za-km-z]{50,51}$")
+	valid := regexp.MustCompile("^5[HJK][1-9A-Za-z][^OIl]{49}")
 
 	t.Run("success", func(t *testing.T) {
 		got, _ := gofakeitBitcoinPrivateKeyImpl(emptyArgList, cty.String)

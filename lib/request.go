@@ -12,45 +12,25 @@ import (
 	"time"
 )
 
-type RequestTiming struct {
-	Dns       time.Duration
-	Conn      time.Duration
-	Tls       time.Duration
-	FirstByte time.Duration
-	Total     time.Duration
-}
-
-type Response struct {
-	Method     string
-	Url        string
-	StatusCode int
-	Proto      string
-	Body       []byte
-	Headers    http.Header
-	Timing     RequestTiming
-	Request    *Request
-}
-
-func DoRequest(request Request, execCtx *ExecutionContext) (*Response, error) {
+func (request *Request) Exec() error {
 	start := time.Now()
 	var dnsTime, connectionTime, tlsHandshakeTime, firstByteTime, totalTime time.Duration
 
-	req, err := http.NewRequest(strings.ToUpper(request.Method), request.Url, bytes.NewReader([]byte(request.Body)))
+	httpReq, err := http.NewRequest(strings.ToUpper(request.Method), request.Url, bytes.NewReader([]byte(request.Body)))
 	if err != nil {
-		return nil, Errorf("unable to construct request, %s\n", err)
+		return Errorf("unable to construct request, %s\n", err)
 	}
 
-	ctx := *execCtx
-	req.Header.Set("user-agent", Sprintf("RestBeast-%s", ctx.Version))
+	httpReq.Header.Set("user-agent", Sprintf("RestBeast-%s", request.ExecutionContext.Version))
 	for key, value := range request.Headers {
-		req.Header.Set(key, value)
+		httpReq.Header.Set(key, value)
 	}
 
-	if ctx.Debug {
+	if request.ExecutionContext.Debug {
 		log.Printf("request method: %s", request.Method)
 		log.Printf("request url: %s", request.Url)
 
-		for k, v := range req.Header {
+		for k, v := range httpReq.Header {
 			log.Printf("request header: %s=%s", k, v)
 		}
 
@@ -75,19 +55,20 @@ func DoRequest(request Request, execCtx *ExecutionContext) (*Response, error) {
 		},
 	}
 
-	req = req.WithContext(httptrace.WithClientTrace(req.Context(), trace))
-	res, err := http.DefaultTransport.RoundTrip(req)
+	httpReq = httpReq.WithContext(httptrace.WithClientTrace(httpReq.Context(), trace))
+	res, err := request.RoundTripper.RoundTrip(httpReq)
+
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	defer res.Body.Close()
 	data, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	if ctx.Debug {
+	if request.ExecutionContext.Debug {
 		log.Printf("response status: %d %s", res.StatusCode, res.Status)
 		for k, v := range res.Header {
 			log.Printf("response header: %s=%s", k, v)
@@ -105,7 +86,7 @@ func DoRequest(request Request, execCtx *ExecutionContext) (*Response, error) {
 		Total:     totalTime,
 	}
 
-	return &Response{
+	request.Response = &Response{
 		Method:     request.Method,
 		Url:        request.Url,
 		StatusCode: res.StatusCode,
@@ -113,6 +94,8 @@ func DoRequest(request Request, execCtx *ExecutionContext) (*Response, error) {
 		Body:       data,
 		Headers:    res.Header,
 		Timing:     timing,
-		Request:    &request,
-	}, nil
+		Request:    request,
+	}
+
+	return nil
 }

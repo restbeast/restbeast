@@ -94,7 +94,7 @@ func doRequest(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
-	response, requestErr := lib.DoRequest(*request, execCtx)
+	requestErr := request.Exec()
 	if requestErr != nil {
 		Printf("Error: Failed to execute request\n%s\n", requestErr)
 		os.Exit(1)
@@ -103,15 +103,15 @@ func doRequest(cmd *cobra.Command, args []string) {
 	// Check if output is terminal or pipe
 	if isTerminal {
 		// Print out response information
-		Printf("%s %d %s\n", response.Proto, response.StatusCode, http.StatusText(response.StatusCode))
-		printTiming(outputTiming, outputDetailedTiming, *request, *response, "")
-		printHeaders(*response)
+		Printf("%s %d %s\n", request.Response.Proto, request.Response.StatusCode, http.StatusText(request.Response.StatusCode))
+		printTiming(outputTiming, outputDetailedTiming, *request, *request.Response, "")
+		printHeaders(*request.Response)
 
-		if len(response.Body) > 0 {
-			Printf("\n\n%s", response.Body)
+		if len(request.Response.Body) > 0 {
+			Printf("\n\n%s", request.Response.Body)
 		}
 	} else { // piped output
-		Printf("%s", response.Body)
+		Printf("%s", request.Response.Body)
 	}
 }
 

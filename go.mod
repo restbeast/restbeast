@@ -5,7 +5,7 @@ go 1.13
 require (
 	github.com/Masterminds/semver v1.5.0
 	github.com/agext/levenshtein v1.2.3 // indirect
-	github.com/brianvoe/gofakeit/v5 v5.9.1
+	github.com/brianvoe/gofakeit/v5 v5.9.2
 	github.com/getsentry/sentry-go v0.7.0
 	github.com/go-errors/errors v1.1.1
 	github.com/google/go-cmp v0.5.1 // indirect
