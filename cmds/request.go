@@ -44,7 +44,7 @@ func printDetailedTiming(response lib.Response, padding string) {
 
 	Printf("%s %s\n", response.Method, response.Url)
 	Printf("%s%s│  DNS Resolve Time: %d ms\n", padding, extraPadding, response.Timing.Dns.Milliseconds())
-	Printf("%s%s│  Conenction Time: %d ms\n", padding, extraPadding, response.Timing.Conn.Milliseconds())
+	Printf("%s%s│  Connection Time: %d ms\n", padding, extraPadding, response.Timing.Conn.Milliseconds())
 	if response.Timing.Tls > 0 {
 		Printf("%s%s│  TLS Handshake Time: %d ms\n", padding, extraPadding, response.Timing.Tls.Milliseconds())
 	}

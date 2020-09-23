@@ -1,7 +1,6 @@
 package lib
 
 import (
-	"errors"
 	. "fmt"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hcldec"
@@ -48,7 +47,6 @@ func parseEnv(env string, rawEnvironments EnvironmentCfgs, execCtx *ExecutionCon
 
 			secrets := parseSecrets(rawEnvironments[i].Secrets)
 			value, err := gocty.ToCtyValue(secrets, cty.Map(cty.Map(cty.String)))
-
 			if err != nil {
 				return nil, Errorf("failed to load secrets, %s\n", err)
 			}
@@ -61,10 +59,12 @@ func parseEnv(env string, rawEnvironments EnvironmentCfgs, execCtx *ExecutionCon
 
 			cfg, diags := hcldec.Decode(rawEnvironments[i].Variables, spec, evalContext)
 			if len(diags) != 0 {
+				errTxt := ""
 				for _, diag := range diags {
-					Printf("- %s\n", diag)
+					errTxt += Sprintf("- %s\n", diag)
 				}
-				return nil, errors.New("environment definition contains errors")
+
+				return nil, Errorf(errTxt)
 			}
 
 			vars := cfg.GetAttr("variables")

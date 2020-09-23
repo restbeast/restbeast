@@ -1,11 +1,10 @@
 package lib
 
 import (
-	"errors"
+	"encoding/json"
 	. "fmt"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/function"
-	ctyjson "github.com/zclconf/go-cty/cty/json"
 	"io"
 	"log"
 	"os/exec"
@@ -45,27 +44,35 @@ func prepArgs(exFn *ExternalFunctionCfg, args []cty.Value) (execArgs []string, e
 	for u, arg := range args {
 		switch exFn.Args[u] {
 		case "map":
-			jsonVal, err := ctyjson.Marshal(arg, cty.Map(cty.DynamicPseudoType))
-
-			if err != nil {
-				return execArgs, errors.New(Sprintf("Error: Unable to convert variable to json as map, %s", err))
+			newMap := make(map[string]string)
+			for k, v := range arg.AsValueMap() {
+				newMap[k] = v.AsString()
 			}
 
-			execArgs = append(execArgs, string(jsonVal))
+			marshal, err := json.Marshal(newMap)
+			if err != nil {
+				return execArgs, Errorf("unable to convert variable to json as map, %s", err)
+			}
+
+			execArgs = append(execArgs, string(marshal))
 		case "list":
-			jsonVal, err := ctyjson.Marshal(arg, cty.List(cty.DynamicPseudoType))
-
-			if err != nil {
-				return execArgs, errors.New(Sprintf("Error: Unable to convert variable to json as list, %s", err))
+			var list []string
+			for i := 0; i < arg.LengthInt(); i++ {
+				list = append(list, arg.Index(cty.NumberIntVal(int64(i))).AsString())
 			}
 
-			execArgs = append(execArgs, string(jsonVal))
+			marshal, err := json.Marshal(list)
+			if err != nil {
+				return execArgs, Errorf("unable to convert variable to json as list, %s", err)
+			}
+
+			execArgs = append(execArgs, string(marshal))
 		case "string":
 			execArgs = append(execArgs, arg.AsString())
 		case "number":
-			execArgs = append(execArgs, arg.AsString())
+			execArgs = append(execArgs, arg.AsBigFloat().String())
 		default:
-			return execArgs, errors.New(Sprintf("Error: Unknown variable type, %s", exFn.Args[u]))
+			return execArgs, Errorf("unknown variable type, %s", exFn.Args[u])
 		}
 	}
 

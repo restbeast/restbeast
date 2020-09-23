@@ -15,10 +15,19 @@ type VariableCfg struct {
 
 type VariableCfgs []*VariableCfg
 
+type DaznHmacCfg struct {
+	Body hcl.Body `hcl:",remain"`
+}
+
+type AuthCfg struct {
+	DAZNHMAC *DaznHmacCfg `hcl:"dazn-hmac,block"`
+}
+
 type RequestCfg struct {
 	Name      string   `hcl:"name,label"`
 	DependsOn []string `hcl:"depends_on,optional"`
 	Body      hcl.Body `hcl:",remain"`
+	Auth      *AuthCfg `hcl:"auth,block"`
 }
 
 type RequestCfgs []*RequestCfg

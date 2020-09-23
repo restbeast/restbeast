@@ -15,8 +15,8 @@ func TestRequest_Exec(t *testing.T) {
 	})
 	test2 := mocks.Responder(func(*http.Request) (*http.Response, error) {
 		return &http.Response{
-			Body: ioutil.NopCloser(bytes.NewReader([]byte("hello world"))),
-			Header: http.Header{ "header1": []string{ "value1" } },
+			Body:   ioutil.NopCloser(bytes.NewReader([]byte("hello world"))),
+			Header: http.Header{"header1": []string{"value1"}},
 		}, nil
 	})
 
@@ -45,7 +45,7 @@ func TestRequest_Exec(t *testing.T) {
 			fields: fields{
 				Method:      "",
 				Url:         "URL1",
-				Headers:     map[string]string{ "header1": "value1" },
+				Headers:     map[string]string{"header1": "value1"},
 				Body:        "",
 				EvalContext: EvalContext{},
 				ExecutionContext: &ExecutionContext{
@@ -63,7 +63,7 @@ func TestRequest_Exec(t *testing.T) {
 			fields: fields{
 				Method:      "GET",
 				Url:         "URL1",
-				Headers:     map[string]string{ "header1": "value1" },
+				Headers:     map[string]string{"header1": "value1"},
 				Body:        "",
 				EvalContext: EvalContext{},
 				ExecutionContext: &ExecutionContext{
@@ -81,7 +81,7 @@ func TestRequest_Exec(t *testing.T) {
 			fields: fields{
 				Method:      "GET",
 				Url:         "URL2",
-				Headers:     map[string]string{ "header1": "value1" },
+				Headers:     map[string]string{"header1": "value1"},
 				Body:        "",
 				EvalContext: EvalContext{},
 				ExecutionContext: &ExecutionContext{

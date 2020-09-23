@@ -2,7 +2,7 @@ package main
 
 import (
 	"bufio"
-	"fmt"
+	. "fmt"
 	"github.com/getsentry/sentry-go"
 	"github.com/go-errors/errors"
 	"gitlab.com/restbeast/cli/cmds"
@@ -36,7 +36,7 @@ func main() {
 
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Println("RestBeast encountered an unknown error")
+			Println("RestBeast encountered an unknown error")
 
 			if execCtx.Debug {
 				log.Printf("%s", r)
@@ -44,7 +44,7 @@ func main() {
 			}
 
 			stdinReader := bufio.NewReader(os.Stdin)
-			fmt.Print("Do you want to send crash report [y/N]: ")
+			Print("Do you want to send crash report [y/N]: ")
 			choice, _ := stdinReader.ReadString('\n')
 
 			if strings.Trim(strings.ToLower(choice), "\t \n") == "y" {
@@ -52,7 +52,7 @@ func main() {
 					scope.SetLevel(sentry.LevelFatal)
 					sentry.CaptureException(errors.Wrap(r, 4))
 				})
-				fmt.Println("Crash report sent.")
+				Println("Crash report sent.")
 			}
 		}
 	}()

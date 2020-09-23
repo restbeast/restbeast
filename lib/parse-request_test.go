@@ -249,22 +249,43 @@ func Test_getRequest(t *testing.T) {
 	})
 
 	type args struct {
-		cfg     cty.Value
-		execCtx ExecutionContext
+		cfg        cty.Value
+		requestCfg RequestCfg
+		execCtx    *ExecutionContext
+		evCtx      EvalContext
 	}
+
+	args1 := args{
+		cfg1,
+		RequestCfg{
+			Name:      "",
+			DependsOn: nil,
+			Body:      nil,
+			Auth:      nil,
+		},
+		&ExecutionContext{
+			Version: "",
+			Debug:   false,
+		},
+		EvalContext{
+			Functions:     nil,
+			Variables:     nil,
+			Environment:   nil,
+			RequestAsVars: nil,
+			RawRequests:   nil,
+		},
+	}
+
 	tests := []struct {
 		name    string
 		args    args
 		wantErr bool
 	}{
-		{"success", args{cfg1, ExecutionContext{
-			Version: "",
-			Debug:   false,
-		}}, false},
+		{"test1", args1, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := getRequest(tt.args.cfg, &tt.args.execCtx)
+			_, err := getRequest(tt.args.cfg, tt.args.requestCfg, tt.args.evCtx, tt.args.execCtx)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("getRequest() error = %v, wantErr %v", err, tt.wantErr)
 				return

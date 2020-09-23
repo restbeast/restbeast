@@ -12,7 +12,7 @@ type Responder func(*http.Request) (*http.Response, error)
 // an http.Client.  This implementation doesn't actually make the call, instead defering to
 // the registered list of responders.
 type MockTransport struct {
-	responders      map[string]Responder
+	responders map[string]Responder
 }
 
 // RoundTrip is required to implement http.MockTransport.  Instead of fulfilling the given request,

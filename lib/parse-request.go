@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hcldec"
 	"github.com/zclconf/go-cty/cty"
+	"github.com/zclconf/go-cty/cty/function"
 	"github.com/zclconf/go-cty/cty/gocty"
 	ctyjson "github.com/zclconf/go-cty/cty/json"
 	"net/http"
@@ -60,18 +61,32 @@ func findRequest(name string, rawRequests RequestCfgs) (*RequestCfg, error) {
 }
 
 func getCtxEvalContext(evCtx EvalContext) hcl.EvalContext {
-	vars := map[string]cty.Value{
-		"var":     cty.ObjectVal(*evCtx.Variables),
-		"request": cty.ObjectVal(evCtx.RequestAsVars),
+	var vars map[string]cty.Value
+
+	if evCtx.Variables != nil {
+		vars = map[string]cty.Value{
+			"var":     cty.ObjectVal(*evCtx.Variables),
+			"request": cty.ObjectVal(evCtx.RequestAsVars),
+		}
+	} else {
+		vars = map[string]cty.Value{
+			"vars":    cty.EmptyObjectVal,
+			"request": cty.ObjectVal(evCtx.RequestAsVars),
+		}
 	}
 
 	if evCtx.Environment != nil {
 		vars["env"] = *evCtx.Environment
 	}
 
+	fns := map[string]function.Function{}
+	if evCtx.Functions != nil {
+		fns = *evCtx.Functions
+	}
+
 	return hcl.EvalContext{
 		Variables: vars,
-		Functions: *evCtx.Functions,
+		Functions: fns,
 	}
 }
 
@@ -193,7 +208,7 @@ func processDependency(dependency string, evCtx *EvalContext, execCtx *Execution
 	return evCtx, request.Response, nil
 }
 
-func getRequest(cfg cty.Value, execCtx *ExecutionContext) (*Request, error) {
+func getRequest(cfg cty.Value, requestCfg RequestCfg, evCtx EvalContext, execCtx *ExecutionContext) (*Request, error) {
 	bodyAsCtyObj := cfg.GetAttr("body")
 
 	bodyJSON, jsonErr := json.MarshalIndent(ctyjson.SimpleJSONValue{bodyAsCtyObj}, "", "  ")
@@ -232,6 +247,11 @@ func getRequest(cfg cty.Value, execCtx *ExecutionContext) (*Request, error) {
 		RoundTripper:     roundTripper,
 	}
 
+	authBlockErr := parseAuthBlock(request, requestCfg.Auth, getCtxEvalContext(evCtx))
+	if authBlockErr != nil {
+		return nil, authBlockErr
+	}
+
 	return request, nil
 }
 
@@ -244,7 +264,7 @@ func parseRequest(name string, evCtx EvalContext, execCtx *ExecutionContext) (*R
 
 	var responses []*Response
 
-	// This feature haven't been documented yet.
+	// This feature hasn't been documented yet.
 	if requestCfg.DependsOn != nil {
 		for _, v := range requestCfg.DependsOn {
 			findString := requestDependencyRegex.FindStringSubmatch(v)
@@ -312,7 +332,7 @@ func parseRequest(name string, evCtx EvalContext, execCtx *ExecutionContext) (*R
 		}
 	}
 
-	finalRequest, err := getRequest(cfg, execCtx)
+	finalRequest, err := getRequest(cfg, *requestCfg, evCtx, execCtx)
 	if err != nil {
 		return nil, err
 	}
