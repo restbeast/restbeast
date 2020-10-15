@@ -210,10 +210,14 @@ func processDependency(dependency string, evCtx *EvalContext, execCtx *Execution
 
 func getRequest(cfg cty.Value, requestCfg RequestCfg, evCtx EvalContext, execCtx *ExecutionContext) (*Request, error) {
 	bodyAsCtyObj := cfg.GetAttr("body")
+	var bodyAsString string
 
-	bodyJSON, jsonErr := json.MarshalIndent(ctyjson.SimpleJSONValue{bodyAsCtyObj}, "", "  ")
-	if jsonErr != nil {
-		return nil, Errorf("Error: failed to parse request body, \n%s\n", jsonErr)
+	if !bodyAsCtyObj.IsNull() {
+		bodyJSON, jsonErr := json.MarshalIndent(ctyjson.SimpleJSONValue{bodyAsCtyObj}, "", "  ")
+		if jsonErr != nil {
+			return nil, Errorf("Error: failed to parse request body, \n%s\n", jsonErr)
+		}
+		bodyAsString = string(bodyJSON)
 	}
 
 	var headers map[string]string
@@ -233,7 +237,6 @@ func getRequest(cfg cty.Value, requestCfg RequestCfg, evCtx EvalContext, execCtx
 	if !cfg.GetAttr("url").IsWhollyKnown() {
 		return nil, Errorf("Error: failed to parse url, possible unknown variable used.\n")
 	}
-	bodyAsString := string(bodyJSON)
 	url := cfg.GetAttr("url").AsString()
 
 	roundTripper := http.DefaultTransport

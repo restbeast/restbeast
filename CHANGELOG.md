@@ -4,3 +4,6 @@
 - Version fixing #13
 - DAZN Hmac Auth #36
 - Fixes on external script parser
+
+0.7.1
+- Fixes non-empty body issue
