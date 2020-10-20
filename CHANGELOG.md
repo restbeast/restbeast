@@ -7,3 +7,6 @@
 
 0.7.1
 - Fixes non-empty body issue
+
+0.8.0
+- Introduce dynamic variables

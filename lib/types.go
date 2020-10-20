@@ -61,6 +61,7 @@ type ExternalFunctionCfgs []*ExternalFunctionCfg
 type RootCfg struct {
 	Requests          RequestCfgs          `hcl:"request,block"`
 	Variables         VariableCfgs         `hcl:"variable,block"`
+	Dynamics				  VariableCfgs				 `hcl:"dynamic,block"`
 	Environments      EnvironmentCfgs      `hcl:"env,block"`
 	ExternalFunctions ExternalFunctionCfgs `hcl:"external-function,block"`
 	Version           string               `hcl:"version,optional"`
@@ -108,6 +109,7 @@ type EvalContext struct {
 	Environment   *cty.Value
 	RequestAsVars RequestAsVars
 	RawRequests   RequestCfgs
+	RawDynamics		VariableCfgs
 }
 
 type RequestAsVars map[string]cty.Value

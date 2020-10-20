@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/Masterminds/semver"
 	"github.com/hashicorp/hcl/v2/gohcl"
+	"github.com/zclconf/go-cty/cty"
 	"strings"
 )
 
@@ -93,13 +94,39 @@ func LoadEvalCtx(env string, execCtx *ExecutionContext) (*EvalContext, error) {
 		Functions:     functions,
 		Variables:     variables,
 		Environment:   envVars,
+		RawDynamics:   root.Dynamics,
 		RawRequests:   root.Requests,
 		RequestAsVars: RequestAsVars{},
 	}, nil
 }
 
+func loadDynamics(evCtx *EvalContext) error {
+	dynamics, err := parseVariables(evCtx.RawDynamics, *evCtx.Functions)
+	if err != nil {
+		return err
+	}
+
+	variables := map[string]cty.Value{}
+	if evCtx.Variables != nil {
+		variables = *evCtx.Variables
+	}
+
+	if dynamics != nil {
+		for varName, value := range *dynamics {
+			variables[varName] = value
+		}
+	}
+	evCtx.Variables = &variables
+
+	return nil
+}
+
 // Load only request with given EvalContext
 func LoadOnlyRequest(name string, evCtx *EvalContext, execCtx *ExecutionContext) (request *Request, err error) {
+	err = loadDynamics(evCtx)
+	if err != nil {
+		return nil, err
+	}
 
 	return parseRequest(name, *evCtx, execCtx)
 }
@@ -107,6 +134,11 @@ func LoadOnlyRequest(name string, evCtx *EvalContext, execCtx *ExecutionContext)
 // Gather EvalContext and load given request
 func LoadWhole(name, env string, execCtx *ExecutionContext) (request *Request, err error) {
 	evCtx, err := LoadEvalCtx(env, execCtx)
+	if err != nil {
+		return nil, err
+	}
+
+	err = loadDynamics(evCtx)
 	if err != nil {
 		return nil, err
 	}
