@@ -345,28 +345,28 @@ func Test_retryWithDependency(t *testing.T) {
 
 	args1 := args{}
 	args2 := args{
-		diags: hcl.Diagnostics{ &hcl.Diagnostic{
-			Severity:    0,
-			Summary:     "Unsupported attribute",
-			Detail:      "detail",
-		} },
+		diags: hcl.Diagnostics{&hcl.Diagnostic{
+			Severity: 0,
+			Summary:  "Unsupported attribute",
+			Detail:   "detail",
+		}},
 	}
 
 	args3 := args{
-		diags: hcl.Diagnostics{ &hcl.Diagnostic{
-			Severity:    0,
-			Summary:     "Unsupported attribute",
-			Detail:      "This object does not have an attribute named \"deprequest\"",
-		} },
+		diags: hcl.Diagnostics{&hcl.Diagnostic{
+			Severity: 0,
+			Summary:  "Unsupported attribute",
+			Detail:   "This object does not have an attribute named \"deprequest\"",
+		}},
 	}
 
 	args4 := args{
-		diags: hcl.Diagnostics{ &hcl.Diagnostic{
-			Severity:    0,
-			Summary:     "Unsupported attribute",
-			Detail:      "This object does not have an attribute named \"deprequest\"",
-		} },
-		evCtx: EvalContext{RequestAsVars: RequestAsVars{ "deprequest": cty.Value{} } },
+		diags: hcl.Diagnostics{&hcl.Diagnostic{
+			Severity: 0,
+			Summary:  "Unsupported attribute",
+			Detail:   "This object does not have an attribute named \"deprequest\"",
+		}},
+		evCtx: EvalContext{RequestAsVars: RequestAsVars{"deprequest": cty.Value{}}},
 		requestCfg: &RequestCfg{
 			Name:      "a-request",
 			DependsOn: nil,
@@ -381,10 +381,10 @@ func Test_retryWithDependency(t *testing.T) {
 		want1   []*Response
 		wantErr bool
 	}{
-		{ "no dep, no diag", args1,nil, false },
-		{ "no dep, rest diag", args2,nil, true },
-		{ "not found dep", args3,nil, true },
-		{ "dep", args4, nil, true },
+		{"no dep, no diag", args1, nil, false},
+		{"no dep, rest diag", args2, nil, true},
+		{"not found dep", args3, nil, true},
+		{"dep", args4, nil, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

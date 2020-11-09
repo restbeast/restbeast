@@ -19,8 +19,13 @@ type BasicAuthCfg struct {
 	Body hcl.Body `hcl:",remain"`
 }
 
+type BearerAuthCfg struct {
+	Body hcl.Body `hcl:",remain"`
+}
+
 type AuthCfg struct {
-	BasicAuth *BasicAuthCfg `hcl:"basic,block"`
+	BasicAuth  *BasicAuthCfg  `hcl:"basic,block"`
+	BearerAuth *BearerAuthCfg `hcl:"bearer,block"`
 }
 
 type RequestCfg struct {
@@ -61,7 +66,7 @@ type ExternalFunctionCfgs []*ExternalFunctionCfg
 type RootCfg struct {
 	Requests          RequestCfgs          `hcl:"request,block"`
 	Variables         VariableCfgs         `hcl:"variable,block"`
-	Dynamics				  VariableCfgs				 `hcl:"dynamic,block"`
+	Dynamics          VariableCfgs         `hcl:"dynamic,block"`
 	Environments      EnvironmentCfgs      `hcl:"env,block"`
 	ExternalFunctions ExternalFunctionCfgs `hcl:"external-function,block"`
 	Version           string               `hcl:"version,optional"`
@@ -109,7 +114,7 @@ type EvalContext struct {
 	Environment   *cty.Value
 	RequestAsVars RequestAsVars
 	RawRequests   RequestCfgs
-	RawDynamics		VariableCfgs
+	RawDynamics   VariableCfgs
 }
 
 type RequestAsVars map[string]cty.Value

@@ -1,6 +1,7 @@
 0.9.0
 - Introducing Auth block
 - Basic auth
+- Bearer auth
 
 0.8.0
 - Introduce dynamic variables

@@ -63,7 +63,7 @@ func Test_prepArgs(t *testing.T) {
 		{"test1", args{&ExternalFunctionCfg{"", "", "", []string{"string"}}, []cty.Value{cty.StringVal("test")}}, []string{"", "test"}, false},
 		{"test2", args{&ExternalFunctionCfg{"", "", "", []string{"number"}}, []cty.Value{cty.NumberIntVal(1)}}, []string{"", "1"}, false},
 		{"test3", args{&ExternalFunctionCfg{"", "", "", []string{"list"}}, []cty.Value{cty.ListVal([]cty.Value{cty.StringVal("val1"), cty.StringVal("val2")})}}, []string{"", `["val1","val2"]`}, false},
-		{"test4", args{&ExternalFunctionCfg{"", "", "", []string{"map"}}, []cty.Value{cty.MapVal(map[string]cty.Value{ "key1": cty.StringVal("hello")})}}, []string{"", `{"key1":"hello"}`}, false},
+		{"test4", args{&ExternalFunctionCfg{"", "", "", []string{"map"}}, []cty.Value{cty.MapVal(map[string]cty.Value{"key1": cty.StringVal("hello")})}}, []string{"", `{"key1":"hello"}`}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
