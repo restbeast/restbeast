@@ -285,7 +285,7 @@ func Test_getRequest(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := getRequest(tt.args.cfg, tt.args.requestCfg, tt.args.evCtx, tt.args.execCtx)
+			_, err, _ := getRequest(tt.args.cfg, tt.args.requestCfg, tt.args.evCtx, tt.args.execCtx)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("getRequest() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -328,6 +328,73 @@ func Test_getCtxEvalContext(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := getCtxEvalContext(tt.args.evCtx); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("getCtxEvalContext() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_retryWithDependency(t *testing.T) {
+	type args struct {
+		requestCfg *RequestCfg
+		cfg        cty.Value
+		diags      hcl.Diagnostics
+		evCtx      EvalContext
+		execCtx    *ExecutionContext
+		responses  []*Response
+	}
+
+	args1 := args{}
+	args2 := args{
+		diags: hcl.Diagnostics{ &hcl.Diagnostic{
+			Severity:    0,
+			Summary:     "Unsupported attribute",
+			Detail:      "detail",
+		} },
+	}
+
+	args3 := args{
+		diags: hcl.Diagnostics{ &hcl.Diagnostic{
+			Severity:    0,
+			Summary:     "Unsupported attribute",
+			Detail:      "This object does not have an attribute named \"deprequest\"",
+		} },
+	}
+
+	args4 := args{
+		diags: hcl.Diagnostics{ &hcl.Diagnostic{
+			Severity:    0,
+			Summary:     "Unsupported attribute",
+			Detail:      "This object does not have an attribute named \"deprequest\"",
+		} },
+		evCtx: EvalContext{RequestAsVars: RequestAsVars{ "deprequest": cty.Value{} } },
+		requestCfg: &RequestCfg{
+			Name:      "a-request",
+			DependsOn: nil,
+			Body:      hcl.EmptyBody(),
+			Auth:      nil,
+		},
+	}
+
+	tests := []struct {
+		name    string
+		args    args
+		want1   []*Response
+		wantErr bool
+	}{
+		{ "no dep, no diag", args1,nil, false },
+		{ "no dep, rest diag", args2,nil, true },
+		{ "not found dep", args3,nil, true },
+		{ "dep", args4, nil, true },
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, got1, err := retryWithDependency(tt.args.requestCfg, tt.args.cfg, tt.args.diags, tt.args.evCtx, tt.args.execCtx, tt.args.responses)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("retryWithDependency() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got1, tt.want1) {
+				t.Errorf("retryWithDependency() got1 = %v, want %v", got1, tt.want1)
 			}
 		})
 	}

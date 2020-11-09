@@ -208,23 +208,23 @@ func processDependency(dependency string, evCtx *EvalContext, execCtx *Execution
 	return evCtx, request.Response, nil
 }
 
-func getRequest(cfg cty.Value, requestCfg RequestCfg, evCtx EvalContext, execCtx *ExecutionContext) (*Request, error) {
+func getRequest(cfg cty.Value, requestCfg RequestCfg, evCtx EvalContext, execCtx *ExecutionContext) (*Request, error, hcl.Diagnostics) {
 	bodyAsCtyObj := cfg.GetAttr("body")
 	var bodyAsString string
 
 	if !bodyAsCtyObj.IsNull() {
 		bodyJSON, jsonErr := json.MarshalIndent(ctyjson.SimpleJSONValue{bodyAsCtyObj}, "", "  ")
 		if jsonErr != nil {
-			return nil, Errorf("Error: failed to parse request body, \n%s\n", jsonErr)
+			return nil, Errorf("Error: failed to parse request body, \n%s\n", jsonErr), nil
 		}
 		bodyAsString = string(bodyJSON)
 	}
 
-	var headers map[string]string
+	headers := make(map[string]string)
 	headerErr := gocty.FromCtyValue(cfg.GetAttr("headers"), &headers)
 
 	if headerErr != nil {
-		return nil, Errorf("Error: failed to parse headers, \n%s\n", headerErr)
+		return nil, Errorf("Error: failed to parse headers, \n%s\n", headerErr), nil
 	}
 
 	var method string
@@ -235,7 +235,7 @@ func getRequest(cfg cty.Value, requestCfg RequestCfg, evCtx EvalContext, execCtx
 	}
 
 	if !cfg.GetAttr("url").IsWhollyKnown() {
-		return nil, Errorf("Error: failed to parse url, possible unknown variable used.\n")
+		return nil, Errorf("Error: failed to parse url, possible unknown variable used.\n"), nil
 	}
 	url := cfg.GetAttr("url").AsString()
 
@@ -250,12 +250,63 @@ func getRequest(cfg cty.Value, requestCfg RequestCfg, evCtx EvalContext, execCtx
 		RoundTripper:     roundTripper,
 	}
 
-	authBlockErr := parseAuthBlock(request, requestCfg.Auth, getCtxEvalContext(evCtx))
-	if authBlockErr != nil {
-		return nil, authBlockErr
+	authBlockDiags := parseAuthBlock(request, requestCfg.Auth, getCtxEvalContext(evCtx))
+	if authBlockDiags != nil {
+		return nil, nil, authBlockDiags
 	}
 
-	return request, nil
+	return request, nil, nil
+}
+
+func retryWithDependency(requestCfg *RequestCfg, cfg cty.Value, diags hcl.Diagnostics, evCtx EvalContext, execCtx *ExecutionContext, responses []*Response) (cty.Value, []*Response, error) {
+	dependencies, restDiagMsgs := getPossibleDependencies(diags)
+
+	if len(restDiagMsgs) > 0 {
+		errTxt := ""
+		for _, diag := range restDiagMsgs {
+			errTxt += Sprintf("- %s\n", diag)
+		}
+
+		return cfg, responses, Errorf(errTxt)
+	}
+
+	if len(dependencies) > 0 {
+		uniqueDeps := getUniqueDependencies(dependencies)
+		sortedDeps, err := sortCrossDependency(uniqueDeps, evCtx)
+
+		if err != nil {
+			return cfg, responses, err
+		}
+
+		for _, dependency := range sortedDeps {
+			if _, ok := evCtx.RequestAsVars[dependency]; !ok {
+				evCtxP, response, err := processDependency(dependency, &evCtx, execCtx)
+				if err != nil {
+					return cfg, responses, err
+				}
+
+				responses = append(responses, response)
+				evCtx = *evCtxP
+			}
+		}
+
+		spec := getObjSpec()
+		ctxEvalContext := getCtxEvalContext(evCtx)
+		cfg, diags := hcldec.Decode(requestCfg.Body, spec, &ctxEvalContext)
+
+		if len(diags) > 0 {
+			errTxt := ""
+			for _, diag := range diags {
+				errTxt += Sprintf("- %s\n", diag)
+			}
+
+			return cfg, responses, Errorf(errTxt)
+		}
+
+		return cfg, responses, nil
+	}
+
+	return cfg, responses, nil
 }
 
 func parseRequest(name string, evCtx EvalContext, execCtx *ExecutionContext) (*Request, error) {
@@ -290,54 +341,33 @@ func parseRequest(name string, evCtx EvalContext, execCtx *ExecutionContext) (*R
 	ctxEvalContext := getCtxEvalContext(evCtx)
 	spec := getObjSpec()
 	cfg, diags := hcldec.Decode(requestCfg.Body, spec, &ctxEvalContext)
-	dependencies, restDiagMsgs := getPossibleDependencies(diags)
 
-	if len(restDiagMsgs) > 0 {
-		errTxt := ""
-		for _, diag := range restDiagMsgs {
-			errTxt += Sprintf("- %s\n", diag)
-		}
-
-		return nil, Errorf(errTxt)
+	cfg, responses, err = retryWithDependency(requestCfg, cfg, diags, evCtx, execCtx, responses)
+	if err != nil {
+		return nil, err
 	}
 
-	if len(dependencies) > 0 {
-		uniqueDeps := getUniqueDependencies(dependencies)
-		sortedDeps, err := sortCrossDependency(uniqueDeps, evCtx)
+	finalRequest, err, requestDiags := getRequest(cfg, *requestCfg, evCtx, execCtx)
+	if err != nil {
+		return nil, err
+	}
 
+	if requestDiags != nil {
+		cfg, responses, err = retryWithDependency(requestCfg, cfg, requestDiags, evCtx, execCtx, responses)
+
+		finalRequest, err, requestDiags = getRequest(cfg, *requestCfg, evCtx, execCtx)
 		if err != nil {
 			return nil, err
 		}
 
-		for _, dependency := range sortedDeps {
-			if _, ok := evCtx.RequestAsVars[dependency]; !ok {
-				evCtxP, response, err := processDependency(dependency, &evCtx, execCtx)
-				responses = append(responses, response)
-
-				if err != nil {
-					return nil, err
-				}
-
-				evCtx = *evCtxP
-			}
-		}
-
-		ctxEvalContext = getCtxEvalContext(evCtx)
-		cfg, diags = hcldec.Decode(requestCfg.Body, spec, &ctxEvalContext)
-
-		if len(diags) > 0 {
+		if len(requestDiags) > 0 {
 			errTxt := ""
-			for _, diag := range diags {
+			for _, diag := range requestDiags {
 				errTxt += Sprintf("- %s\n", diag)
 			}
 
 			return nil, Errorf(errTxt)
 		}
-	}
-
-	finalRequest, err := getRequest(cfg, *requestCfg, evCtx, execCtx)
-	if err != nil {
-		return nil, err
 	}
 
 	finalRequest.PrecedingRequests = responses
