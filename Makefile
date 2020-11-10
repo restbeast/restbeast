@@ -1,5 +1,5 @@
 PROJECT_NAME= "restbeast"
-PKG = "gitlab.com/restbeast/cli"
+PKG = "github.com/restbeast/restbeast"
 VERSION := $(CI_COMMIT_TAG)
 CGO_ENABLED = 0
 SENTRY_DSN = "https://9c22d42ad3594172b24f9f5fc4db9d73@o421531.ingest.sentry.io/5341476"

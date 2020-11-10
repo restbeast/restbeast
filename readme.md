@@ -46,7 +46,7 @@ restbeast r post-example | jq
 
 #### Functions
 A variety of functions are available. 
-See [built-in go-cty functions](https://gitlab.com/restbeast/cli/-/blob/master/docs/functions.md) and [gofakeit functions](https://gitlab.com/restbeast/cli/-/blob/master/docs/gofakeit-functions.md) 
+See [built-in go-cty functions](https://github.com/restbeast/restbeast/blob/master/docs/functions.md) and [gofakeit functions](https://github.com/restbeast/restbeast/blob/master/docs/gofakeit-functions.md) 
 
 #### External Functions
 It's possible to define external programs or scripts as functions. 
@@ -286,7 +286,7 @@ AverageTime: 585.411933ms
 ```
 
 #### Fixing Version
-It's possible to fix your restbeast configuration to a specific version. See [here](https://gitlab.com/restbeast/cli/-/blob/master/docs/semver.md) for extra comparison options.
+It's possible to fix your restbeast configuration to a specific version. See [here](https://github.com/restbeast/restbeast/blob/master/docs/semver.md) for extra comparison options.
 
 ```hcl
 version = "~0.7"
@@ -295,7 +295,7 @@ version = "~0.7"
 ## Install
 
 ### Install From Binary
-Get the latest build from [gitlab release page](https://gitlab.com/restbeast/cli/-/releases).   
+Get the latest build from [gitlab release page](https://github.com/restbeast/restbeast/releases).   
 Decompress file and Move the executable file to a location in $PATH
 ```shell script
 tar zxvf restbeast_v0.5.2_linux_amd64.tar.gz
@@ -305,14 +305,14 @@ sudo mv restbeast /usr/local/bin/
 ### Compile From Source
 Install `go >= 1.13` [](https://golang.org/doc/install)
 
-Get the latest source from [gitlab release page](https://gitlab.com/restbeast/cli/-/releases) and unzip
+Get the latest source from [gitlab release page](https://github.com/restbeast/restbeast/releases) and unzip
 ```shell script
 unzip cli-v0.5.3.zip
 cd cli-v0.5.3
 ```
 Or clone from gitlab
 ```shell script
-git clone https://gitlab.com/restbeast/cli.git restbeast-cli
+git clone https://github.com/restbeast/restbeast.git restbeast-cli
 cd restbeast-cli
 ```
 
