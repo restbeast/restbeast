@@ -312,7 +312,7 @@ cd cli-v0.5.3
 ```
 Or clone from gitlab
 ```shell script
-git clone https://gitlab.com/restbeast/cli.git restbeast-cli
+git clone https://github.com/restbeast/restbeast.git restbeast-cli
 cd restbeast-cli
 ```
 

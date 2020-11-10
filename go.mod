@@ -1,4 +1,4 @@
-module gitlab.com/restbeast/cli
+module github.com/restbeast/restbeast
 
 go 1.13
 

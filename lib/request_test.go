@@ -3,7 +3,7 @@ package lib
 import (
 	"bytes"
 	"fmt"
-	"gitlab.com/restbeast/cli/lib/mocks"
+	"github.com/restbeast/restbeast/lib/mocks"
 	"io/ioutil"
 	"net/http"
 	"testing"
