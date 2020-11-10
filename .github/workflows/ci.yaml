@@ -1,4 +1,4 @@
-name: codecov
+name: ci
 on: [push]
 jobs:
   codecov:

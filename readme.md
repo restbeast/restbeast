@@ -1,3 +1,6 @@
+[![Actions Status](https://github.com/restbeast/restbeast/workflows/ci/badge.svg)](https://github.com/restbeast/restbeast/actions)
+[![codecov](https://codecov.io/gh/restbeast/restbeast/branch/master/graph/badge.svg)](https://codecov.io/gh/restbeast/restbeast)
+
 # RestBeast Terminal Client
 In a nut shell;
 - A terminal API client
