@@ -288,30 +288,57 @@ Status 500 response: %6 (4)
 AverageTime: 585.411933ms
 ```
 
-#### Fixing Version
+#### Fixing version
 It's possible to fix your restbeast configuration to a specific version. See [here](https://github.com/restbeast/restbeast/blob/master/docs/semver.md) for extra comparison options.
 
 ```hcl
-version = "~0.7"
+version = "~0.9"
 ```
+
+#### Authorization
+It's possible to handle basic or bearer authorization through `auth` block.
+
+Basic auth example
+```hcl
+request example {
+  auth {
+    basic {
+      username = "a-username"
+      password = request.some-other-request.body.password
+    }
+  }
+}
+```
+
+Bearer auth example
+```hcl
+request example {
+  auth {
+    bearer {
+      token = request.sign-in.body.jwt
+    }
+  }
+}
+```
+
 
 ## Install
 
 ### Install From Binary
-Get the latest build from [gitlab release page](https://github.com/restbeast/restbeast/releases).   
-Decompress file and Move the executable file to a location in $PATH
+Get the latest build from [github release page](https://github.com/restbeast/restbeast/releases/latest).   
+Decompress the file and Move the executable file to a location in $PATH
 ```shell script
-tar zxvf restbeast_v0.5.2_linux_amd64.tar.gz
+tar zxvf restbeast-v0.9.0-linux-amd64.tar.gz
 sudo mv restbeast /usr/local/bin/
 ```
 
 ### Compile From Source
-Install `go >= 1.13` [](https://golang.org/doc/install)
+Install `go >= 1.14` [](https://golang.org/doc/install)
 
-Get the latest source from [gitlab release page](https://github.com/restbeast/restbeast/releases) and unzip
+Get the latest source from [github release page](https://github.com/restbeast/restbeast/releases/latest) and unzip
 ```shell script
-unzip cli-v0.5.3.zip
-cd cli-v0.5.3
+unzip v0.9.0.zip
+cd v0.9.0
 ```
 Or clone from gitlab
 ```shell script
