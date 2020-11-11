@@ -1,3 +1,6 @@
+0.10.0
+- Bug report command `restbeast bug`
+
 0.9.0
 - Introducing Auth block
 - Basic auth
