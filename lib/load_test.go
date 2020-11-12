@@ -50,9 +50,9 @@ func Test_readAndDecodeBody(t *testing.T) {
 		rootCfg *RootCfg
 		wantErr bool
 	}{
-		{ "with version", []byte(`version = "1.0.0"`), &RootCfg{Version: "1.0.0"}, false },
-		{ "with error", []byte(`unknown thing`), nil, true },
-		{ "with diag", []byte(`unknown_thing = "hi"`), nil, true },
+		{"with version", []byte(`version = "1.0.0"`), &RootCfg{Version: "1.0.0"}, false},
+		{"with error", []byte(`unknown thing`), nil, true},
+		{"with diag", []byte(`unknown_thing = "hi"`), nil, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

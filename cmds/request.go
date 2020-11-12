@@ -2,8 +2,9 @@ package cmds
 
 import (
 	. "fmt"
-	"github.com/spf13/cobra"
+	"github.com/dustin/go-humanize"
 	"github.com/restbeast/restbeast/lib"
+	"github.com/spf13/cobra"
 	"golang.org/x/crypto/ssh/terminal"
 	"net/http"
 	"os"
@@ -22,7 +23,8 @@ func init() {
 	rootCmd.AddCommand(requestCmd)
 }
 
-func printJustTiming(response lib.Response, padding string) {
+func printJustTiming(response lib.Response, padding string) string {
+	var returnVal string
 	var extraPadding string
 	if len(padding) > 0 {
 		extraPadding = "  "
@@ -30,11 +32,18 @@ func printJustTiming(response lib.Response, padding string) {
 		padding = "  "
 	}
 
-	Printf("%s %s\n", response.Method, response.Url)
-	Printf("%s%s│  Total Time: %d ms\n", padding, extraPadding, response.Timing.Total.Milliseconds())
+	returnVal += Sprintf("%s%s\n", response.Method, response.Url)
+	returnVal += Sprintf("%s%s│  Total Time: %d ms\n", padding, extraPadding, response.Timing.Total.Milliseconds())
+	if response.BytesSend > 0 {
+		returnVal += Sprintf("%s%s│  Bytes Sent: %s\n", padding, extraPadding, humanize.Bytes(response.BytesSend))
+	}
+	returnVal += Sprintf("%s%s│  Bytes Received: %s\n", padding, extraPadding, humanize.Bytes(response.BytesReceived))
+
+	return returnVal
 }
 
-func printDetailedTiming(response lib.Response, padding string) {
+func printDetailedTiming(response lib.Response, padding string) string {
+	var returnVal string
 	var extraPadding string
 	if len(padding) > 0 {
 		extraPadding = "  "
@@ -42,42 +51,56 @@ func printDetailedTiming(response lib.Response, padding string) {
 		padding = "  "
 	}
 
-	Printf("%s %s\n", response.Method, response.Url)
-	Printf("%s%s│  DNS Resolve Time: %d ms\n", padding, extraPadding, response.Timing.Dns.Milliseconds())
-	Printf("%s%s│  Connection Time: %d ms\n", padding, extraPadding, response.Timing.Conn.Milliseconds())
+	returnVal += Sprintf("%s%s\n", response.Method, response.Url)
+	returnVal += Sprintf("%s%s│  DNS Resolve Time: %d ms\n", padding, extraPadding, response.Timing.Dns.Milliseconds())
+	returnVal += Sprintf("%s%s│  Connection Time: %d ms\n", padding, extraPadding, response.Timing.Conn.Milliseconds())
 	if response.Timing.Tls > 0 {
-		Printf("%s%s│  TLS Handshake Time: %d ms\n", padding, extraPadding, response.Timing.Tls.Milliseconds())
+		returnVal += Sprintf("%s%s│  TLS Handshake Time: %d ms\n", padding, extraPadding, response.Timing.Tls.Milliseconds())
 	}
-	Printf("%s%s│  First Byte Time: %d ms\n", padding, extraPadding, response.Timing.FirstByte.Milliseconds())
-	Printf("%s%s│  Total Time: %d ms\n", padding, extraPadding, response.Timing.Total.Milliseconds())
+	returnVal += Sprintf("%s%s│  First Byte Time: %d ms\n", padding, extraPadding, response.Timing.FirstByte.Milliseconds())
+	returnVal += Sprintf("%s%s│  Total Time: %d ms\n", padding, extraPadding, response.Timing.Total.Milliseconds())
+	if response.BytesSend > 0 {
+		returnVal += Sprintf("%s%s│  Bytes Sent: %s\n", padding, extraPadding, humanize.Bytes(response.BytesSend))
+	}
+	returnVal += Sprintf("%s%s│  Bytes Received: %s\n", padding, extraPadding, humanize.Bytes(response.BytesReceived))
+
+	return returnVal
 }
 
-func printTiming(outputTiming bool, outputDetailedTiming bool, request lib.Request, response lib.Response, padding string) {
+func printTiming(outputTiming bool, outputDetailedTiming bool, request lib.Request, response lib.Response, padding string) string {
+	var returnVal string
+
 	if outputTiming {
-		Printf("%s  │\n", padding)
-		Printf("%s  ├──", padding)
-		printJustTiming(response, padding)
+		returnVal += Sprintf("%s  │\n", padding)
+		returnVal += Sprintf("%s  ├──", padding)
+		returnVal += printJustTiming(response, padding)
 	} else if outputDetailedTiming {
-		Printf("%s  │\n", padding)
-		Printf("%s  ├──", padding)
-		printDetailedTiming(response, padding)
+		returnVal += Sprintf("%s  │\n", padding)
+		returnVal += Sprintf("%s  ├──", padding)
+		returnVal += printDetailedTiming(response, padding)
 	}
 
 	if len(request.PrecedingRequests) > 0 {
 		for _, resP := range request.PrecedingRequests {
 			res := *resP
-			printTiming(outputTiming, outputDetailedTiming, *res.Request, res, padding+"  │  ")
+			returnVal += printTiming(outputTiming, outputDetailedTiming, *res.Request, res, padding+"  │  ")
 		}
 	}
+
+	return returnVal
 }
 
-func printHeaders(response lib.Response) {
+func printHeaders(response lib.Response) string {
+	var returnVal string
+
 	if showHeaders {
-		Printf("\n")
+		returnVal += Sprintf("\n")
 		for k, v := range response.Headers {
-			Printf("\033[1m%s\033[0m: %s\n", k, strings.Join(v, ","))
+			returnVal += Sprintf("\033[1m%s\033[0m: %s\n", k, strings.Join(v, ","))
 		}
 	}
+
+	return returnVal
 }
 
 func doRequest(cmd *cobra.Command, args []string) {
@@ -104,8 +127,8 @@ func doRequest(cmd *cobra.Command, args []string) {
 	if isTerminal {
 		// Print out response information
 		Printf("%s %d %s\n", request.Response.Proto, request.Response.StatusCode, http.StatusText(request.Response.StatusCode))
-		printTiming(outputTiming, outputDetailedTiming, *request, *request.Response, "")
-		printHeaders(*request.Response)
+		Print(printTiming(outputTiming, outputDetailedTiming, *request, *request.Response, ""))
+		Print(printHeaders(*request.Response))
 
 		if len(request.Response.Body) > 0 {
 			Printf("\n\n%s", request.Response.Body)

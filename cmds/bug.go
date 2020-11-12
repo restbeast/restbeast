@@ -18,9 +18,9 @@ import (
 )
 
 var cmdBug = &cobra.Command{
-	Use:     "bug",
-	Short:   "start a bug report",
-	Run:     runBug,
+	Use:   "bug",
+	Short: "start a bug report",
+	Run:   runBug,
 	Long: `
 Bug opens the default browser and starts a new bug report.
 The report includes useful system information.

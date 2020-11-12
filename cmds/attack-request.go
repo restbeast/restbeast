@@ -2,8 +2,8 @@ package cmds
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
 	"github.com/restbeast/restbeast/lib"
+	"github.com/spf13/cobra"
 	"log"
 	"os"
 	"sort"

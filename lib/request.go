@@ -16,7 +16,8 @@ func (request *Request) Exec() error {
 	start := time.Now()
 	var dnsTime, connectionTime, tlsHandshakeTime, firstByteTime, totalTime time.Duration
 
-	httpReq, err := http.NewRequest(strings.ToUpper(request.Method), request.Url, bytes.NewReader([]byte(request.Body)))
+	requestBody := []byte(request.Body)
+	httpReq, err := http.NewRequest(strings.ToUpper(request.Method), request.Url, bytes.NewReader(requestBody))
 	if err != nil {
 		return Errorf("unable to construct request, %s\n", err)
 	}
@@ -87,14 +88,16 @@ func (request *Request) Exec() error {
 	}
 
 	request.Response = &Response{
-		Method:     request.Method,
-		Url:        request.Url,
-		StatusCode: res.StatusCode,
-		Proto:      res.Proto,
-		Body:       data,
-		Headers:    res.Header,
-		Timing:     timing,
-		Request:    request,
+		Method:        request.Method,
+		Url:           request.Url,
+		StatusCode:    res.StatusCode,
+		Proto:         res.Proto,
+		Body:          data,
+		Headers:       res.Header,
+		Timing:        timing,
+		Request:       request,
+		BytesSend:     uint64(len(requestBody)),
+		BytesReceived: uint64(len(data)),
 	}
 
 	return nil

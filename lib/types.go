@@ -86,14 +86,16 @@ type RequestTiming struct {
 }
 
 type Response struct {
-	Method     string
-	Url        string
-	StatusCode int
-	Proto      string
-	Body       []byte
-	Headers    http.Header
-	Timing     RequestTiming
-	Request    *Request
+	Method        string
+	Url           string
+	StatusCode    int
+	Proto         string
+	Body          []byte
+	Headers       http.Header
+	Timing        RequestTiming
+	Request       *Request
+	BytesSend     uint64
+	BytesReceived uint64
 }
 
 type Request struct {

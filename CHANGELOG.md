@@ -1,5 +1,6 @@
 0.10.0
-- Bug report command `restbeast bug`
+- Bytes received and sent output [#14](https://github.com/restbeast/restbeast/issues/14)
+- Bug report command `restbeast bug` [#8](https://github.com/restbeast/restbeast/issues/8)
 
 0.9.0
 - Introducing Auth block
