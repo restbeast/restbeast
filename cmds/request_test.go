@@ -14,8 +14,8 @@ func Test_printJustTiming(t *testing.T) {
 	}
 
 	resp1 := lib.Response{
-		Method:        "",
-		Url:           "",
+		Method:        "POST",
+		Url:           "http://localhost",
 		StatusCode:    0,
 		Proto:         "",
 		Body:          nil,
@@ -25,14 +25,14 @@ func Test_printJustTiming(t *testing.T) {
 		BytesSend:     0,
 		BytesReceived: 10,
 	}
-	matchString1 := `
+	matchString1 := `POST http://localhost
   │  Total Time: 0 ms
   │  Bytes Received: 10 B
 `
 
 	resp2 := lib.Response{
-		Method:        "",
-		Url:           "",
+		Method:        "POST",
+		Url:           "http://localhost",
 		StatusCode:    0,
 		Proto:         "",
 		Body:          nil,
@@ -42,15 +42,15 @@ func Test_printJustTiming(t *testing.T) {
 		BytesSend:     10,
 		BytesReceived: 10,
 	}
-	matchString2 := `
+	matchString2 := `POST http://localhost
   │  Total Time: 0 ms
   │  Bytes Sent: 10 B
   │  Bytes Received: 10 B
 `
 
 	resp3 := lib.Response{
-		Method:        "",
-		Url:           "",
+		Method:        "POST",
+		Url:           "http://localhost",
 		StatusCode:    0,
 		Proto:         "",
 		Body:          nil,
@@ -60,7 +60,7 @@ func Test_printJustTiming(t *testing.T) {
 		BytesSend:     10,
 		BytesReceived: 10,
 	}
-	matchString3 := `
+	matchString3 := `POST http://localhost
     │  Total Time: 0 ms
     │  Bytes Sent: 10 B
     │  Bytes Received: 10 B
@@ -93,8 +93,8 @@ func Test_printDetailedTiming(t *testing.T) {
 	}
 
 	resp1 := lib.Response{
-		Method:        "",
-		Url:           "",
+		Method:        "POST",
+		Url:           "http://localhost",
 		StatusCode:    0,
 		Proto:         "",
 		Body:          nil,
@@ -104,7 +104,7 @@ func Test_printDetailedTiming(t *testing.T) {
 		BytesSend:     0,
 		BytesReceived: 10,
 	}
-	matchString1 := `
+	matchString1 := `POST http://localhost
   │  DNS Resolve Time: 0 ms
   │  Connection Time: 0 ms
   │  First Byte Time: 0 ms
@@ -113,8 +113,8 @@ func Test_printDetailedTiming(t *testing.T) {
 `
 
 	resp2 := lib.Response{
-		Method:        "",
-		Url:           "",
+		Method:        "POST",
+		Url:           "http://localhost",
 		StatusCode:    0,
 		Proto:         "",
 		Body:          nil,
@@ -124,7 +124,7 @@ func Test_printDetailedTiming(t *testing.T) {
 		BytesSend:     10,
 		BytesReceived: 10,
 	}
-	matchString2 := `
+	matchString2 := `POST http://localhost
   │  DNS Resolve Time: 0 ms
   │  Connection Time: 0 ms
   │  First Byte Time: 0 ms
@@ -134,8 +134,8 @@ func Test_printDetailedTiming(t *testing.T) {
 `
 
 	resp3 := lib.Response{
-		Method:     "",
-		Url:        "",
+		Method:     "POST",
+		Url:        "http://localhost",
 		StatusCode: 0,
 		Proto:      "",
 		Body:       nil,
@@ -151,7 +151,7 @@ func Test_printDetailedTiming(t *testing.T) {
 		BytesSend:     10,
 		BytesReceived: 10,
 	}
-	matchString3 := `
+	matchString3 := `POST http://localhost
   │  DNS Resolve Time: 0 ms
   │  Connection Time: 0 ms
   │  First Byte Time: 0 ms
@@ -161,8 +161,8 @@ func Test_printDetailedTiming(t *testing.T) {
 `
 
 	resp4 := lib.Response{
-		Method:     "",
-		Url:        "",
+		Method:     "POST",
+		Url:        "http://localhost",
 		StatusCode: 0,
 		Proto:      "",
 		Body:       nil,
@@ -178,7 +178,7 @@ func Test_printDetailedTiming(t *testing.T) {
 		BytesSend:     10,
 		BytesReceived: 10,
 	}
-	matchString4 := `
+	matchString4 := `POST http://localhost
   │  DNS Resolve Time: 0 ms
   │  Connection Time: 0 ms
   │  TLS Handshake Time: 0 ms
@@ -189,8 +189,8 @@ func Test_printDetailedTiming(t *testing.T) {
 `
 
 	resp5 := lib.Response{
-		Method:     "",
-		Url:        "",
+		Method:     "POST",
+		Url:        "http://localhost",
 		StatusCode: 0,
 		Proto:      "",
 		Body:       nil,
@@ -206,7 +206,7 @@ func Test_printDetailedTiming(t *testing.T) {
 		BytesSend:     10,
 		BytesReceived: 10,
 	}
-	matchString5 := `
+	matchString5 := `POST http://localhost
     │  DNS Resolve Time: 0 ms
     │  Connection Time: 0 ms
     │  TLS Handshake Time: 0 ms
@@ -266,7 +266,7 @@ func Test_printTiming(t *testing.T) {
 		BytesReceived: 10,
 	}
 	matchString2 := `  │
-  ├──
+  ├── 
   │  Total Time: 0 ms
   │  Bytes Received: 10 B
 `
@@ -280,7 +280,7 @@ func Test_printTiming(t *testing.T) {
 		BytesReceived: 10,
 	}
 	matchString3 := `  │
-  ├──
+  ├── 
   │  DNS Resolve Time: 0 ms
   │  Connection Time: 0 ms
   │  First Byte Time: 0 ms
@@ -303,11 +303,11 @@ func Test_printTiming(t *testing.T) {
 		BytesReceived: 10,
 	}
 	matchString4 := `  │
-  ├──
+  ├── 
   │  Total Time: 0 ms
   │  Bytes Received: 10 B
   │    │
-  │    ├──
+  │    ├── 
   │    │  Total Time: 0 ms
   │    │  Bytes Received: 10 B
 `

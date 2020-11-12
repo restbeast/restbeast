@@ -3,6 +3,7 @@ package cmds
 import (
 	. "fmt"
 	"github.com/dustin/go-humanize"
+	"github.com/nathan-fiscaletti/consolesize-go"
 	"github.com/restbeast/restbeast/lib"
 	"github.com/spf13/cobra"
 	"golang.org/x/crypto/ssh/terminal"
@@ -13,6 +14,7 @@ import (
 
 var outputTiming, outputDetailedTiming, showHeaders bool
 var env string
+var screenWidth int
 
 func init() {
 	requestCmd.Flags().BoolVarP(&showHeaders, "headers", "H", false, "Show response headers")
@@ -21,6 +23,10 @@ func init() {
 	requestCmd.Flags().StringVar(&env, "env", "", "Selected environment")
 
 	rootCmd.AddCommand(requestCmd)
+	screenWidth, _ = consolesize.GetConsoleSize()
+	if screenWidth == 0 {
+		screenWidth = 30
+	}
 }
 
 func printJustTiming(response lib.Response, padding string) string {
@@ -32,7 +38,12 @@ func printJustTiming(response lib.Response, padding string) string {
 		padding = "  "
 	}
 
-	returnVal += Sprintf("%s%s\n", response.Method, response.Url)
+	urlLine := Sprintf("%s %s\n", response.Method, response.Url)
+	if len(urlLine) > screenWidth && screenWidth-len(padding)-4 < len(urlLine) {
+		returnVal += urlLine[:screenWidth-len(padding)-4] + "...\n"
+	} else {
+		returnVal += urlLine
+	}
 	returnVal += Sprintf("%s%s│  Total Time: %d ms\n", padding, extraPadding, response.Timing.Total.Milliseconds())
 	if response.BytesSend > 0 {
 		returnVal += Sprintf("%s%s│  Bytes Sent: %s\n", padding, extraPadding, humanize.Bytes(response.BytesSend))
@@ -51,7 +62,12 @@ func printDetailedTiming(response lib.Response, padding string) string {
 		padding = "  "
 	}
 
-	returnVal += Sprintf("%s%s\n", response.Method, response.Url)
+	urlLine := Sprintf("%s %s\n", response.Method, response.Url)
+	if len(urlLine) > screenWidth && screenWidth-len(padding)-4 < len(urlLine) {
+		returnVal += urlLine[:screenWidth-len(padding)-4] + "...\n"
+	} else {
+		returnVal += urlLine
+	}
 	returnVal += Sprintf("%s%s│  DNS Resolve Time: %d ms\n", padding, extraPadding, response.Timing.Dns.Milliseconds())
 	returnVal += Sprintf("%s%s│  Connection Time: %d ms\n", padding, extraPadding, response.Timing.Conn.Milliseconds())
 	if response.Timing.Tls > 0 {

@@ -12,7 +12,7 @@ require (
 	github.com/google/go-cmp v0.5.1 // indirect
 	github.com/hashicorp/hcl/v2 v2.6.0
 	github.com/mitchellh/go-wordwrap v1.0.0 // indirect
-	github.com/satori/go.uuid v1.2.0
+	github.com/nathan-fiscaletti/consolesize-go v0.0.0-20200813182358-f58b29f19513
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/zclconf/go-cty v1.5.1

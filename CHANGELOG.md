@@ -1,6 +1,7 @@
 0.10.0
 - Bytes received and sent output [#14](https://github.com/restbeast/restbeast/issues/14)
 - Bug report command `restbeast bug` [#8](https://github.com/restbeast/restbeast/issues/8)
+- Fix URL length [#3](https://github.com/restbeast/restbeast/issues/3) 
 
 0.9.0
 - Introducing Auth block
