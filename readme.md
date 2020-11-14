@@ -7,20 +7,20 @@ In a nut shell;
 - Testing tool either in terminal or in CI
 - Easy load testing tool.
 
-This open source terminal client is part of restbeast project which aims to simplify api development, api testing, service health checks and load testing by putting them together under one roof.
+This open source terminal client aims to simplify api development, api testing, service health checks and load testing by putting them together under one roof.
 
 ## Features
 
 * [API Request tool](#api-request-tool)
 * [Built-in Functions](#built-in-functions)
-* External (Custom) Functions
-* Execute requests in various environments
-* Secrets
-* Randomize data in request bodies
-* Chaining requests
-* Attack request
-* Fixing version
-* Authorization
+* [External (Custom) Functions](#external-functions)
+* [Multi Environment Configurations](#multi-environment-configurations)
+* [Secrets](#secrets)
+* [Randomize Data](#randomize-data)
+* [Chaining requests](#chaining-requests)
+* [Attack request](#attack-request)
+* [Fixing version](#fixing-version)
+* [Authorization](#Authorization)
 
 ### API Request Tool
 
@@ -59,11 +59,11 @@ request post-example {
 restbeast r post-example | jq
 ```
 
-#### Built-in Functions
+### Built-in Functions
 A variety of functions are available. 
 See [built-in go-cty functions](https://github.com/restbeast/restbeast/blob/master/docs/functions.md) and [gofakeit functions](https://github.com/restbeast/restbeast/blob/master/docs/gofakeit-functions.md) 
 
-#### External Functions
+### External Functions
 It's possible to define external programs or scripts as functions. 
 
 Possible argument types are `string`, `list`, `map`, `number`.
@@ -119,7 +119,7 @@ request function-example {
 }
 ```
 
-#### Execute requests in various environments
+### Multi Environment Configurations
 Environment variables and related secrets can be changed with just a simple env flag.
 
 ```hcl
@@ -152,7 +152,7 @@ Execute with `-e`, useful for testing against various environments or testing in
 restbeast request env-example --env prod
 ```
 
-#### Secrets
+### Secrets
 
 ```hcl
 env local {
@@ -202,7 +202,7 @@ Prefix environment variables with `restbeast_var_`
 restbeast_var_VAL1=secret1 restbeast_var_VAL2=secret2 restbeast r xxx --env test
 ```
 
-#### Randomize data in request bodies
+### Randomize Data
 Leverage `https://github.com/brianvoe/gofakeit` library in your requests.
 
 An example with randomized user data
@@ -220,7 +220,7 @@ request random-example {
 }
 ```
 
-#### Chaining requests
+### Chaining requests
 
 When `patch-example` request executed, it will do a `post-example` request first and use it's response as a depencency in `patch-example` request.
 
@@ -282,7 +282,7 @@ it will include upper cased values of firstName and lastName generated in `post-
 }
 ```
 
-#### Attack request
+### Attack request
 Keep targeted server busy. This command will execute given request `c` times in given `p` period.
 Request count has to be equal or higher than 1 request per second.
 
@@ -300,14 +300,14 @@ Status 500 response: %6 (4)
 AverageTime: 585.411933ms
 ```
 
-#### Fixing version
+### Fixing version
 It's possible to fix your restbeast configuration to a specific version. See [here](https://github.com/restbeast/restbeast/blob/master/docs/semver.md) for extra comparison options.
 
 ```hcl
 version = "~0.9"
 ```
 
-#### Authorization
+### Authorization
 It's possible to handle basic or bearer authorization through `auth` block.
 
 Basic auth example
@@ -339,7 +339,7 @@ request example {
 Get the latest build from [github release page](https://github.com/restbeast/restbeast/releases/latest).   
 Decompress the file and Move the executable file to a location in $PATH
 ```shell script
-tar zxvf restbeast-v0.9.0-linux-amd64.tar.gz
+tar zxvf restbeast-v0.10.0-linux-amd64.tar.gz
 sudo mv restbeast /usr/local/bin/
 ```
 
@@ -348,8 +348,8 @@ Install `go >= 1.14` [](https://golang.org/doc/install)
 
 Get the latest source from [github release page](https://github.com/restbeast/restbeast/releases/latest) and unzip
 ```shell script
-unzip v0.9.0.zip
-cd v0.9.0
+unzip v0.10.0.zip
+cd v0.10.0
 ```
 Or clone from gitlab
 ```shell script
@@ -365,8 +365,6 @@ sudo make install
 ### Help
 
 `restbeast -h` or `restbeast {command} -h`
-
-## FAQ and troubleshooting
 
 ## License
 
