@@ -11,7 +11,19 @@ This open source terminal client is part of restbeast project which aims to simp
 
 ## Features
 
-#### API Development tool
+* [API Request tool](#api-request-tool)
+* [Built-in Functions](#built-in-functions)
+* External (Custom) Functions
+* Execute requests in various environments
+* Secrets
+* Randomize data in request bodies
+* Chaining requests
+* Attack request
+* Fixing version
+* Authorization
+
+### API Request Tool
+
 Having ability to do API requests as you develop a restful service and being able to share configuration required with a team is a requirement for API development.
 Best way to share restbeast configuration is to commit your `hcl` files to vcs.     
 
@@ -47,7 +59,7 @@ request post-example {
 restbeast r post-example | jq
 ```
 
-#### Functions
+#### Built-in Functions
 A variety of functions are available. 
 See [built-in go-cty functions](https://github.com/restbeast/restbeast/blob/master/docs/functions.md) and [gofakeit functions](https://github.com/restbeast/restbeast/blob/master/docs/gofakeit-functions.md) 
 
@@ -320,7 +332,6 @@ request example {
   }
 }
 ```
-
 
 ## Install
 
