@@ -6,6 +6,7 @@ import (
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/function"
 	ctyjson "github.com/zclconf/go-cty/cty/json"
+	"regexp"
 )
 
 type AssertionFunc struct {
@@ -15,6 +16,26 @@ type AssertionFunc struct {
 }
 
 var assertionFunctionList = map[string]AssertionFunc{
+	"assertEmail": {
+		Params: []function.Parameter{
+			function.Parameter{
+				Name: "email",
+				Type: cty.String,
+			},
+		},
+		Type: function.StaticReturnType(cty.String),
+		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
+			var emailRegex = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+
+			rVal := "PASS"
+
+			if !emailRegex.MatchString(args[0].AsString()) {
+				rVal = Sprintf("want: assertEmail()\ngot: %s", args[0].AsString())
+			}
+
+			return cty.StringVal(rVal), nil
+		},
+	},
 	"assertEqual": {
 		Params: []function.Parameter{
 			function.Parameter{

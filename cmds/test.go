@@ -29,14 +29,19 @@ func doTest(cmd *cobra.Command, args []string) {
 	}
 
 	exitCode := 0
+	successCount := 0
+	failCount := 0
 	for _, result := range test.Assertions {
 		if result.Pass {
 			Printf("%s: %s\n", green("PASS"), result.Name)
+			successCount++
 		} else {
 			exitCode = 1
 			Printf("%s: %s\n%s\n------------\n", red("FAIL"), result.Name, result.Text)
+			failCount++
 		}
 	}
+	Printf("\n%d passes, %d failures, %d total.\n", successCount, failCount, len(test.Assertions))
 
 	os.Exit(exitCode)
 }
