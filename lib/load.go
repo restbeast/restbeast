@@ -96,6 +96,7 @@ func LoadEvalCtx(env string, execCtx *ExecutionContext) (*EvalContext, error) {
 		Environment:   envVars,
 		RawDynamics:   root.Dynamics,
 		RawRequests:   root.Requests,
+		RawTests:      root.Tests,
 		RequestAsVars: RequestAsVars{},
 	}, nil
 }
@@ -144,4 +145,18 @@ func LoadWhole(name, env string, execCtx *ExecutionContext) (request *Request, e
 	}
 
 	return parseRequest(name, *evCtx, execCtx)
+}
+
+func LoadTest(name, env string, execCtx *ExecutionContext) (request *Test, err error) {
+	evCtx, err := LoadEvalCtx(env, execCtx)
+	if err != nil {
+		return nil, err
+	}
+
+	err = loadDynamics(evCtx)
+	if err != nil {
+		return nil, err
+	}
+
+	return parseTest(name, *evCtx, execCtx)
 }

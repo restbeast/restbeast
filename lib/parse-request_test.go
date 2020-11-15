@@ -42,7 +42,7 @@ func Test_lowercaseHeaders(t *testing.T) {
 	}
 }
 
-func Test_getObjSpec(t *testing.T) {
+func Test_getRequestObjSpec(t *testing.T) {
 	tests := []struct {
 		name string
 		want hcldec.ObjectSpec
@@ -77,7 +77,7 @@ func Test_getObjSpec(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := getObjSpec(); !reflect.DeepEqual(got, tt.want) {
+			if got := getRequestObjSpec(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("getObjSpec() = %v, want %v", got, tt.want)
 			}
 		})
