@@ -15,27 +15,11 @@ type AssertionFunc struct {
 	Impl   function.ImplFunc
 }
 
+func formatRegexAssertionError(format string, arg cty.Value) string {
+	return Sprintf("expected %s to be a valid %s", arg.AsString(), format)
+}
+
 var assertionFunctionList = map[string]AssertionFunc{
-	"assertEmail": {
-		Params: []function.Parameter{
-			function.Parameter{
-				Name: "email",
-				Type: cty.String,
-			},
-		},
-		Type: function.StaticReturnType(cty.String),
-		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
-			var emailRegex = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
-
-			rVal := "PASS"
-
-			if !emailRegex.MatchString(args[0].AsString()) {
-				rVal = Sprintf("want: assertEmail()\ngot: %s", args[0].AsString())
-			}
-
-			return cty.StringVal(rVal), nil
-		},
-	},
 	"assertEqual": {
 		Params: []function.Parameter{
 			function.Parameter{
@@ -66,7 +50,7 @@ var assertionFunctionList = map[string]AssertionFunc{
 					return cty.StringVal(""), Errorf("Error: failed to variable, \n%s\n", jsonErr)
 				}
 
-				rVal = Sprintf("want: %s\ngot: %s", string(argsAasjson), string(argsBasjson))
+				rVal = Sprintf("expected: %s\ngot: %s", string(argsAasjson), string(argsBasjson))
 			}
 
 			return cty.StringVal(rVal), nil
@@ -102,7 +86,48 @@ var assertionFunctionList = map[string]AssertionFunc{
 					return cty.StringVal(""), Errorf("Error: failed to variable, \n%s\n", jsonErr)
 				}
 
-				rVal = Sprintf("not want: %s\ngot: %s", string(argsAasjson), string(argsBasjson))
+				rVal = Sprintf("not expected: %s\ngot: %s", string(argsAasjson), string(argsBasjson))
+			}
+
+			return cty.StringVal(rVal), nil
+		},
+	},
+	// Regex based assertions
+	"assertEmail": {
+		Params: []function.Parameter{
+			function.Parameter{
+				Name: "email",
+				Type: cty.String,
+			},
+		},
+		Type: function.StaticReturnType(cty.String),
+		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
+			var emailRegex = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+
+			rVal := "PASS"
+
+			if !emailRegex.MatchString(args[0].AsString()) {
+				rVal = formatRegexAssertionError("email", args[0])
+			}
+
+			return cty.StringVal(rVal), nil
+		},
+	},
+	"assertUuidv4": {
+		Params: []function.Parameter{
+			function.Parameter{
+				Name: "uuidv4",
+				Type: cty.String,
+			},
+		},
+		Type: function.StaticReturnType(cty.String),
+		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
+			var regex = regexp.MustCompile("^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$")
+
+			rVal := "PASS"
+
+			if !regex.MatchString(args[0].AsString()) {
+				rVal = formatRegexAssertionError("uuidv4", args[0])
 			}
 
 			return cty.StringVal(rVal), nil
