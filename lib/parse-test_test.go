@@ -1,6 +1,8 @@
 package lib
 
 import (
+	"github.com/zclconf/go-cty/cty"
+	"github.com/zclconf/go-cty/cty/function"
 	"reflect"
 	"testing"
 )
@@ -35,5 +37,30 @@ func Test_findTest(t *testing.T) {
 				t.Errorf("findTest() got = %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+func Test_updateEvalContextWithTestFns(t *testing.T) {
+	fnList := map[string]function.Function{}
+	evCtx := EvalContext{Functions: &fnList}
+
+	t.Run("Add all assertion functions to evaluation context", func(t *testing.T) {
+		updateEvalContextWithTestFns(&evCtx)
+
+		if len(fnList) != len(assertionFunctionList) {
+			t.Errorf("updateEvalContextWithTestFns, failed to update functions list")
+		}
+	})
+}
+
+func Test_prepareResults(t *testing.T) {
+	assertions := map[string]cty.Value{
+		"should-pass": cty.StringVal("PASS"),
+		"should-fail": cty.StringVal("an other text"),
+	}
+
+	results := prepareResults("test name", assertions)
+	if len(results.Assertions) != 2 {
+		t.Errorf("prepareResults(), , failed to generate test result")
 	}
 }

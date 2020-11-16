@@ -31,7 +31,7 @@ func updateEvalContextWithTestFns(evCtx *EvalContext) {
 	evCtx.Functions = &fns
 }
 
-func prepareResults(assertions map[string]cty.Value) *Test {
+func prepareResults(name string, assertions map[string]cty.Value) *Test {
 	var results []Assertion
 	for k, v := range assertions {
 		if v.AsString() == "PASS" {
@@ -49,7 +49,7 @@ func prepareResults(assertions map[string]cty.Value) *Test {
 	}
 
 	return &Test{
-		Name:       "name",
+		Name:       name,
 		Assertions: results,
 	}
 }
@@ -121,5 +121,5 @@ func parseTest(name string, evCtx EvalContext, execCtx *ExecutionContext) (*Test
 		return nil, err
 	}
 
-	return prepareResults(parsedAssertions), nil
+	return prepareResults(name, parsedAssertions), nil
 }
