@@ -201,10 +201,10 @@ var assertionFunctionList = map[string]AssertionFunc{
 			return cty.StringVal(rVal), nil
 		},
 	},
-	"assertUuidv4": {
+	"assertUUIDv4": {
 		Params: []function.Parameter{
 			function.Parameter{
-				Name: "uuidv4",
+				Name: "UUIDv4",
 				Type: cty.String,
 			},
 		},
@@ -215,7 +215,7 @@ var assertionFunctionList = map[string]AssertionFunc{
 			rVal := "PASS"
 
 			if !regex.MatchString(args[0].AsString()) {
-				rVal = formatRegexAssertionError("uuidv4", args[0])
+				rVal = formatRegexAssertionError("UUIDv4", args[0])
 			}
 
 			return cty.StringVal(rVal), nil

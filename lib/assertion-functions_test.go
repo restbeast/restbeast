@@ -24,20 +24,20 @@ func Test_assertEmail(t *testing.T) {
 	}
 }
 
-func Test_assertUuidv4(t *testing.T) {
+func Test_assertUUIDv4(t *testing.T) {
 	tests := []struct {
 		name string
 		args []cty.Value
 		want cty.Value
 	}{
-		{"valid uuidv4", []cty.Value{cty.StringVal("3df3f84d-0142-4d33-80a0-7e23b5b0eba6")}, cty.StringVal("PASS")},
-		{"invalid uuidv4", []cty.Value{cty.StringVal("i-am-not-a-valid-uuid")}, cty.StringVal(`expected i-am-not-a-valid-uuid to be a valid uuidv4`)},
+		{"valid UUIDv4", []cty.Value{cty.StringVal("3df3f84d-0142-4d33-80a0-7e23b5b0eba6")}, cty.StringVal("PASS")},
+		{"invalid UUIDv4", []cty.Value{cty.StringVal("i-am-not-a-valid-uuid")}, cty.StringVal(`expected i-am-not-a-valid-uuid to be a valid UUIDv4`)},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got, _ := assertionFunctionList["assertUuidv4"].Impl(tt.args, cty.String); tt.want.NotEqual(got).True() {
-				t.Errorf("assertUuidv4() = %v, want %v", got.AsString(), tt.want.AsString())
+			if got, _ := assertionFunctionList["assertUUIDv4"].Impl(tt.args, cty.String); tt.want.NotEqual(got).True() {
+				t.Errorf("assertUUIDv4() = %v, want %v", got.AsString(), tt.want.AsString())
 			}
 		})
 	}
