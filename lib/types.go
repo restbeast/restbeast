@@ -124,9 +124,11 @@ type Assertion struct {
 	Text string
 }
 
+type Assertions []Assertion
+
 type Test struct {
 	Name       string
-	Assertions []Assertion
+	Assertions Assertions
 }
 
 type EvalContext struct {

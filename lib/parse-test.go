@@ -6,7 +6,10 @@ import (
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/function"
+	"sort"
 )
+
+type ParsedAssertions map[string]cty.Value
 
 // Find test by .Name property
 func findTest(name string, rawTests TestCfgs) (*TestCfg, error) {
@@ -32,15 +35,16 @@ func updateEvalContextWithTestFns(evCtx *EvalContext) {
 }
 
 func prepareResults(name string, assertions map[string]cty.Value) *Test {
-	var results []Assertion
+	var passResults Assertions
+	var failResults Assertions
 	for k, v := range assertions {
 		if v.AsString() == "PASS" {
-			results = append(results, Assertion{
+			passResults = append(passResults, Assertion{
 				Name: k,
 				Pass: true,
 			})
 		} else {
-			results = append(results, Assertion{
+			failResults = append(failResults, Assertion{
 				Name: k,
 				Pass: false,
 				Text: v.AsString(),
@@ -48,9 +52,16 @@ func prepareResults(name string, assertions map[string]cty.Value) *Test {
 		}
 	}
 
+	sort.Slice(passResults, func(i, j int) bool {
+		return passResults[i].Name < passResults[j].Name
+	})
+	sort.Slice(failResults, func(i, j int) bool {
+		return failResults[i].Name < failResults[j].Name
+	})
+
 	return &Test{
 		Name:       name,
-		Assertions: results,
+		Assertions: append(passResults, failResults...),
 	}
 }
 
@@ -100,8 +111,6 @@ func retryTestWithDependency(testCfg *TestCfg, diags hcl.Diagnostics, evCtx Eval
 
 	return nil
 }
-
-type ParsedAssertions map[string]cty.Value
 
 func parseTest(name string, evCtx EvalContext, execCtx *ExecutionContext) (*Test, error) {
 	testCfg, err := findTest(name, evCtx.RawTests)

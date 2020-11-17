@@ -37,7 +37,7 @@ func doTest(cmd *cobra.Command, args []string) {
 			successCount++
 		} else {
 			exitCode = 1
-			Printf("%s: %s\n%s\n------------\n", red("FAIL"), result.Name, result.Text)
+			Printf("%s: %s\n%s\n", red("FAIL"), result.Name, result.Text)
 			failCount++
 		}
 	}
