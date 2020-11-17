@@ -20,7 +20,8 @@ This open source terminal client aims to simplify api development, api testing, 
 * [Chaining requests](#chaining-requests)
 * [Attack request](#attack-request)
 * [Fixing version](#fixing-version)
-* [Authorization](#Authorization)
+* [Authorization](#authorization)
+* [Testing and Assertions](#testing-and-assertions)
 
 ### API Request Tool
 
@@ -332,6 +333,27 @@ request example {
   }
 }
 ```
+
+### Testing and Assertions
+```hcl
+request get-example {
+  method = "GET"
+  url = "http://httpbin.org/get"
+}
+test get-example {
+  valid-origin = assertIpv4(request.get-example.body.origin)
+  valid-host = assertEqual(request.get-example.body.Host, "httpbin.org")
+}
+```
+Running this example with `test` command will provide the output below. With exit code as `0`. Failed tests will result exit code `1` and fail descriptions. 
+```
+$ restbeast test get-example
+PASS: valid-host
+PASS: valid-origin
+
+2 passes, 0 failures, 2 total.
+```
+
 
 ## Install
 
