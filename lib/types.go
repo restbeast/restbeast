@@ -63,12 +63,20 @@ type ExternalFunctionCfg struct {
 
 type ExternalFunctionCfgs []*ExternalFunctionCfg
 
+type TestCfg struct {
+	Name string   `hcl:"name,label"`
+	Body hcl.Body `hcl:",remain"`
+}
+
+type TestCfgs []*TestCfg
+
 type RootCfg struct {
 	Requests          RequestCfgs          `hcl:"request,block"`
 	Variables         VariableCfgs         `hcl:"variable,block"`
 	Dynamics          VariableCfgs         `hcl:"dynamic,block"`
 	Environments      EnvironmentCfgs      `hcl:"env,block"`
 	ExternalFunctions ExternalFunctionCfgs `hcl:"external-function,block"`
+	Tests             TestCfgs             `hcl:"test,block"`
 	Version           string               `hcl:"version,optional"`
 }
 
@@ -110,6 +118,19 @@ type Request struct {
 	RoundTripper http.RoundTripper
 }
 
+type Assertion struct {
+	Name string
+	Pass bool
+	Text string
+}
+
+type Assertions []Assertion
+
+type Test struct {
+	Name       string
+	Assertions Assertions
+}
+
 type EvalContext struct {
 	Functions     *map[string]function.Function
 	Variables     *map[string]cty.Value
@@ -117,6 +138,7 @@ type EvalContext struct {
 	RequestAsVars RequestAsVars
 	RawRequests   RequestCfgs
 	RawDynamics   VariableCfgs
+	RawTests      TestCfgs
 }
 
 type RequestAsVars map[string]cty.Value

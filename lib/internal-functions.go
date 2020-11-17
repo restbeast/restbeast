@@ -94,8 +94,6 @@ type GofakeitFunc struct {
 	Impl   function.ImplFunc
 }
 
-//gofakeitFunctionList := make(map[string]GofakeitFunc)
-
 var gofakeitFunctionList = map[string]GofakeitFunc{
 	"gofakeitName":           GofakeitFunc{Params: []function.Parameter{}, Type: function.StaticReturnType(cty.String), Impl: gofakeitNameImpl},
 	"gofakeitNamePrefix":     GofakeitFunc{Params: []function.Parameter{}, Type: function.StaticReturnType(cty.String), Impl: gofakeitNamePrefixImpl},

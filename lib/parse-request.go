@@ -19,7 +19,7 @@ import (
 var dependencyDiagMessageRegex = regexp.MustCompile(`This object does not have an attribute named "(?P<name>[\w\d-_]+)"`)
 var requestDependencyRegex = regexp.MustCompile(`^request.([\w\d-_]+)`)
 
-func getObjSpec() hcldec.ObjectSpec {
+func getRequestObjSpec() hcldec.ObjectSpec {
 	return hcldec.ObjectSpec{
 		"method": &hcldec.AttrSpec{
 			Name:     "method",
@@ -138,7 +138,7 @@ func sortCrossDependency(deps []string, evCtx EvalContext) ([]string, error) {
 
 	for _, dep := range deps {
 		ctxEvalContext := getCtxEvalContext(evCtx)
-		spec := getObjSpec()
+		spec := getRequestObjSpec()
 
 		request, findRequestErr := findRequest(dep, evCtx.RawRequests)
 
@@ -290,7 +290,7 @@ func retryWithDependency(requestCfg *RequestCfg, cfg cty.Value, diags hcl.Diagno
 			}
 		}
 
-		spec := getObjSpec()
+		spec := getRequestObjSpec()
 		ctxEvalContext := getCtxEvalContext(evCtx)
 		cfg, diags := hcldec.Decode(requestCfg.Body, spec, &ctxEvalContext)
 
@@ -339,7 +339,7 @@ func parseRequest(name string, evCtx EvalContext, execCtx *ExecutionContext) (*R
 	}
 
 	ctxEvalContext := getCtxEvalContext(evCtx)
-	spec := getObjSpec()
+	spec := getRequestObjSpec()
 	cfg, diags := hcldec.Decode(requestCfg.Body, spec, &ctxEvalContext)
 
 	cfg, responses, err = retryWithDependency(requestCfg, cfg, diags, evCtx, execCtx, responses)
