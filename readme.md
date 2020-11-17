@@ -355,6 +355,10 @@ PASS: valid-origin
 ```
 Please see [assertions](https://github.com/restbeast/restbeast/blob/master/docs/assertions.md). 
 
+Just run the test command without any arguments to run all tests at once 
+```
+$ restbeast test
+````
 
 ## Install
 
