@@ -180,6 +180,43 @@ var assertionFunctionList = map[string]AssertionFunc{
 			return cty.StringVal(rVal), nil
 		},
 	},
+
+	"assertTrue": {
+		Params: []function.Parameter{
+			function.Parameter{
+				Name: "input",
+				Type: cty.Bool,
+			},
+		},
+		Type: function.StaticReturnType(cty.String),
+		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
+			rVal := "PASS"
+
+			if args[0].False() {
+				rVal = Sprintf("expected to be true")
+			}
+
+			return cty.StringVal(rVal), nil
+		},
+	},
+	"assertFalse": {
+		Params: []function.Parameter{
+			function.Parameter{
+				Name: "input",
+				Type: cty.Bool,
+			},
+		},
+		Type: function.StaticReturnType(cty.String),
+		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
+			rVal := "PASS"
+
+			if args[0].True() {
+				rVal = Sprintf("expected to be false")
+			}
+
+			return cty.StringVal(rVal), nil
+		},
+	},
 	// Regex based assertions
 	"assertEmail": {
 		Params: []function.Parameter{

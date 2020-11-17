@@ -198,3 +198,41 @@ func Test_assertLessThanOrEqualTo(t *testing.T) {
 		})
 	}
 }
+
+func Test_assertTrue(t *testing.T) {
+	tests := []struct {
+		name string
+		args []cty.Value
+		want cty.Value
+	}{
+		{"true", []cty.Value{cty.BoolVal(true)}, cty.StringVal("PASS")},
+		{"false", []cty.Value{cty.BoolVal(false)}, cty.StringVal(`expected to be true`)},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got, _ := assertionFunctionList["assertTrue"].Impl(tt.args, cty.String); tt.want.NotEqual(got).True() {
+				t.Errorf("assertTrue() = %v, want %v", got.AsString(), tt.want.AsString())
+			}
+		})
+	}
+}
+
+func Test_assertFalse(t *testing.T) {
+	tests := []struct {
+		name string
+		args []cty.Value
+		want cty.Value
+	}{
+		{"false", []cty.Value{cty.BoolVal(true)}, cty.StringVal("PASS")},
+		{"true", []cty.Value{cty.BoolVal(false)}, cty.StringVal("expected to be true")},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got, _ := assertionFunctionList["assertTrue"].Impl(tt.args, cty.String); tt.want.NotEqual(got).True() {
+				t.Errorf("assertFalse() = %v, want %v", got.AsString(), tt.want.AsString())
+			}
+		})
+	}
+}
