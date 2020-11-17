@@ -1,3 +1,6 @@
+0.12.0
+- Test command to run all tests at once [#21](https://github.com/restbeast/restbeast/issues/21)
+
 0.11.0
 - Test command and assertions [#7](https://github.com/restbeast/restbeast/issues/7)
 

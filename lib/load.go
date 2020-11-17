@@ -160,3 +160,26 @@ func LoadTest(name, env string, execCtx *ExecutionContext) (request *Test, err e
 
 	return parseTest(name, *evCtx, execCtx)
 }
+
+func LoadAllTests(env string, execCtx *ExecutionContext) (tests Tests, err error) {
+	evCtx, err := LoadEvalCtx(env, execCtx)
+	if err != nil {
+		return nil, err
+	}
+
+	err = loadDynamics(evCtx)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, t := range evCtx.RawTests {
+		test, err := parseTest(t.Name, *evCtx, execCtx)
+		if err != nil {
+			return nil, err
+		}
+
+		tests = append(tests, test)
+	}
+
+	return tests, err
+}

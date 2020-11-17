@@ -131,6 +131,8 @@ type Test struct {
 	Assertions Assertions
 }
 
+type Tests []*Test
+
 type EvalContext struct {
 	Functions     *map[string]function.Function
 	Variables     *map[string]cty.Value
