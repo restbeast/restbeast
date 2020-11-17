@@ -342,7 +342,7 @@ request get-example {
 }
 test get-example {
   valid-origin = assertIpv4(request.get-example.body.origin)
-  valid-host = assertEqual(request.get-example.body.Host, "httpbin.org")
+  valid-host = assertEqual(request.get-example.body.headers.Host, "httpbin.org")
 }
 ```
 Running this example with `test` command will provide the output below. With exit code as `0`. Failed tests will result exit code `1` and fail descriptions. 
