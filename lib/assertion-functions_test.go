@@ -18,7 +18,7 @@ func Test_assertEmail(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got, _ := assertionFunctionList["assertEmail"].Impl(tt.args, cty.String); tt.want.NotEqual(got).True() {
-				t.Errorf("prepParams() = %v, want %v", got.AsString(), tt.want.AsString())
+				t.Errorf("assertEmail() = %v, want %v", got.AsString(), tt.want.AsString())
 			}
 		})
 	}
@@ -37,7 +37,7 @@ func Test_assertUuidv4(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got, _ := assertionFunctionList["assertUuidv4"].Impl(tt.args, cty.String); tt.want.NotEqual(got).True() {
-				t.Errorf("prepParams() = %v, want %v", got.AsString(), tt.want.AsString())
+				t.Errorf("assertUuidv4() = %v, want %v", got.AsString(), tt.want.AsString())
 			}
 		})
 	}
@@ -57,7 +57,7 @@ got: "valueB"`)},
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got, _ := assertionFunctionList["assertEqual"].Impl(tt.args, cty.String); tt.want.NotEqual(got).True() {
-				t.Errorf("prepParams() = %v, want %v", got.AsString(), tt.want.AsString())
+				t.Errorf("assertEqual() = %v, want %v", got.AsString(), tt.want.AsString())
 			}
 		})
 	}
@@ -77,7 +77,85 @@ got: "valueA"`)},
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got, _ := assertionFunctionList["assertNotEqual"].Impl(tt.args, cty.String); tt.want.NotEqual(got).True() {
-				t.Errorf("prepParams() = %v, want %v", got.AsString(), tt.want.AsString())
+				t.Errorf("assertNotEqual() = %v, want %v", got.AsString(), tt.want.AsString())
+			}
+		})
+	}
+}
+
+func Test_assertGreaterThan(t *testing.T) {
+	tests := []struct {
+		name string
+		args []cty.Value
+		want cty.Value
+	}{
+		{"greater value", []cty.Value{cty.NumberIntVal(int64(2)), cty.NumberIntVal(int64(1))}, cty.StringVal("PASS")},
+		{"not greater value", []cty.Value{cty.NumberIntVal(int64(1)), cty.NumberIntVal(int64(2))}, cty.StringVal(`expected 1 to be greater than 2`)},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got, _ := assertionFunctionList["assertGreaterThan"].Impl(tt.args, cty.String); tt.want.NotEqual(got).True() {
+				t.Errorf("assertGreaterThan() = %v, want %v", got.AsString(), tt.want.AsString())
+			}
+		})
+	}
+}
+
+func Test_assertGreaterThanOrEqualTo(t *testing.T) {
+	tests := []struct {
+		name string
+		args []cty.Value
+		want cty.Value
+	}{
+		{"greater value", []cty.Value{cty.NumberIntVal(int64(2)), cty.NumberIntVal(int64(1))}, cty.StringVal("PASS")},
+		{"equal value", []cty.Value{cty.NumberIntVal(int64(1)), cty.NumberIntVal(int64(1))}, cty.StringVal("PASS")},
+		{"not greater value", []cty.Value{cty.NumberIntVal(int64(1)), cty.NumberIntVal(int64(2))}, cty.StringVal(`expected 1 to be greater than or equal to 2`)},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got, _ := assertionFunctionList["assertGreaterThanOrEqualTo"].Impl(tt.args, cty.String); tt.want.NotEqual(got).True() {
+				t.Errorf("assertGreaterThanOrEqualTo() = %v, want %v", got.AsString(), tt.want.AsString())
+			}
+		})
+	}
+}
+
+func Test_assertLessThan(t *testing.T) {
+	tests := []struct {
+		name string
+		args []cty.Value
+		want cty.Value
+	}{
+		{"greater value", []cty.Value{cty.NumberIntVal(int64(1)), cty.NumberIntVal(int64(2))}, cty.StringVal("PASS")},
+		{"not greater value", []cty.Value{cty.NumberIntVal(int64(2)), cty.NumberIntVal(int64(1))}, cty.StringVal(`expected 2 to be less than 1`)},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got, _ := assertionFunctionList["assertLessThan"].Impl(tt.args, cty.String); tt.want.NotEqual(got).True() {
+				t.Errorf("assertLessThan() = %v, want %v", got.AsString(), tt.want.AsString())
+			}
+		})
+	}
+}
+
+func Test_assertLessThanOrEqualTo(t *testing.T) {
+	tests := []struct {
+		name string
+		args []cty.Value
+		want cty.Value
+	}{
+		{"greater value", []cty.Value{cty.NumberIntVal(int64(1)), cty.NumberIntVal(int64(2))}, cty.StringVal("PASS")},
+		{"equal value", []cty.Value{cty.NumberIntVal(int64(1)), cty.NumberIntVal(int64(1))}, cty.StringVal("PASS")},
+		{"not greater value", []cty.Value{cty.NumberIntVal(int64(2)), cty.NumberIntVal(int64(1))}, cty.StringVal(`expected 2 to be less than or equal to 1`)},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got, _ := assertionFunctionList["assertLessThanOrEqualTo"].Impl(tt.args, cty.String); tt.want.NotEqual(got).True() {
+				t.Errorf("assertLessThanOrEqualTo() = %v, want %v", got.AsString(), tt.want.AsString())
 			}
 		})
 	}
