@@ -92,6 +92,94 @@ var assertionFunctionList = map[string]AssertionFunc{
 			return cty.StringVal(rVal), nil
 		},
 	},
+	"assertGreaterThan": {
+		Params: []function.Parameter{
+			function.Parameter{
+				Name: "a",
+				Type: cty.Number,
+			},
+			function.Parameter{
+				Name: "b",
+				Type: cty.Number,
+			},
+		},
+		Type: function.StaticReturnType(cty.String),
+		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
+			rVal := "PASS"
+
+			if args[0].GreaterThan(args[1]).False() {
+				rVal = Sprintf("expected %s to be greater than %s", args[0].AsBigFloat().String(), args[1].AsBigFloat().String())
+			}
+
+			return cty.StringVal(rVal), nil
+		},
+	},
+	"assertGreaterThanOrEqualTo": {
+		Params: []function.Parameter{
+			function.Parameter{
+				Name: "a",
+				Type: cty.Number,
+			},
+			function.Parameter{
+				Name: "b",
+				Type: cty.Number,
+			},
+		},
+		Type: function.StaticReturnType(cty.String),
+		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
+			rVal := "PASS"
+
+			if args[0].GreaterThanOrEqualTo(args[1]).False() {
+				rVal = Sprintf("expected %s to be greater than or equal to %s", args[0].AsBigFloat().String(), args[1].AsBigFloat().String())
+			}
+
+			return cty.StringVal(rVal), nil
+		},
+	},
+	"assertLessThan": {
+		Params: []function.Parameter{
+			function.Parameter{
+				Name: "a",
+				Type: cty.Number,
+			},
+			function.Parameter{
+				Name: "b",
+				Type: cty.Number,
+			},
+		},
+		Type: function.StaticReturnType(cty.String),
+		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
+			rVal := "PASS"
+
+			if args[0].LessThan(args[1]).False() {
+				rVal = Sprintf("expected %s to be less than %s", args[0].AsBigFloat().String(), args[1].AsBigFloat().String())
+			}
+
+			return cty.StringVal(rVal), nil
+		},
+	},
+	"assertLessThanOrEqualTo": {
+		Params: []function.Parameter{
+			function.Parameter{
+				Name: "a",
+				Type: cty.Number,
+			},
+			function.Parameter{
+				Name: "b",
+				Type: cty.Number,
+			},
+		},
+		Type: function.StaticReturnType(cty.String),
+		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
+			rVal := "PASS"
+
+			if args[0].LessThanOrEqualTo(args[1]).False() {
+				rVal = Sprintf("expected %s to be less than or equal to %s", args[0].AsBigFloat().String(), args[1].AsBigFloat().String())
+			}
+
+			return cty.StringVal(rVal), nil
+		},
+	},
 	// Regex based assertions
 	"assertEmail": {
 		Params: []function.Parameter{
