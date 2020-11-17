@@ -180,7 +180,6 @@ var assertionFunctionList = map[string]AssertionFunc{
 			return cty.StringVal(rVal), nil
 		},
 	},
-
 	"assertTrue": {
 		Params: []function.Parameter{
 			function.Parameter{

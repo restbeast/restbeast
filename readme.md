@@ -353,6 +353,7 @@ PASS: valid-origin
 
 2 passes, 0 failures, 2 total.
 ```
+Please see [assertions](https://github.com/restbeast/restbeast/blob/master/docs/assertions.md). 
 
 
 ## Install
