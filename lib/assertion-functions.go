@@ -221,4 +221,51 @@ var assertionFunctionList = map[string]AssertionFunc{
 			return cty.StringVal(rVal), nil
 		},
 	},
+	"assertIpv4": {
+		Params: []function.Parameter{
+			function.Parameter{
+				Name: "ipv4",
+				Type: cty.String,
+			},
+		},
+		Type: function.StaticReturnType(cty.String),
+		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
+			var regex = regexp.MustCompile("^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$")
+
+			rVal := "PASS"
+
+			if !regex.MatchString(args[0].AsString()) {
+				rVal = formatRegexAssertionError("ipv4", args[0])
+			}
+
+			return cty.StringVal(rVal), nil
+		},
+	},
+	"assertRegex": {
+		Params: []function.Parameter{
+			function.Parameter{
+				Name: "regex",
+				Type: cty.String,
+			},
+			function.Parameter{
+				Name: "input",
+				Type: cty.String,
+			},
+		},
+		Type: function.StaticReturnType(cty.String),
+		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
+			var regex, err = regexp.Compile(args[0].AsString())
+			if err != nil {
+				return cty.StringVal(""), err
+			}
+
+			rVal := "PASS"
+
+			if !regex.MatchString(args[1].AsString()) {
+				rVal = formatRegexAssertionError(args[0].AsString(), args[1])
+			}
+
+			return cty.StringVal(rVal), nil
+		},
+	},
 }

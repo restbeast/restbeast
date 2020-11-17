@@ -43,6 +43,44 @@ func Test_assertUuidv4(t *testing.T) {
 	}
 }
 
+func Test_assertIpv4(t *testing.T) {
+	tests := []struct {
+		name string
+		args []cty.Value
+		want cty.Value
+	}{
+		{"valid ipv4", []cty.Value{cty.StringVal("192.168.0.1")}, cty.StringVal("PASS")},
+		{"invalid ipv4", []cty.Value{cty.StringVal("i-am-not-a-valid-ip")}, cty.StringVal(`expected i-am-not-a-valid-ip to be a valid ipv4`)},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got, _ := assertionFunctionList["assertIpv4"].Impl(tt.args, cty.String); tt.want.NotEqual(got).True() {
+				t.Errorf("assertIpv4() = %v, want %v", got.AsString(), tt.want.AsString())
+			}
+		})
+	}
+}
+
+func Test_assertRegex(t *testing.T) {
+	tests := []struct {
+		name string
+		args []cty.Value
+		want cty.Value
+	}{
+		{"match", []cty.Value{cty.StringVal("^[a-z]+$"), cty.StringVal("hello")}, cty.StringVal("PASS")},
+		{"mismatch", []cty.Value{cty.StringVal("^[a-z]+$"), cty.StringVal("42")}, cty.StringVal("expected 42 to be a valid ^[a-z]+$")},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got, _ := assertionFunctionList["assertRegex"].Impl(tt.args, cty.String); tt.want.NotEqual(got).True() {
+				t.Errorf("assertRegex() = %v, want %v", got.AsString(), tt.want.AsString())
+			}
+		})
+	}
+}
+
 func Test_assertEqual(t *testing.T) {
 	tests := []struct {
 		name string
