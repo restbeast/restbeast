@@ -2071,11 +2071,9 @@ func Test_gofakeitFloat64RangeImpl(t *testing.T) {
 }
 
 func Test_gofakeitShuffleIntsImpl(t *testing.T) {
-	deck := []cty.Value{
-		cty.NumberIntVal(1),
-		cty.NumberIntVal(2),
-		cty.NumberIntVal(3),
-		cty.NumberIntVal(4),
+	deck := []cty.Value{}
+	for i := 1; i <= 1000; i++ {
+		deck = append(deck, cty.NumberIntVal(int64(i)))
 	}
 
 	argList := []cty.Value{
@@ -2110,11 +2108,9 @@ func Test_gofakeitShuffleIntsImpl(t *testing.T) {
 }
 
 func Test_gofakeitRandomIntImpl(t *testing.T) {
-	deck := []cty.Value{
-		cty.NumberIntVal(1),
-		cty.NumberIntVal(2),
-		cty.NumberIntVal(3),
-		cty.NumberIntVal(4),
+	deck := []cty.Value{}
+	for i := 1; i <= 1000; i++ {
+		deck = append(deck, cty.NumberIntVal(int64(i)))
 	}
 
 	argList := []cty.Value{
