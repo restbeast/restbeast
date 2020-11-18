@@ -26,7 +26,7 @@ func init() {
 	rootCmd.AddCommand(testCmd)
 }
 
-func runTest(test *lib.Test, padding string) (out FinalTestResult, err error) {
+func resultOutput(test *lib.Test, padding string) (out FinalTestResult) {
 	for _, result := range test.Assertions {
 		if result.Pass {
 			out.OutputText += Sprintf("%s%s: %s\n", padding, green("PASS"), result.Name)
@@ -41,7 +41,7 @@ func runTest(test *lib.Test, padding string) (out FinalTestResult, err error) {
 
 	out.TotalCount = len(test.Assertions)
 
-	return out, nil
+	return out
 }
 
 func doTest(cmd *cobra.Command, args []string) {
@@ -50,13 +50,12 @@ func doTest(cmd *cobra.Command, args []string) {
 
 	if len(args) == 1 {
 		test, err := lib.LoadTest(args[0], env, execCtx)
-
-		result, err := runTest(test, "")
 		if err != nil {
-			Printf("Error: Failed to load given request\n%s\n", err)
+			Printf("Error: Failed to load given test\n%s\n", err)
 			os.Exit(1)
 		}
 
+		result := resultOutput(test, "")
 		successCount = +result.SuccessCount
 		failCount = +result.FailCount
 		totalCount = +result.TotalCount
@@ -77,12 +76,7 @@ func doTest(cmd *cobra.Command, args []string) {
 		for _, test := range tests {
 			Printf("Running %s\n", bold(test.Name))
 
-			result, err := runTest(test, "  ")
-			if err != nil {
-				Printf("Error: Failed to load given request\n%s\n", err)
-				os.Exit(1)
-			}
-
+			result := resultOutput(test, "  ")
 			successCount = +result.SuccessCount
 			failCount = +result.FailCount
 			totalCount = +result.TotalCount

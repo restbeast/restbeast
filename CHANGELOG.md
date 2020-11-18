@@ -1,3 +1,6 @@
+0.12.1
+- Fix test command issue when handling hcl diags 
+
 0.12.0
 - Test command to run all tests at once [#21](https://github.com/restbeast/restbeast/issues/21)
 
