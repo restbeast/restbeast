@@ -69,7 +69,7 @@ func doTest(cmd *cobra.Command, args []string) {
 		tests, err := lib.LoadAllTests(env, execCtx)
 
 		if err != nil {
-			Printf("Error: Failed to load given request\n%s\n", err)
+			Printf("Error: Failed to load given tests\n%s\n", err)
 			os.Exit(1)
 		}
 

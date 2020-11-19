@@ -105,6 +105,8 @@ func getPossibleDependencies(diags hcl.Diagnostics) (dependencies []string, rest
 				} else {
 					restDiagMsgs = append(restDiagMsgs, Sprint(diag))
 				}
+			} else if diag.Summary != "" {
+				restDiagMsgs = append(restDiagMsgs, Sprint(diag))
 			}
 		}
 	}

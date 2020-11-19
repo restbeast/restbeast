@@ -114,7 +114,6 @@ func retryTestWithDependency(testCfg *TestCfg, diags hcl.Diagnostics, evCtx Eval
 
 func parseTest(name string, evCtx EvalContext, execCtx *ExecutionContext) (*Test, error) {
 	testCfg, err := findTest(name, evCtx.RawTests)
-
 	if err != nil {
 		return nil, err
 	}
@@ -125,9 +124,9 @@ func parseTest(name string, evCtx EvalContext, execCtx *ExecutionContext) (*Test
 	ctxEvalContext := getCtxEvalContext(evCtx)
 	var parsedAssertions ParsedAssertions
 	diags := gohcl.DecodeBody(testCfg.Body, &ctxEvalContext, &parsedAssertions)
-	err = retryTestWithDependency(testCfg, diags, evCtx, execCtx, responses, &parsedAssertions)
-	if err != nil {
-		return nil, err
+	depErr := retryTestWithDependency(testCfg, diags, evCtx, execCtx, responses, &parsedAssertions)
+	if depErr != nil {
+		return nil, depErr
 	}
 
 	return prepareResults(name, parsedAssertions), nil

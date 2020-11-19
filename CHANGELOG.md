@@ -1,3 +1,6 @@
+0.12.2
+- Fix test all command issue when handling non unsupported attribute diagnostics  
+
 0.12.1
 - Fix test command issue when handling hcl diags 
 
