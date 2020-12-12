@@ -148,5 +148,6 @@ type Requests map[string]map[string]cty.Value
 
 type ExecutionContext struct {
 	Version string
+	Build   string
 	Debug   bool
 }

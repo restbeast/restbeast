@@ -1,3 +1,7 @@
+0.12.3
+- Fix issues gofakeit date related functions
+- Fix agent header formatting
+
 0.12.2
 - Fix test all command issue when handling non unsupported attribute diagnostics  
 
