@@ -2,6 +2,7 @@
 - Re tweak agent header
 - Fix bug with emtpy response body
 - Add missing types to json decoder
+- Fix test count output
 
 0.12.3
 - Fix issues gofakeit date related functions

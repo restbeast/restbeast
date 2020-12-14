@@ -77,9 +77,9 @@ func doTest(cmd *cobra.Command, args []string) {
 			Printf("Running %s\n", bold(test.Name))
 
 			result := resultOutput(test, "  ")
-			successCount = +result.SuccessCount
-			failCount = +result.FailCount
-			totalCount = +result.TotalCount
+			successCount += result.SuccessCount
+			failCount += result.FailCount
+			totalCount += result.TotalCount
 
 			if result.ExitCode == 1 {
 				exitCode = 1
