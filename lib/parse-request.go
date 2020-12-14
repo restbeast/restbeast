@@ -189,15 +189,18 @@ func processDependency(dependency string, evCtx *EvalContext, execCtx *Execution
 		return nil, nil, requestErr
 	}
 
-	var decodedBody interface{}
-	err := json.Unmarshal(request.Response.Body, &decodedBody)
-
-	if err != nil {
-		return nil, nil, Errorf("error decoding json response body\n%s\n", err)
-	}
-
 	var responseAsCty = map[string]cty.Value{}
-	responseAsCty["body"] = walkThrough(reflect.ValueOf(decodedBody))
+
+	var decodedBody interface{}
+	if len(request.Response.Body) > 0 {
+		err := json.Unmarshal(request.Response.Body, &decodedBody)
+
+		if err != nil {
+			return nil, nil, Errorf("error decoding json response body\n%s\n", err)
+		}
+
+		responseAsCty["body"] = walkThrough(reflect.ValueOf(decodedBody))
+	}
 
 	convertedHeaders := lowercaseHeaders(request.Response.Headers)
 	headersAsCty := walkThrough(reflect.ValueOf(convertedHeaders))
