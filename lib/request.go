@@ -22,7 +22,8 @@ func (request *Request) Exec() error {
 		return Errorf("unable to construct request, %s\n", err)
 	}
 
-	httpReq.Header.Set("user-agent", Sprintf("RestBeast/%s/%s", request.ExecutionContext.Build, request.ExecutionContext.Version))
+	vRemovedVersion := strings.Replace(request.ExecutionContext.Version, "v", "", 1)
+	httpReq.Header.Set("user-agent", Sprintf("RestBeast/%s", vRemovedVersion))
 	for key, value := range request.Headers {
 		httpReq.Header.Set(key, value)
 	}

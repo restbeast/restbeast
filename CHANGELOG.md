@@ -1,3 +1,5 @@
+0.12.4
+- Re tweak agent header
 0.12.3
 - Fix issues gofakeit date related functions
 - Fix agent header formatting
