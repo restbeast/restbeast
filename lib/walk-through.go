@@ -31,7 +31,16 @@ func walkThrough(v reflect.Value) cty.Value {
 		return cty.ObjectVal(newMap)
 	case reflect.Bool:
 		return cty.BoolVal(v.Bool())
+	case reflect.Int:
+		return cty.NumberIntVal(v.Int())
+	case reflect.Float64:
+		return cty.NumberFloatVal(v.Float())
+	case reflect.Float32:
+		return cty.NumberFloatVal(v.Float())
+	case reflect.String:
 	default:
 		return cty.StringVal(v.String())
 	}
+
+	return cty.StringVal(v.String())
 }

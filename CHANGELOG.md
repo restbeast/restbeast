@@ -1,6 +1,7 @@
 0.12.4
 - Re tweak agent header
-- Fix bug with emtpy response body 
+- Fix bug with emtpy response body
+- Add missing types to json decoder
 
 0.12.3
 - Fix issues gofakeit date related functions
