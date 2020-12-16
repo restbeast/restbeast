@@ -173,7 +173,16 @@ func LoadAllTests(env string, execCtx *ExecutionContext) (tests Tests, err error
 	}
 
 	for _, t := range evCtx.RawTests {
-		test, err := parseTest(t.Name, *evCtx, execCtx)
+		uniqueCtx := EvalContext{
+			Functions:     evCtx.Functions,
+			Variables:     evCtx.Variables,
+			Environment:   evCtx.Environment,
+			RequestAsVars: RequestAsVars{},
+			RawRequests:   evCtx.RawRequests,
+			RawDynamics:   evCtx.RawDynamics,
+			RawTests:      evCtx.RawTests,
+		}
+		test, err := parseTest(t.Name, uniqueCtx, execCtx)
 		if err != nil {
 			return nil, err
 		}

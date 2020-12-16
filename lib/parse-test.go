@@ -121,9 +121,9 @@ func parseTest(name string, evCtx EvalContext, execCtx *ExecutionContext) (*Test
 	updateEvalContextWithTestFns(&evCtx)
 
 	var responses []*Response
-	ctxEvalContext := getCtxEvalContext(evCtx)
+	ctxHclEvalContext := getCtxEvalContext(evCtx)
 	var parsedAssertions ParsedAssertions
-	diags := gohcl.DecodeBody(testCfg.Body, &ctxEvalContext, &parsedAssertions)
+	diags := gohcl.DecodeBody(testCfg.Body, &ctxHclEvalContext, &parsedAssertions)
 	depErr := retryTestWithDependency(testCfg, diags, evCtx, execCtx, responses, &parsedAssertions)
 	if depErr != nil {
 		return nil, depErr

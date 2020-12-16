@@ -3,6 +3,7 @@
 - Fix bug with emtpy response body
 - Add missing types to json decoder
 - Fix test count output
+- Fix test dependent requests mixing into each other
 
 0.12.3
 - Fix issues gofakeit date related functions
