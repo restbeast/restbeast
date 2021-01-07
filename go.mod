@@ -13,8 +13,7 @@ require (
 	github.com/hashicorp/hcl/v2 v2.8.1
 	github.com/mitchellh/go-wordwrap v1.0.0 // indirect
 	github.com/nathan-fiscaletti/consolesize-go v0.0.0-20200813182358-f58b29f19513
-	github.com/spf13/cobra v1.0.0
-	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/spf13/cobra v1.1.1
 	github.com/ttacon/chalk v0.0.0-20160626202418-22c06c80ed31
 	github.com/zclconf/go-cty v1.7.1
 	golang.org/x/crypto v0.0.0-20200728195943-123391ffb6de
