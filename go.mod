@@ -10,7 +10,7 @@ require (
 	github.com/getsentry/sentry-go v0.9.0
 	github.com/go-errors/errors v1.1.1
 	github.com/google/go-cmp v0.5.1 // indirect
-	github.com/hashicorp/hcl/v2 v2.8.1
+	github.com/hashicorp/hcl/v2 v2.8.2
 	github.com/mitchellh/go-wordwrap v1.0.0 // indirect
 	github.com/nathan-fiscaletti/consolesize-go v0.0.0-20200813182358-f58b29f19513
 	github.com/spf13/cobra v1.1.1
