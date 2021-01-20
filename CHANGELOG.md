@@ -1,3 +1,6 @@
+0.13.0
+- Request parameters [#13](https://github.com/restbeast/restbeast/issues/13)
+
 0.12.4
 - Re tweak agent header
 - Fix bug with emtpy response body

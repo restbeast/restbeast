@@ -28,11 +28,16 @@ type AuthCfg struct {
 	BearerAuth *BearerAuthCfg `hcl:"bearer,block"`
 }
 
+type ParamsBlockCfg struct {
+	Body hcl.Body `hcl:",remain"`
+}
+
 type RequestCfg struct {
-	Name      string   `hcl:"name,label"`
-	DependsOn []string `hcl:"depends_on,optional"`
-	Body      hcl.Body `hcl:",remain"`
-	Auth      *AuthCfg `hcl:"auth,block"`
+	Name      string          `hcl:"name,label"`
+	DependsOn []string        `hcl:"depends_on,optional"`
+	Body      hcl.Body        `hcl:",remain"`
+	Auth      *AuthCfg        `hcl:"auth,block"`
+	Params    *ParamsBlockCfg `hcl:"params,block"`
 }
 
 type RequestCfgs []*RequestCfg
@@ -111,6 +116,7 @@ type Request struct {
 	Url     string
 	Headers map[string]string
 	Body    string
+	Params  map[string]string
 	EvalContext
 	PrecedingRequests []*Response
 	*Response

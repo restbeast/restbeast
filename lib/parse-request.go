@@ -90,8 +90,8 @@ func getCtxEvalContext(evCtx EvalContext) hcl.EvalContext {
 	}
 }
 
-// Read the tea leafs
-// Try to find dependecies from error messages.
+// Read the tea leaves
+// Try to find dependencies from error messages.
 // HCL diag will have "Unsupported attribute" as summary and
 // detail wil be "This object does not have an attribute named xxx" for unknown attributes.
 func getPossibleDependencies(diags hcl.Diagnostics) (dependencies []string, restDiagMsgs []string) {
@@ -258,6 +258,11 @@ func getRequest(cfg cty.Value, requestCfg RequestCfg, evCtx EvalContext, execCtx
 	authBlockDiags := parseAuthBlock(request, requestCfg.Auth, getCtxEvalContext(evCtx))
 	if authBlockDiags != nil {
 		return nil, nil, authBlockDiags
+	}
+
+	paramsBlockDiags := parseParamsBlock(request, requestCfg.Params, getCtxEvalContext(evCtx))
+	if paramsBlockDiags != nil {
+		return nil, nil, paramsBlockDiags
 	}
 
 	return request, nil, nil

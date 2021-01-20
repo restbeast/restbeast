@@ -29,6 +29,7 @@ func TestRequest_Exec(t *testing.T) {
 		Url               string
 		Headers           map[string]string
 		Body              string
+		Params            *map[string]string
 		EvalContext       EvalContext
 		PrecedingRequests []*Response
 		Response          *Response

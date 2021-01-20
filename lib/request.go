@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptrace"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -16,8 +17,29 @@ func (request *Request) Exec() error {
 	start := time.Now()
 	var dnsTime, connectionTime, tlsHandshakeTime, firstByteTime, totalTime time.Duration
 
+	var encodedParams string
+	if request.Params != nil {
+		params := url.Values{}
+
+		for k, v := range request.Params {
+			params.Add(k, v)
+		}
+
+		encodedParams = params.Encode()
+	}
+
 	requestBody := []byte(request.Body)
-	httpReq, err := http.NewRequest(strings.ToUpper(request.Method), request.Url, bytes.NewReader(requestBody))
+
+	fullUrl := request.Url
+	if encodedParams != "" {
+		if strings.Contains(fullUrl, "?") {
+			fullUrl += "&" + encodedParams
+		} else {
+			fullUrl += "?" + encodedParams
+		}
+	}
+
+	httpReq, err := http.NewRequest(strings.ToUpper(request.Method), fullUrl, bytes.NewReader(requestBody))
 	if err != nil {
 		return Errorf("unable to construct request, %s\n", err)
 	}
@@ -30,7 +52,7 @@ func (request *Request) Exec() error {
 
 	if request.ExecutionContext.Debug {
 		log.Printf("request method: %s", request.Method)
-		log.Printf("request url: %s", request.Url)
+		log.Printf("request url: %s", fullUrl)
 
 		for k, v := range httpReq.Header {
 			log.Printf("request header: %s=%s", k, v)
