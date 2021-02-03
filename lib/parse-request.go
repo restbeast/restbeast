@@ -8,6 +8,7 @@ import (
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/function"
 	"github.com/zclconf/go-cty/cty/gocty"
+	"io"
 	"net/http"
 	"reflect"
 	"regexp"
@@ -214,15 +215,28 @@ func processDependency(dependency string, evCtx *EvalContext, execCtx *Execution
 
 func getRequest(cfg cty.Value, requestCfg RequestCfg, evCtx EvalContext, execCtx *ExecutionContext) (*Request, error, hcl.Diagnostics) {
 	headers := make(map[string]string)
-	headerErr := gocty.FromCtyValue(cfg.GetAttr("headers"), &headers)
-
-	if headerErr != nil {
-		return nil, Errorf("Error: failed to parse headers, \n%s\n", headerErr), nil
+	if cfg.Type().HasAttribute("headers") {
+		headerErr := gocty.FromCtyValue(cfg.GetAttr("headers"), &headers)
+		if headerErr != nil {
+			return nil, Errorf("Error: failed to parse headers, \n%s\n", headerErr), nil
+		}
 	}
 
-	body, bodyError := parseBody(cfg.GetAttr("body"), &headers)
-	if bodyError != nil {
-		return nil, bodyError, nil
+	var boundary string
+	if cfg.Type().HasAttribute("boundary") {
+		boundaryVal := cfg.GetAttr("boundary")
+		if !boundaryVal.IsNull() {
+			boundary = boundaryVal.AsString()
+		}
+	}
+
+	var body io.Reader
+	if cfg.Type().HasAttribute("body") {
+		var bodyError error
+		body, bodyError = parseBody(cfg.GetAttr("body"), &boundary, &headers)
+		if bodyError != nil {
+			return nil, bodyError, nil
+		}
 	}
 
 	var method string

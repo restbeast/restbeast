@@ -37,6 +37,7 @@ func bodyAsJson(bodyAsCtyValue cty.Value) (io.Reader, error) {
 	if jsonErr != nil {
 		return nil, Errorf("Error: failed to parse request body, \n%s\n", jsonErr)
 	}
+
 	return bytes.NewReader(bodyJSON), nil
 }
 
@@ -76,9 +77,16 @@ func processFormBody(params *url.Values, parent *string, bodyAsCtyValue cty.Valu
 	return nil
 }
 
-func processMultipartFormBody(bodyAsCtyValue cty.Value) (io.Reader, string, error) {
+func processMultipartFormBody(bodyAsCtyValue cty.Value, boundary *string) (io.Reader, string, error) {
 	var buf bytes.Buffer
 	writer := multipart.NewWriter(&buf)
+
+	if boundary != nil {
+		err := writer.SetBoundary(*boundary)
+		if err != nil {
+			return nil, "", err
+		}
+	}
 
 	for k, v := range bodyAsCtyValue.AsValueMap() {
 		err := processMultipartBodyPart(k, v, writer)
@@ -142,7 +150,7 @@ func processMultipartBodyPart(k string, v cty.Value, writer *multipart.Writer) e
 	return nil
 }
 
-func parseBody(bodyAsCtyValue cty.Value, headers *map[string]string) (io.Reader, error) {
+func parseBody(bodyAsCtyValue cty.Value, boundary *string, headers *map[string]string) (io.Reader, error) {
 	contentTypeHeader := getHeader("content-type", headers)
 	var contentType string
 	if contentTypeHeader != nil {
@@ -169,7 +177,7 @@ func parseBody(bodyAsCtyValue cty.Value, headers *map[string]string) (io.Reader,
 			}
 
 			contentTypeHeaderKey := *getHeaderKey("content-type", headers)
-			reader, newHeader, err := processMultipartFormBody(bodyAsCtyValue)
+			reader, newHeader, err := processMultipartFormBody(bodyAsCtyValue, boundary)
 			if err != nil {
 				return nil, err
 			}
