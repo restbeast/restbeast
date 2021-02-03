@@ -21,19 +21,16 @@ func Test_getHeader(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want string
+		want *string
 	}{
-		{"key not found", args{"non-existent-key", &keyNotFoundH}, ""},
-		{"exact key found", args{"existent-key", &exactKeyFoudH}, want2},
-		{"key found", args{"Existent-Key", &keyFound}, want3},
+		{"key not found", args{"non-existent-key", &keyNotFoundH}, nil},
+		{"exact key found", args{"existent-key", &exactKeyFoudH}, &want2},
+		{"key found", args{"Existent-Key", &keyFound}, &want3},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var got string
-			getHeader(tt.args.key, tt.args.headers, &got)
-			if got != "" && tt.want != "" {
-				t.Errorf("getHeader() = %v, want %v", got, tt.want)
-			} else if !reflect.DeepEqual(got, tt.want) {
+			got := getHeader(tt.args.key, tt.args.headers)
+			if (tt.want == nil && got != nil) || (tt.want != nil && !reflect.DeepEqual(*got, *tt.want)) {
 				t.Errorf("getHeader() = %v, want %v", got, tt.want)
 			}
 		})

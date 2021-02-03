@@ -143,8 +143,11 @@ func processMultipartBodyPart(k string, v cty.Value, writer *multipart.Writer) e
 }
 
 func parseBody(bodyAsCtyValue cty.Value, headers *map[string]string) (io.Reader, error) {
+	contentTypeHeader := getHeader("content-type", headers)
 	var contentType string
-	getHeader("content-type", headers, &contentType)
+	if contentTypeHeader != nil {
+		contentType = *contentTypeHeader
+	}
 
 	if !bodyAsCtyValue.IsNull() {
 		switch contentType {

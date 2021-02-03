@@ -1,10 +1,12 @@
 package lib
 
-import "strings"
+import (
+	"strings"
+)
 
-func getHeader(searchKey string, headers *map[string]string, contentType *string) {
+func getHeader(searchKey string, headers *map[string]string) (contentType *string) {
 	if headers == nil {
-		return
+		return nil
 	}
 
 	for key, val := range *headers {
@@ -12,6 +14,8 @@ func getHeader(searchKey string, headers *map[string]string, contentType *string
 			contentType = &val
 		}
 	}
+
+	return contentType
 }
 
 func getHeaderKey(searchKey string, headers *map[string]string) *string {
