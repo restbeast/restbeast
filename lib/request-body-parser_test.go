@@ -21,6 +21,11 @@ func Test_parseBody(t *testing.T) {
 	applicationJsonReader := strings.NewReader(applicationJsonStr)
 	applicationJsonHeaders := map[string]string{"content-type": "application/json"}
 
+	formUrlencodedStr := ""
+	formUrlencodedBody := cty.MapVal(map[string]cty.Value{"hey": cty.StringVal("ho")})
+	formUrlencodedReader := strings.NewReader(formUrlencodedStr)
+	formUrlencodedHeaders := map[string]string{"content-type": "application/x-www-form-urlencoded"}
+
 	type args struct {
 		bodyAsCtyValue cty.Value
 		headers        *map[string]string
@@ -35,16 +40,15 @@ func Test_parseBody(t *testing.T) {
 		{"null body", args{cty.NullVal(cty.String), nil}, nil, false},
 		{"text/plain", args{textPlainBody, &textPlainHeaders}, textPlainReader, false},
 		{"application/json", args{applicationJsonBody, &applicationJsonHeaders}, applicationJsonReader, false},
+		{"application/x-www-form-urlencoded", args{formUrlencodedBody, &formUrlencodedHeaders}, formUrlencodedReader, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			reader, err := parseBody(tt.args.bodyAsCtyValue, tt.args.headers)
 
 			if (err != nil) != tt.wantErr {
-				t.Errorf("parseBody() = %v, want %v", err, tt.wantErr)
-			}
-
-			if tt.want == nil && reader != nil {
+				t.Errorf("parseBody()  = %v, want %v", err, tt.wantErr)
+			} else if tt.want == nil && reader != nil {
 				t.Errorf("parseBody() = %v, want %v", reader, tt.want)
 			} else if tt.want != nil {
 				bufWant := new(bytes.Buffer)
