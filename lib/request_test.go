@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/restbeast/restbeast/lib/mocks"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"testing"
@@ -28,7 +29,7 @@ func TestRequest_Exec(t *testing.T) {
 		Method            string
 		Url               string
 		Headers           map[string]string
-		Body              string
+		Body              io.Reader
 		Params            *map[string]string
 		EvalContext       EvalContext
 		PrecedingRequests []*Response
@@ -47,7 +48,7 @@ func TestRequest_Exec(t *testing.T) {
 				Method:      "",
 				Url:         "URL1",
 				Headers:     map[string]string{"header1": "value1"},
-				Body:        "",
+				Body:        nil,
 				EvalContext: EvalContext{},
 				ExecutionContext: &ExecutionContext{
 					Version: "v0.0.0-test",
@@ -65,7 +66,7 @@ func TestRequest_Exec(t *testing.T) {
 				Method:      "GET",
 				Url:         "URL1",
 				Headers:     map[string]string{"header1": "value1"},
-				Body:        "",
+				Body:        nil,
 				EvalContext: EvalContext{},
 				ExecutionContext: &ExecutionContext{
 					Version: "v0.0.0-test",
@@ -83,7 +84,7 @@ func TestRequest_Exec(t *testing.T) {
 				Method:      "GET",
 				Url:         "URL2",
 				Headers:     map[string]string{"header1": "value1"},
-				Body:        "",
+				Body:        nil,
 				EvalContext: EvalContext{},
 				ExecutionContext: &ExecutionContext{
 					Version: "v0.0.0-test",

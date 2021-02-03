@@ -8,7 +8,6 @@ import (
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/function"
 	"github.com/zclconf/go-cty/cty/gocty"
-	ctyjson "github.com/zclconf/go-cty/cty/json"
 	"net/http"
 	"reflect"
 	"regexp"
@@ -214,22 +213,16 @@ func processDependency(dependency string, evCtx *EvalContext, execCtx *Execution
 }
 
 func getRequest(cfg cty.Value, requestCfg RequestCfg, evCtx EvalContext, execCtx *ExecutionContext) (*Request, error, hcl.Diagnostics) {
-	bodyAsCtyObj := cfg.GetAttr("body")
-	var bodyAsString string
-
-	if !bodyAsCtyObj.IsNull() {
-		bodyJSON, jsonErr := json.MarshalIndent(ctyjson.SimpleJSONValue{bodyAsCtyObj}, "", "  ")
-		if jsonErr != nil {
-			return nil, Errorf("Error: failed to parse request body, \n%s\n", jsonErr), nil
-		}
-		bodyAsString = string(bodyJSON)
-	}
-
 	headers := make(map[string]string)
 	headerErr := gocty.FromCtyValue(cfg.GetAttr("headers"), &headers)
 
 	if headerErr != nil {
 		return nil, Errorf("Error: failed to parse headers, \n%s\n", headerErr), nil
+	}
+
+	body, bodyError := parseBody(cfg.GetAttr("body"), &headers)
+	if bodyError != nil {
+		return nil, bodyError, nil
 	}
 
 	var method string
@@ -250,7 +243,7 @@ func getRequest(cfg cty.Value, requestCfg RequestCfg, evCtx EvalContext, execCtx
 		Method:           method,
 		Url:              url,
 		Headers:          headers,
-		Body:             bodyAsString,
+		Body:             body,
 		ExecutionContext: execCtx,
 		RoundTripper:     roundTripper,
 	}

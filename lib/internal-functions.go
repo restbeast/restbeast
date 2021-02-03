@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"fmt"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/function"
 	"github.com/zclconf/go-cty/cty/function/stdlib"
@@ -468,6 +469,29 @@ var gofakeitFunctionList = map[string]GofakeitFunc{
 	}}, Type: function.StaticReturnType(cty.String), Impl: gofakeitRandomStringImpl},
 }
 
+var restbeastFunctionList = map[string]function.Function{
+	"readfile": function.New(&function.Spec{
+		Params: []function.Parameter{
+			{
+				Name:             "file",
+				Type:             cty.String,
+				AllowNull:        false,
+				AllowUnknown:     false,
+				AllowDynamicType: false,
+				AllowMarked:      false,
+			},
+		},
+		Type: function.StaticReturnType(cty.String),
+		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
+			if len(args) < 1 {
+				return cty.StringVal(""), fmt.Errorf("Invalid argument count")
+			}
+
+			return cty.StringVal(fmt.Sprintf("###READFILE=%s###", args[0].AsString())), nil
+		},
+	}),
+}
+
 func getCtyFunctions() map[string]function.Function {
 	allFunctions := make(map[string]function.Function)
 
@@ -480,6 +504,10 @@ func getCtyFunctions() map[string]function.Function {
 	}
 
 	for k, v := range defaultFunctions {
+		allFunctions[k] = v
+	}
+
+	for k, v := range restbeastFunctionList {
 		allFunctions[k] = v
 	}
 
