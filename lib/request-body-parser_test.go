@@ -266,3 +266,46 @@ func Test_getBoundary(t *testing.T) {
 		})
 	}
 }
+
+func Test_processFileBody(t *testing.T) {
+	type args struct {
+		readfileStr string
+	}
+
+	filename := "/tmp/request-body-parser_test-dummy-2.txt"
+	file, _ := os.Create(filename)
+	defer os.Remove(filename)
+	file.WriteString("test")
+	file.Close()
+
+	tests := []struct {
+		name       string
+		args       args
+		wantReader io.Reader
+		wantMime   string
+		wantErr    bool
+	}{
+		{ "txt file", args{ fmt.Sprintf("###READFILE=%s###", filename) }, strings.NewReader("test"), "", false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotReader, gotMime, err := processFileBody(tt.args.readfileStr)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("processFileBody() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			var gotBuf bytes.Buffer
+			io.Copy(&gotBuf, gotReader)
+
+			var wantBuf bytes.Buffer
+			io.Copy(&wantBuf, tt.wantReader)
+			if !reflect.DeepEqual(gotBuf.String(), wantBuf.String()) {
+				t.Errorf("processFileBody() gotReader = %v, want %v", gotBuf.String(), wantBuf.String())
+			}
+			if gotMime != tt.wantMime {
+				t.Errorf("processFileBody() gotMime = %v, want %v", gotMime, tt.wantMime)
+			}
+		})
+	}
+}

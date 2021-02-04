@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	. "fmt"
+	"github.com/h2non/filetype"
 	"github.com/zclconf/go-cty/cty"
 	ctyjson "github.com/zclconf/go-cty/cty/json"
 	"io"
@@ -161,6 +162,23 @@ func processMultipartBodyPart(k string, v cty.Value, writer *multipart.Writer) e
 	return nil
 }
 
+func processFileBody(readfileStr string) (reader io.Reader, mime string, err error) {
+	trimmed := strings.TrimPrefix(readfileStr, "###READFILE=")
+	path := strings.TrimSuffix(trimmed, "###")
+
+	contents, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, "", err
+	}
+
+	match, err := filetype.Match(contents)
+	if match != filetype.Unknown {
+		mime = match.MIME.Value
+	}
+
+	return bytes.NewReader(contents), mime, nil
+}
+
 func parseBody(bodyAsCtyValue cty.Value, headers *map[string]string) (io.Reader, error) {
 	contentTypeHeader := getHeader("content-type", headers)
 	var contentType string
@@ -168,12 +186,20 @@ func parseBody(bodyAsCtyValue cty.Value, headers *map[string]string) (io.Reader,
 		contentType = strings.ToLower(*contentTypeHeader)
 	}
 
+	isJson := strings.HasPrefix(contentType, "application/json")
+	isForm := strings.HasPrefix(contentType, "application/x-www-form-urlencoded")
+	isMultipart := strings.HasPrefix(contentType, "multipart/form-data") ||
+		strings.HasPrefix(contentType, "multipart/mixed")
+	isFile := bodyAsCtyValue.Type().FriendlyName() == "string" &&
+		strings.HasPrefix(bodyAsCtyValue.AsString(), "###READFILE=") &&
+		strings.HasSuffix(bodyAsCtyValue.AsString(), "###")
+
 	if !bodyAsCtyValue.IsNull() {
 		switch {
-		case strings.HasPrefix(contentType, "application/json"):
+		case isJson:
 			return bodyAsJson(bodyAsCtyValue)
 
-		case strings.HasPrefix(contentType, "application/x-www-form-urlencoded"):
+		case isForm:
 			params := url.Values{}
 			err := processFormBody(&params, nil, bodyAsCtyValue)
 			if err != nil {
@@ -181,7 +207,7 @@ func parseBody(bodyAsCtyValue cty.Value, headers *map[string]string) (io.Reader,
 			}
 			return strings.NewReader(params.Encode()), nil
 
-		case strings.HasPrefix(contentType, "multipart/form-data") || strings.HasPrefix(contentType, "multipart/mixed"):
+		case isMultipart:
 			bodyType := bodyAsCtyValue.Type()
 			if !bodyType.IsObjectType() {
 				return nil, Errorf("request body has to be a key/value pairs to use multipart/form-data")
@@ -196,6 +222,19 @@ func parseBody(bodyAsCtyValue cty.Value, headers *map[string]string) (io.Reader,
 
 			h := *headers
 			h[contentTypeHeaderKey] = newHeader
+			return reader, nil
+
+		case isFile:
+			reader, mime, err := processFileBody(bodyAsCtyValue.AsString())
+			if err != nil {
+				return nil, err
+			}
+
+			if contentType == "" {
+				h := *headers
+				h["content-type"] = mime
+			}
+
 			return reader, nil
 
 		// unknown header will be treated as
