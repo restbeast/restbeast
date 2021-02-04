@@ -222,18 +222,10 @@ func getRequest(cfg cty.Value, requestCfg RequestCfg, evCtx EvalContext, execCtx
 		}
 	}
 
-	var boundary string
-	if cfg.Type().HasAttribute("boundary") {
-		boundaryVal := cfg.GetAttr("boundary")
-		if !boundaryVal.IsNull() {
-			boundary = boundaryVal.AsString()
-		}
-	}
-
 	var body io.Reader
 	if cfg.Type().HasAttribute("body") {
 		var bodyError error
-		body, bodyError = parseBody(cfg.GetAttr("body"), &boundary, &headers)
+		body, bodyError = parseBody(cfg.GetAttr("body"), &headers)
 		if bodyError != nil {
 			return nil, bodyError, nil
 		}

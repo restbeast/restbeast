@@ -38,7 +38,7 @@ func Test_parseBody(t *testing.T) {
 	file.Close()
 
 	multipartBody := cty.ObjectVal(map[string]cty.Value{"hey": cty.StringVal("ho"), "file": cty.StringVal(fmt.Sprintf("###READFILE=%s###", filename))})
-	multipartBodyHeaders := map[string]string{"content-type": "multipart/form-data"}
+	multipartBodyHeaders := map[string]string{"content-type": "multipart/form-data; boundary=test"}
 
 	var buf bytes.Buffer
 	writer := multipart.NewWriter(&buf)
@@ -56,7 +56,6 @@ func Test_parseBody(t *testing.T) {
 	type args struct {
 		bodyAsCtyValue cty.Value
 		headers        *map[string]string
-		boundary       *string
 	}
 
 	tests := []struct {
@@ -65,15 +64,15 @@ func Test_parseBody(t *testing.T) {
 		want    io.Reader
 		wantErr bool
 	}{
-		{"null body", args{cty.NullVal(cty.String), nil, nil}, nil, false},
-		{"text/plain", args{textPlainBody, &textPlainHeaders, nil}, textPlainReader, false},
-		{"application/json", args{applicationJsonBody, &applicationJsonHeaders, nil}, applicationJsonReader, false},
-		{"application/x-www-form-urlencoded", args{formUrlencodedBody, &formUrlencodedHeaders, nil}, formUrlencodedReader, false},
-		{"multipart/form-data", args{multipartBody, &multipartBodyHeaders, &boundary}, multipartBodyReader, false},
+		{"null body", args{cty.NullVal(cty.String), nil}, nil, false},
+		{"text/plain", args{textPlainBody, &textPlainHeaders}, textPlainReader, false},
+		{"application/json", args{applicationJsonBody, &applicationJsonHeaders}, applicationJsonReader, false},
+		{"application/x-www-form-urlencoded", args{formUrlencodedBody, &formUrlencodedHeaders}, formUrlencodedReader, false},
+		{"multipart/form-data", args{multipartBody, &multipartBodyHeaders}, multipartBodyReader, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			reader, err := parseBody(tt.args.bodyAsCtyValue, tt.args.boundary, tt.args.headers)
+			reader, err := parseBody(tt.args.bodyAsCtyValue, tt.args.headers)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("parseBody()  = %v, want %v", err, tt.wantErr)

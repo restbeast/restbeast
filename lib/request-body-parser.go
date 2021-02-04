@@ -11,6 +11,7 @@ import (
 	"mime/multipart"
 	"net/url"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
 
@@ -150,7 +151,7 @@ func processMultipartBodyPart(k string, v cty.Value, writer *multipart.Writer) e
 	return nil
 }
 
-func parseBody(bodyAsCtyValue cty.Value, boundary *string, headers *map[string]string) (io.Reader, error) {
+func parseBody(bodyAsCtyValue cty.Value, headers *map[string]string) (io.Reader, error) {
 	contentTypeHeader := getHeader("content-type", headers)
 	var contentType string
 	if contentTypeHeader != nil {
@@ -176,8 +177,15 @@ func parseBody(bodyAsCtyValue cty.Value, boundary *string, headers *map[string]s
 				return nil, Errorf("request body has to be a key/value pairs to use multipart/form-data")
 			}
 
+			boundaryRegex := regexp.MustCompile(";\\s?boundary=([\\w\\d\\-]+)?$")
+			boundaryMatches := boundaryRegex.FindStringSubmatch(contentType)
+			var boundary string
+			if len(boundaryMatches) > 0 {
+				boundary = boundaryMatches[1]
+			}
+
 			contentTypeHeaderKey := *getHeaderKey("content-type", headers)
-			reader, newHeader, err := processMultipartFormBody(bodyAsCtyValue, boundary)
+			reader, newHeader, err := processMultipartFormBody(bodyAsCtyValue, &boundary)
 			if err != nil {
 				return nil, err
 			}
