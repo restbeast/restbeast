@@ -5,31 +5,22 @@ import (
 	"fmt"
 	"github.com/zclconf/go-cty/cty"
 	"io"
-	"mime/multipart"
 	"net/url"
 	"os"
 	"reflect"
 	"strings"
 	"testing"
-	"time"
 )
 
 func Test_parseBody(t *testing.T) {
 	textPlainStr := "hey ho"
 	textPlainBody := cty.StringVal(textPlainStr)
-	textPlainReader := strings.NewReader(textPlainStr)
 	textPlainHeaders := map[string]string{"content-type": "text/plain"}
 
-	applicationJsonStr := `{
-  "hey": "ho"
-}`
 	applicationJsonBody := cty.ObjectVal(map[string]cty.Value{"hey": cty.StringVal("ho")})
-	applicationJsonReader := strings.NewReader(applicationJsonStr)
 	applicationJsonHeaders := map[string]string{"content-type": "application/json"}
 
-	formUrlencodedStr := "hey=ho"
 	formUrlencodedBody := cty.ObjectVal(map[string]cty.Value{"hey": cty.StringVal("ho")})
-	formUrlencodedReader := strings.NewReader(formUrlencodedStr)
 	formUrlencodedHeaders := map[string]string{"content-type": "application/x-www-form-urlencoded"}
 
 	filename := "/tmp/request-body-parser_test-dummy-1.txt"
@@ -38,22 +29,23 @@ func Test_parseBody(t *testing.T) {
 	file.WriteString("test")
 	file.Close()
 
-	multipartBody := cty.ObjectVal(map[string]cty.Value{"hey": cty.StringVal("ho"), "file": cty.StringVal(fmt.Sprintf("###READFILE=%s###", filename))})
+	multipartBody := cty.ObjectVal(
+		map[string]cty.Value{
+			"hey":   cty.StringVal("ho"),
+			"num":   cty.NumberIntVal(int64(10)),
+			"boolF": cty.BoolVal(false),
+			"boolT": cty.BoolVal(true),
+			"file":  cty.StringVal(fmt.Sprintf("###READFILE=%s###", filename)),
+		})
 	multipartBodyHeaders := map[string]string{"content-type": "multipart/form-data; boundary=test"}
 
-	var buf bytes.Buffer
-	writer := multipart.NewWriter(&buf)
-	boundary := "test"
-	writer.SetBoundary(boundary)
-	fwfile, _ := writer.CreateFormFile("file", "request-body-parser_test-dummy-1.txt")
-	fwfile.Write([]byte("test"))
-
-	time.Sleep(100 * time.Millisecond)
-	fwfield, _ := writer.CreateFormField("hey")
-	fwfield.Write([]byte("ho"))
-
-	writer.Close()
-	multipartBodyReader := bytes.NewReader(buf.Bytes())
+	filename2 := "/tmp/request-body-parser_test-dummy-1.txt"
+	file2, _ := os.Create(filename)
+	defer os.Remove(filename)
+	file2.WriteString("test")
+	file2.Close()
+	onlyfileBody := cty.StringVal(fmt.Sprintf("###READFILE=%s###", filename2))
+	onlyfileHeaders := map[string]string{}
 
 	type args struct {
 		bodyAsCtyValue cty.Value
@@ -63,39 +55,21 @@ func Test_parseBody(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    io.Reader
 		wantErr bool
 	}{
-		{"null body", args{cty.NullVal(cty.String), nil}, nil, false},
-		{"text/plain", args{textPlainBody, &textPlainHeaders}, textPlainReader, false},
-		{"application/json", args{applicationJsonBody, &applicationJsonHeaders}, applicationJsonReader, false},
-		{"application/x-www-form-urlencoded", args{formUrlencodedBody, &formUrlencodedHeaders}, formUrlencodedReader, false},
-		{"multipart/form-data", args{multipartBody, &multipartBodyHeaders}, multipartBodyReader, false},
+		{"null body", args{cty.NullVal(cty.String), nil}, false},
+		{"text/plain", args{textPlainBody, &textPlainHeaders}, false},
+		{"application/json", args{applicationJsonBody, &applicationJsonHeaders}, false},
+		{"application/x-www-form-urlencoded", args{formUrlencodedBody, &formUrlencodedHeaders}, false},
+		{"multipart/form-data", args{multipartBody, &multipartBodyHeaders}, false},
+		{"file", args{onlyfileBody, &onlyfileHeaders}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			reader, err := parseBody(tt.args.bodyAsCtyValue, tt.args.headers)
+			_, err := parseBody(tt.args.bodyAsCtyValue, tt.args.headers)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("parseBody()  = %v, want %v", err, tt.wantErr)
-			} else if tt.want == nil && reader != nil {
-				t.Errorf("parseBody() = %v, want %v", reader, tt.want)
-			} else if tt.want != nil {
-				bufWant := new(bytes.Buffer)
-				_, bufWantErr := bufWant.ReadFrom(tt.want)
-				if bufWantErr != nil {
-					t.Error("parseBody() = want reader error", bufWantErr)
-				}
-
-				bufGot := new(bytes.Buffer)
-				_, bufGotErr := bufGot.ReadFrom(reader)
-				if bufGotErr != nil {
-					t.Error("parseBody() = got reader error", bufGotErr)
-				}
-
-				if !bytes.Equal(bufWant.Bytes(), bufGot.Bytes()) {
-					t.Errorf("parseBody() got;\n%v\nwant;\n%v\n", bufGot.String(), bufWant.String())
-				}
 			}
 		})
 	}
