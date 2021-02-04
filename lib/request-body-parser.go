@@ -154,15 +154,15 @@ func parseBody(bodyAsCtyValue cty.Value, boundary *string, headers *map[string]s
 	contentTypeHeader := getHeader("content-type", headers)
 	var contentType string
 	if contentTypeHeader != nil {
-		contentType = *contentTypeHeader
+		contentType = strings.ToLower(*contentTypeHeader)
 	}
 
 	if !bodyAsCtyValue.IsNull() {
-		switch contentType {
-		case "application/json":
+		switch {
+		case strings.HasPrefix(contentType, "application/json"):
 			return bodyAsJson(bodyAsCtyValue)
 
-		case "application/x-www-form-urlencoded":
+		case strings.HasPrefix(contentType, "application/x-www-form-urlencoded"):
 			params := url.Values{}
 			err := processFormBody(&params, nil, bodyAsCtyValue)
 			if err != nil {
@@ -170,7 +170,7 @@ func parseBody(bodyAsCtyValue cty.Value, boundary *string, headers *map[string]s
 			}
 			return strings.NewReader(params.Encode()), nil
 
-		case "multipart/form-data":
+		case strings.HasPrefix(contentType, "multipart/form-data"):
 			bodyType := bodyAsCtyValue.Type()
 			if !bodyType.IsObjectType() {
 				return nil, Errorf("request body has to be a key/value pairs to use multipart/form-data")
@@ -186,9 +186,9 @@ func parseBody(bodyAsCtyValue cty.Value, boundary *string, headers *map[string]s
 			h[contentTypeHeaderKey] = newHeader
 			return reader, nil
 
-		case "application/octet-stream":
+		case strings.HasPrefix(contentType, "application/octet-stream"):
 
-		case "application/pdf":
+		case strings.HasPrefix(contentType, "application/pdf"):
 
 		// unknown header will be treated as
 		// text/plain if it's number, bool or string

@@ -6,6 +6,7 @@ import (
 	"github.com/zclconf/go-cty/cty"
 	"io"
 	"mime/multipart"
+	"net/url"
 	"os"
 	"reflect"
 	"strings"
@@ -193,6 +194,7 @@ func Test_bodyAsJson(t *testing.T) {
 		wantErr bool
 	}{
 		{"test", args{cty.ObjectVal(map[string]cty.Value{"key": cty.StringVal("value")})}, strings.NewReader(jsonStr), false},
+		{"error", args{cty.NegativeInfinity}, strings.NewReader(jsonStr), true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -200,15 +202,44 @@ func Test_bodyAsJson(t *testing.T) {
 			if (err != nil) != tt.wantErr {
 				t.Errorf("bodyAsJson() error = %v, wantErr %v", err, tt.wantErr)
 				return
+			} else if !tt.wantErr {
+				bufGot := new(bytes.Buffer)
+				bufGot.ReadFrom(got)
+
+				bufWant := new(bytes.Buffer)
+				bufWant.ReadFrom(tt.want)
+				if !reflect.DeepEqual(bufGot.String(), bufWant.String()) {
+					t.Errorf("bodyAsJson() got = %v, want %v", bufGot.String(), bufWant.String())
+				}
 			}
+		})
+	}
+}
 
-			bufGot := new(bytes.Buffer)
-			bufGot.ReadFrom(got)
-
-			bufWant := new(bytes.Buffer)
-			bufWant.ReadFrom(tt.want)
-			if !reflect.DeepEqual(bufGot.String(), bufWant.String()) {
-				t.Errorf("bodyAsJson() got = %v, want %v", bufGot.String(), bufWant.String())
+func Test_processFormBody(t *testing.T) {
+	type args struct {
+		parent         *string
+		bodyAsCtyValue cty.Value
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+		want    string
+	}{
+		{"invalid body", args{nil, cty.StringVal("hey-ho")}, true, ""},
+		{"has-a-string", args{nil, cty.ObjectVal(map[string]cty.Value{"hey": cty.StringVal("ho")})}, false, "hey=ho"},
+		{"has-a-number", args{nil, cty.ObjectVal(map[string]cty.Value{"hey": cty.NumberIntVal(int64(10))})}, false, "hey=10"},
+		{"has-a-true-bool", args{nil, cty.ObjectVal(map[string]cty.Value{"hey": cty.BoolVal(true)})}, false, "hey=true"},
+		{"has-a-false-bool", args{nil, cty.ObjectVal(map[string]cty.Value{"hey": cty.BoolVal(false)})}, false, "hey=false"},
+		{"has-a-object", args{nil, cty.ObjectVal(map[string]cty.Value{"hey": cty.ObjectVal(map[string]cty.Value{"ho": cty.StringVal("no")})})}, false, "hey%5Bho%5D=no"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			params := url.Values{}
+			err := processFormBody(&params, tt.args.parent, tt.args.bodyAsCtyValue)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("processFormBody() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

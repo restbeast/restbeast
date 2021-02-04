@@ -1124,8 +1124,8 @@ func Test_gofakeitSecondImpl(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		got, _ := gofakeitSecondImpl(emptyArgList, cty.String)
 
-		if got.AsBigFloat().Cmp(big.NewFloat(0)) < 1 {
-			t.Errorf("gofakeitSecondImpl() returns zero")
+		if got.AsBigFloat().Cmp(big.NewFloat(0)) < 0 {
+			t.Errorf("gofakeitSecondImpl() returns below zero")
 		}
 	})
 }
@@ -1136,8 +1136,8 @@ func Test_gofakeitMinuteImpl(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		got, _ := gofakeitMinuteImpl(emptyArgList, cty.String)
 
-		if got.AsBigFloat().Cmp(big.NewFloat(0)) < 1 {
-			t.Errorf("gofakeitMinuteImpl() returns zero")
+		if got.AsBigFloat().Cmp(big.NewFloat(0)) < 0 {
+			t.Errorf("gofakeitMinuteImpl() returns blow zero")
 		}
 	})
 }
