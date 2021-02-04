@@ -181,8 +181,8 @@ func processFileBody(readfileStr string) (reader io.Reader, mime string, err err
 	return bytes.NewReader(contents), mime, nil
 }
 
-func parseBody(bodyAsCtyValue cty.Value, headers *map[string]string) (io.Reader, error) {
-	contentTypeHeader := getHeader("content-type", headers)
+func parseBody(bodyAsCtyValue cty.Value, headers Headers) (io.Reader, error) {
+	contentTypeHeader := headers.Get("content-type")
 	var contentType string
 	if contentTypeHeader != nil {
 		contentType = strings.ToLower(*contentTypeHeader)
@@ -216,15 +216,14 @@ func parseBody(bodyAsCtyValue cty.Value, headers *map[string]string) (io.Reader,
 				return nil, Errorf("request body has to be a key/value pairs to use multipart/form-data")
 			}
 
-			contentTypeHeaderKey := *getHeaderKey("content-type", headers)
+			contentTypeHeaderKey := *headers.GetKey("content-type")
 			boundary := getBoundary(contentType)
 			reader, newHeader, err := processMultipartFormBody(bodyAsCtyValue, boundary)
 			if err != nil {
 				return nil, err
 			}
 
-			h := *headers
-			h[contentTypeHeaderKey] = newHeader
+			headers.Add(contentTypeHeaderKey, newHeader)
 			return reader, nil
 
 		case isFile:
@@ -234,8 +233,7 @@ func parseBody(bodyAsCtyValue cty.Value, headers *map[string]string) (io.Reader,
 			}
 
 			if contentType == "" {
-				h := *headers
-				h["content-type"] = mime
+				headers.Add("content-type", mime)
 			}
 
 			return reader, nil

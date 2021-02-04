@@ -214,18 +214,21 @@ func processDependency(dependency string, evCtx *EvalContext, execCtx *Execution
 }
 
 func getRequest(cfg cty.Value, requestCfg RequestCfg, evCtx EvalContext, execCtx *ExecutionContext) (*Request, error, hcl.Diagnostics) {
-	headers := make(map[string]string)
+	headersMap := map[string]string{}
 	if cfg.Type().HasAttribute("headers") {
-		headerErr := gocty.FromCtyValue(cfg.GetAttr("headers"), &headers)
+		headerErr := gocty.FromCtyValue(cfg.GetAttr("headers"), &headersMap)
 		if headerErr != nil {
 			return nil, Errorf("Error: failed to parse headers, \n%s\n", headerErr), nil
 		}
 	}
 
+	headers := Headers{}
+	headers.AddBulk(headersMap)
+
 	var body io.Reader
 	if cfg.Type().HasAttribute("body") {
 		var bodyError error
-		body, bodyError = parseBody(cfg.GetAttr("body"), &headers)
+		body, bodyError = parseBody(cfg.GetAttr("body"), headers)
 		if bodyError != nil {
 			return nil, bodyError, nil
 		}

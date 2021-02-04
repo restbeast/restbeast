@@ -25,10 +25,13 @@ func TestRequest_Exec(t *testing.T) {
 	mockTransport.RegisterResponder("GET", "URL1", test1)
 	mockTransport.RegisterResponder("GET", "URL2", test2)
 
+	testHeaders1 := Headers{}
+	testHeaders1.Add("header1", "value1")
+
 	type fields struct {
 		Method            string
 		Url               string
-		Headers           map[string]string
+		Headers           Headers
 		Body              io.Reader
 		Params            *map[string]string
 		EvalContext       EvalContext
@@ -47,7 +50,7 @@ func TestRequest_Exec(t *testing.T) {
 			fields: fields{
 				Method:      "",
 				Url:         "URL1",
-				Headers:     map[string]string{"header1": "value1"},
+				Headers:     testHeaders1,
 				Body:        nil,
 				EvalContext: EvalContext{},
 				ExecutionContext: &ExecutionContext{
@@ -65,7 +68,7 @@ func TestRequest_Exec(t *testing.T) {
 			fields: fields{
 				Method:      "GET",
 				Url:         "URL1",
-				Headers:     map[string]string{"header1": "value1"},
+				Headers:     testHeaders1,
 				Body:        nil,
 				EvalContext: EvalContext{},
 				ExecutionContext: &ExecutionContext{
@@ -83,7 +86,7 @@ func TestRequest_Exec(t *testing.T) {
 			fields: fields{
 				Method:      "GET",
 				Url:         "URL2",
-				Headers:     map[string]string{"header1": "value1"},
+				Headers:     testHeaders1,
 				Body:        nil,
 				EvalContext: EvalContext{},
 				ExecutionContext: &ExecutionContext{

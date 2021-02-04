@@ -45,9 +45,7 @@ func (request *Request) Exec() error {
 
 	vRemovedVersion := strings.Replace(request.ExecutionContext.Version, "v", "", 1)
 	httpReq.Header.Set("user-agent", Sprintf("RestBeast/%s", vRemovedVersion))
-	for key, value := range request.Headers {
-		httpReq.Header.Set(key, value)
-	}
+	request.Headers.ToRequest(httpReq)
 
 	if request.ExecutionContext.Debug {
 		log.Printf("request method: %s", request.Method)

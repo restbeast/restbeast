@@ -115,7 +115,7 @@ type Response struct {
 type Request struct {
 	Method  string
 	Url     string
-	Headers map[string]string
+	Headers Headers
 	Body    io.Reader
 	Params  map[string]string
 	EvalContext

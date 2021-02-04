@@ -15,13 +15,16 @@ import (
 func Test_parseBody(t *testing.T) {
 	textPlainStr := "hey ho"
 	textPlainBody := cty.StringVal(textPlainStr)
-	textPlainHeaders := map[string]string{"content-type": "text/plain"}
+	textPlainHeaders := Headers{}
+	textPlainHeaders.Add("content-type", "text/plain")
 
 	applicationJsonBody := cty.ObjectVal(map[string]cty.Value{"hey": cty.StringVal("ho")})
-	applicationJsonHeaders := map[string]string{"content-type": "application/json"}
+	applicationJsonHeaders := Headers{}
+	applicationJsonHeaders.Add("content-type", "application/json")
 
 	formUrlencodedBody := cty.ObjectVal(map[string]cty.Value{"hey": cty.StringVal("ho")})
-	formUrlencodedHeaders := map[string]string{"content-type": "application/x-www-form-urlencoded"}
+	formUrlencodedHeaders := Headers{}
+	formUrlencodedHeaders.Add("content-type", "application/x-www-form-urlencoded")
 
 	filename := "/tmp/request-body-parser_test-dummy-1.txt"
 	file, _ := os.Create(filename)
@@ -37,7 +40,8 @@ func Test_parseBody(t *testing.T) {
 			"boolT": cty.BoolVal(true),
 			"file":  cty.StringVal(fmt.Sprintf("###READFILE=%s###", filename)),
 		})
-	multipartBodyHeaders := map[string]string{"content-type": "multipart/form-data; boundary=test"}
+	multipartBodyHeaders := Headers{}
+	multipartBodyHeaders.Add("content-type", "multipart/form-data; boundary=test")
 
 	filename2 := "/tmp/request-body-parser_test-dummy-1.txt"
 	file2, _ := os.Create(filename)
@@ -45,11 +49,11 @@ func Test_parseBody(t *testing.T) {
 	file2.WriteString("test")
 	file2.Close()
 	onlyfileBody := cty.StringVal(fmt.Sprintf("###READFILE=%s###", filename2))
-	onlyfileHeaders := map[string]string{}
+	onlyfileHeaders := Headers{}
 
 	type args struct {
 		bodyAsCtyValue cty.Value
-		headers        *map[string]string
+		headers        Headers
 	}
 
 	tests := []struct {
@@ -57,12 +61,12 @@ func Test_parseBody(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
-		{"null body", args{cty.NullVal(cty.String), nil}, false},
-		{"text/plain", args{textPlainBody, &textPlainHeaders}, false},
-		{"application/json", args{applicationJsonBody, &applicationJsonHeaders}, false},
-		{"application/x-www-form-urlencoded", args{formUrlencodedBody, &formUrlencodedHeaders}, false},
-		{"multipart/form-data", args{multipartBody, &multipartBodyHeaders}, false},
-		{"file", args{onlyfileBody, &onlyfileHeaders}, false},
+		{"null body", args{cty.NullVal(cty.String), Headers{}}, false},
+		{"text/plain", args{textPlainBody, textPlainHeaders}, false},
+		{"application/json", args{applicationJsonBody, applicationJsonHeaders}, false},
+		{"application/x-www-form-urlencoded", args{formUrlencodedBody, formUrlencodedHeaders}, false},
+		{"multipart/form-data", args{multipartBody, multipartBodyHeaders}, false},
+		{"file", args{onlyfileBody, onlyfileHeaders}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
