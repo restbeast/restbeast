@@ -289,9 +289,9 @@ func retryWithDependency(requestCfg *RequestCfg, cfg cty.Value, diags hcl.Diagno
 
 		for _, dependency := range sortedDeps {
 			if _, ok := evCtx.RequestAsVars[dependency]; !ok {
-				evCtxP, response, err := processDependency(dependency, &evCtx, execCtx)
-				if err != nil {
-					return cfg, responses, err
+				evCtxP, response, depErr := processDependency(dependency, &evCtx, execCtx)
+				if depErr != nil {
+					return cfg, responses, depErr
 				}
 
 				responses = append(responses, response)
@@ -301,7 +301,7 @@ func retryWithDependency(requestCfg *RequestCfg, cfg cty.Value, diags hcl.Diagno
 
 		spec := getRequestObjSpec()
 		ctxEvalContext := getCtxEvalContext(evCtx)
-		cfg, diags := hcldec.Decode(requestCfg.Body, spec, &ctxEvalContext)
+		cfg, diags = hcldec.Decode(requestCfg.Body, spec, &ctxEvalContext)
 
 		if len(diags) > 0 {
 			errTxt := ""
@@ -334,11 +334,11 @@ func parseRequest(name string, evCtx EvalContext, execCtx *ExecutionContext) (*R
 
 			if len(findString) > 1 {
 				if _, ok := evCtx.RequestAsVars[findString[1]]; !ok {
-					evCtxP, response, err := processDependency(findString[1], &evCtx, execCtx)
+					evCtxP, response, depErr := processDependency(findString[1], &evCtx, execCtx)
 					responses = append(responses, response)
 
-					if err != nil {
-						return nil, err
+					if depErr != nil {
+						return nil, depErr
 					}
 
 					evCtx = *evCtxP
