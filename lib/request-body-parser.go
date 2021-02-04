@@ -172,7 +172,9 @@ func processFileBody(readfileStr string) (reader io.Reader, mime string, err err
 	}
 
 	match, err := filetype.Match(contents)
-	if match != filetype.Unknown {
+	if err != nil {
+		return nil, "", err
+	} else if match != filetype.Unknown {
 		mime = match.MIME.Value
 	}
 
