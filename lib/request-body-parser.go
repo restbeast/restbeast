@@ -191,6 +191,7 @@ func parseBody(bodyAsCtyValue cty.Value, headers *map[string]string) (io.Reader,
 	isMultipart := strings.HasPrefix(contentType, "multipart/form-data") ||
 		strings.HasPrefix(contentType, "multipart/mixed")
 	isFile := bodyAsCtyValue.Type().FriendlyName() == "string" &&
+		!bodyAsCtyValue.IsNull() &&
 		strings.HasPrefix(bodyAsCtyValue.AsString(), "###READFILE=") &&
 		strings.HasSuffix(bodyAsCtyValue.AsString(), "###")
 

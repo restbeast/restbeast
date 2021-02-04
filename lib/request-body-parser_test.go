@@ -11,6 +11,7 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+	"time"
 )
 
 func Test_parseBody(t *testing.T) {
@@ -47,6 +48,7 @@ func Test_parseBody(t *testing.T) {
 	fwfile, _ := writer.CreateFormFile("file", "request-body-parser_test-dummy-1.txt")
 	fwfile.Write([]byte("test"))
 
+	time.Sleep(100 * time.Millisecond)
 	fwfield, _ := writer.CreateFormField("hey")
 	fwfield.Write([]byte("ho"))
 
@@ -285,7 +287,7 @@ func Test_processFileBody(t *testing.T) {
 		wantMime   string
 		wantErr    bool
 	}{
-		{ "txt file", args{ fmt.Sprintf("###READFILE=%s###", filename) }, strings.NewReader("test"), "", false},
+		{"txt file", args{fmt.Sprintf("###READFILE=%s###", filename)}, strings.NewReader("test"), "", false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
