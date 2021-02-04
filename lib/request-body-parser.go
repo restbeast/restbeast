@@ -171,7 +171,7 @@ func parseBody(bodyAsCtyValue cty.Value, headers *map[string]string) (io.Reader,
 			}
 			return strings.NewReader(params.Encode()), nil
 
-		case strings.HasPrefix(contentType, "multipart/form-data"):
+		case strings.HasPrefix(contentType, "multipart/"):
 			bodyType := bodyAsCtyValue.Type()
 			if !bodyType.IsObjectType() {
 				return nil, Errorf("request body has to be a key/value pairs to use multipart/form-data")
@@ -193,10 +193,6 @@ func parseBody(bodyAsCtyValue cty.Value, headers *map[string]string) (io.Reader,
 			h := *headers
 			h[contentTypeHeaderKey] = newHeader
 			return reader, nil
-
-		case strings.HasPrefix(contentType, "application/octet-stream"):
-
-		case strings.HasPrefix(contentType, "application/pdf"):
 
 		// unknown header will be treated as
 		// text/plain if it's number, bool or string
