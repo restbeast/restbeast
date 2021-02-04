@@ -243,3 +243,26 @@ func Test_processFormBody(t *testing.T) {
 		})
 	}
 }
+
+func Test_getBoundary(t *testing.T) {
+	boundary := "test"
+	type args struct {
+		contentType string
+	}
+	tests := []struct {
+		name         string
+		args         args
+		wantBoundary *string
+	}{
+		{"nil result", args{"multipart/form-data"}, nil},
+		{"correct result", args{"multipart/form-data; boundary=test"}, &boundary},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotBoundary := getBoundary(tt.args.contentType)
+			if (tt.wantBoundary == nil && gotBoundary != nil) || (gotBoundary != nil && !reflect.DeepEqual(*gotBoundary, *tt.wantBoundary)) {
+				t.Errorf("getBoundary() = %v, want %v", gotBoundary, tt.wantBoundary)
+			}
+		})
+	}
+}

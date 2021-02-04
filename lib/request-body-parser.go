@@ -42,6 +42,16 @@ func bodyAsJson(bodyAsCtyValue cty.Value) (io.Reader, error) {
 	return bytes.NewReader(bodyJSON), nil
 }
 
+func getBoundary(contentType string) (boundary *string) {
+	boundaryRegex := regexp.MustCompile(";\\s?boundary=([\\w\\d\\-]+)?$")
+	boundaryMatches := boundaryRegex.FindStringSubmatch(contentType)
+	if len(boundaryMatches) > 0 {
+		boundary = &boundaryMatches[1]
+	}
+
+	return boundary
+}
+
 func processFormBody(params *url.Values, parent *string, bodyAsCtyValue cty.Value) error {
 	bodyType := bodyAsCtyValue.Type()
 
@@ -171,21 +181,15 @@ func parseBody(bodyAsCtyValue cty.Value, headers *map[string]string) (io.Reader,
 			}
 			return strings.NewReader(params.Encode()), nil
 
-		case strings.HasPrefix(contentType, "multipart/"):
+		case strings.HasPrefix(contentType, "multipart/form-data") || strings.HasPrefix(contentType, "multipart/mixed"):
 			bodyType := bodyAsCtyValue.Type()
 			if !bodyType.IsObjectType() {
 				return nil, Errorf("request body has to be a key/value pairs to use multipart/form-data")
 			}
 
-			boundaryRegex := regexp.MustCompile(";\\s?boundary=([\\w\\d\\-]+)?$")
-			boundaryMatches := boundaryRegex.FindStringSubmatch(contentType)
-			var boundary string
-			if len(boundaryMatches) > 0 {
-				boundary = boundaryMatches[1]
-			}
-
 			contentTypeHeaderKey := *getHeaderKey("content-type", headers)
-			reader, newHeader, err := processMultipartFormBody(bodyAsCtyValue, &boundary)
+			boundary := getBoundary(contentType)
+			reader, newHeader, err := processMultipartFormBody(bodyAsCtyValue, boundary)
 			if err != nil {
 				return nil, err
 			}
