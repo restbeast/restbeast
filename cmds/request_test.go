@@ -5,6 +5,7 @@ import (
 	"github.com/restbeast/restbeast/lib"
 	"net/http"
 	"testing"
+	"time"
 )
 
 func Test_printJustTiming(t *testing.T) {
@@ -336,6 +337,7 @@ func Test_printTiming(t *testing.T) {
 func Test_printHeaders(t *testing.T) {
 	headers1 := http.Header{}
 	headers1.Set("header-key", "header-value")
+	time.Sleep(100 * time.Millisecond)
 	headers1.Set("an-other-header-key", "an-other-header-value")
 
 	match := fmt.Sprintf("\n\u001B[1m%s\u001B[0m: %s\n\u001B[1m%s\u001B[0m: %s\n", "Header-Key", "header-value", "An-Other-Header-Key", "an-other-header-value")
