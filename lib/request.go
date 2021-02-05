@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	. "fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -28,8 +29,6 @@ func (request *Request) Exec() error {
 		encodedParams = params.Encode()
 	}
 
-	requestBody := []byte(request.Body)
-
 	fullUrl := request.Url
 	if encodedParams != "" {
 		if strings.Contains(fullUrl, "?") {
@@ -39,16 +38,14 @@ func (request *Request) Exec() error {
 		}
 	}
 
-	httpReq, err := http.NewRequest(strings.ToUpper(request.Method), fullUrl, bytes.NewReader(requestBody))
+	httpReq, err := http.NewRequest(strings.ToUpper(request.Method), fullUrl, request.Body)
 	if err != nil {
 		return Errorf("unable to construct request, %s\n", err)
 	}
 
 	vRemovedVersion := strings.Replace(request.ExecutionContext.Version, "v", "", 1)
 	httpReq.Header.Set("user-agent", Sprintf("RestBeast/%s", vRemovedVersion))
-	for key, value := range request.Headers {
-		httpReq.Header.Set(key, value)
-	}
+	request.Headers.ToRequest(httpReq)
 
 	if request.ExecutionContext.Debug {
 		log.Printf("request method: %s", request.Method)
@@ -110,6 +107,12 @@ func (request *Request) Exec() error {
 		Total:     totalTime,
 	}
 
+	buf := &bytes.Buffer{}
+	var bodySize int64
+	if request.Body != nil {
+		bodySize, _ = io.Copy(buf, request.Body)
+	}
+
 	request.Response = &Response{
 		Method:        request.Method,
 		Url:           request.Url,
@@ -119,7 +122,7 @@ func (request *Request) Exec() error {
 		Headers:       res.Header,
 		Timing:        timing,
 		Request:       request,
-		BytesSend:     uint64(len(requestBody)),
+		BytesSend:     uint64(bodySize),
 		BytesReceived: uint64(len(data)),
 	}
 

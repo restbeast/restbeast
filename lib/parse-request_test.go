@@ -239,15 +239,6 @@ func Test_findRequest(t *testing.T) {
 }
 
 func Test_getRequest(t *testing.T) {
-	cfg1 := cty.ObjectVal(map[string]cty.Value{
-		"body": cty.StringVal(`{ x: "y" }`),
-		"headers": cty.MapVal(map[string]cty.Value{
-			"content-type": cty.StringVal("application/json"),
-		}),
-		"method": cty.StringVal("GET"),
-		"url":    cty.StringVal("localhost"),
-	})
-
 	type args struct {
 		cfg        cty.Value
 		requestCfg RequestCfg
@@ -256,7 +247,64 @@ func Test_getRequest(t *testing.T) {
 	}
 
 	args1 := args{
-		cfg1,
+		cty.ObjectVal(map[string]cty.Value{
+			"body": cty.StringVal(`{ x: "y" }`),
+			"headers": cty.MapVal(map[string]cty.Value{
+				"content-type": cty.StringVal("application/json"),
+			}),
+			"method": cty.StringVal("GET"),
+			"url":    cty.StringVal("localhost"),
+		}),
+		RequestCfg{
+			Name:      "",
+			DependsOn: nil,
+			Body:      nil,
+			Auth:      nil,
+		},
+		&ExecutionContext{
+			Version: "",
+			Debug:   false,
+		},
+		EvalContext{
+			Functions:     nil,
+			Variables:     nil,
+			Environment:   nil,
+			RequestAsVars: nil,
+			RawRequests:   nil,
+		},
+	}
+
+	args2 := args{
+		cty.ObjectVal(map[string]cty.Value{
+			"method": cty.StringVal("GET"),
+			"url":    cty.StringVal("localhost"),
+		}),
+		RequestCfg{
+			Name:      "",
+			DependsOn: nil,
+			Body:      nil,
+			Auth:      nil,
+		},
+		&ExecutionContext{
+			Version: "",
+			Debug:   false,
+		},
+		EvalContext{
+			Functions:     nil,
+			Variables:     nil,
+			Environment:   nil,
+			RequestAsVars: nil,
+			RawRequests:   nil,
+		},
+	}
+
+	args3 := args{
+		cty.ObjectVal(map[string]cty.Value{
+			"method":   cty.StringVal("GET"),
+			"url":      cty.StringVal("localhost"),
+			"body":     cty.ObjectVal(map[string]cty.Value{"hey": cty.StringVal("ho")}),
+			"boundary": cty.StringVal("test"),
+		}),
 		RequestCfg{
 			Name:      "",
 			DependsOn: nil,
@@ -282,6 +330,8 @@ func Test_getRequest(t *testing.T) {
 		wantErr bool
 	}{
 		{"test1", args1, false},
+		{"test2", args2, false},
+		{"test3", args3, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

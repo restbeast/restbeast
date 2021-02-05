@@ -74,8 +74,8 @@ func Test_parseParamsBlock(t *testing.T) {
 				request: &Request{
 					Method:            "",
 					Url:               "",
-					Headers:           nil,
-					Body:              "",
+					Headers:           Headers{},
+					Body:              nil,
 					Params:            nil,
 					EvalContext:       EvalContext{},
 					PrecedingRequests: nil,

@@ -8,7 +8,7 @@ import (
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/function"
 	"github.com/zclconf/go-cty/cty/gocty"
-	ctyjson "github.com/zclconf/go-cty/cty/json"
+	"io"
 	"net/http"
 	"reflect"
 	"regexp"
@@ -214,22 +214,24 @@ func processDependency(dependency string, evCtx *EvalContext, execCtx *Execution
 }
 
 func getRequest(cfg cty.Value, requestCfg RequestCfg, evCtx EvalContext, execCtx *ExecutionContext) (*Request, error, hcl.Diagnostics) {
-	bodyAsCtyObj := cfg.GetAttr("body")
-	var bodyAsString string
-
-	if !bodyAsCtyObj.IsNull() {
-		bodyJSON, jsonErr := json.MarshalIndent(ctyjson.SimpleJSONValue{bodyAsCtyObj}, "", "  ")
-		if jsonErr != nil {
-			return nil, Errorf("Error: failed to parse request body, \n%s\n", jsonErr), nil
+	headersMap := map[string]string{}
+	if cfg.Type().HasAttribute("headers") {
+		headerErr := gocty.FromCtyValue(cfg.GetAttr("headers"), &headersMap)
+		if headerErr != nil {
+			return nil, Errorf("Error: failed to parse headers, \n%s\n", headerErr), nil
 		}
-		bodyAsString = string(bodyJSON)
 	}
 
-	headers := make(map[string]string)
-	headerErr := gocty.FromCtyValue(cfg.GetAttr("headers"), &headers)
+	headers := Headers{}
+	headers.AddBulk(headersMap)
 
-	if headerErr != nil {
-		return nil, Errorf("Error: failed to parse headers, \n%s\n", headerErr), nil
+	var body io.Reader
+	if cfg.Type().HasAttribute("body") {
+		var bodyError error
+		body, bodyError = parseBody(cfg.GetAttr("body"), headers)
+		if bodyError != nil {
+			return nil, bodyError, nil
+		}
 	}
 
 	var method string
@@ -250,7 +252,7 @@ func getRequest(cfg cty.Value, requestCfg RequestCfg, evCtx EvalContext, execCtx
 		Method:           method,
 		Url:              url,
 		Headers:          headers,
-		Body:             bodyAsString,
+		Body:             body,
 		ExecutionContext: execCtx,
 		RoundTripper:     roundTripper,
 	}
@@ -290,9 +292,9 @@ func retryWithDependency(requestCfg *RequestCfg, cfg cty.Value, diags hcl.Diagno
 
 		for _, dependency := range sortedDeps {
 			if _, ok := evCtx.RequestAsVars[dependency]; !ok {
-				evCtxP, response, err := processDependency(dependency, &evCtx, execCtx)
-				if err != nil {
-					return cfg, responses, err
+				evCtxP, response, depErr := processDependency(dependency, &evCtx, execCtx)
+				if depErr != nil {
+					return cfg, responses, depErr
 				}
 
 				responses = append(responses, response)
@@ -302,7 +304,7 @@ func retryWithDependency(requestCfg *RequestCfg, cfg cty.Value, diags hcl.Diagno
 
 		spec := getRequestObjSpec()
 		ctxEvalContext := getCtxEvalContext(evCtx)
-		cfg, diags := hcldec.Decode(requestCfg.Body, spec, &ctxEvalContext)
+		cfg, diags = hcldec.Decode(requestCfg.Body, spec, &ctxEvalContext)
 
 		if len(diags) > 0 {
 			errTxt := ""
@@ -335,11 +337,11 @@ func parseRequest(name string, evCtx EvalContext, execCtx *ExecutionContext) (*R
 
 			if len(findString) > 1 {
 				if _, ok := evCtx.RequestAsVars[findString[1]]; !ok {
-					evCtxP, response, err := processDependency(findString[1], &evCtx, execCtx)
+					evCtxP, response, depErr := processDependency(findString[1], &evCtx, execCtx)
 					responses = append(responses, response)
 
-					if err != nil {
-						return nil, err
+					if depErr != nil {
+						return nil, depErr
 					}
 
 					evCtx = *evCtxP

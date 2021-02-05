@@ -57,8 +57,8 @@ func Test_parseBasicAuth(t *testing.T) {
 				t.Errorf("parseBasicAuth() = %v, want %v", diags, tt.err)
 			}
 
-			if !tt.err && fmt.Sprintf("Basic %s", tt.header) != tt.args.request.Headers["Authorization"] {
-				t.Errorf("parseBasicAuth() = %v, want %v", tt.args.request.Headers["Authorization"], fmt.Sprintf("Basic %s", tt.header))
+			if !tt.err && fmt.Sprintf("Basic %s", tt.header) != *tt.args.request.Headers.Get("Authorization") {
+				t.Errorf("parseBasicAuth() = %v, want %v", *tt.args.request.Headers.Get("Authorization"), fmt.Sprintf("Basic %s", tt.header))
 			}
 		})
 	}
@@ -197,8 +197,8 @@ func Test_parseBearerAuth(t *testing.T) {
 				t.Errorf("parseBasicAuth() = %v, want %v", diags, tt.err)
 			}
 
-			if !tt.err && fmt.Sprintf("Bearer %s", tt.header) != tt.args.request.Headers["Authorization"] {
-				t.Errorf("parseBearerAuth() = %v, want %v", tt.args.request.Headers["Authorization"], fmt.Sprintf("Bearer %s", tt.header))
+			if !tt.err && fmt.Sprintf("Bearer %s", tt.header) != *tt.args.request.Headers.Get("Authorization") {
+				t.Errorf("parseBearerAuth() = %v, want %v", *tt.args.request.Headers.Get("Authorization"), fmt.Sprintf("Bearer %s", tt.header))
 			}
 		})
 	}

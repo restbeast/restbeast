@@ -32,10 +32,7 @@ func parseBasicAuth(request *Request, basicAuth BasicAuthCfg, ctx hcl.EvalContex
 	authString := Sprintf("%s:%s", username, password)
 	encodedString := b64.StdEncoding.EncodeToString([]byte(authString))
 
-	if request.Headers == nil {
-		request.Headers = make(map[string]string)
-	}
-	request.Headers["Authorization"] = Sprintf("Basic %s", encodedString)
+	request.Headers.Add("Authorization", Sprintf("Basic %s", encodedString))
 
 	return nil
 }
@@ -54,11 +51,7 @@ func parseBearerAuth(request *Request, basicAuth BearerAuthCfg, ctx hcl.EvalCont
 	}
 
 	token := cfg.GetAttr("token").AsString()
-
-	if request.Headers == nil {
-		request.Headers = make(map[string]string)
-	}
-	request.Headers["Authorization"] = Sprintf("Bearer %s", token)
+	request.Headers.Add("Authorization", Sprintf("Bearer %s", token))
 
 	return nil
 }

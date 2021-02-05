@@ -4,6 +4,7 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/function"
+	"io"
 	"net/http"
 	"time"
 )
@@ -114,8 +115,8 @@ type Response struct {
 type Request struct {
 	Method  string
 	Url     string
-	Headers map[string]string
-	Body    string
+	Headers Headers
+	Body    io.Reader
 	Params  map[string]string
 	EvalContext
 	PrecedingRequests []*Response
