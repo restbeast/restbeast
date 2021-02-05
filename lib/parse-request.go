@@ -36,6 +36,11 @@ func getRequestObjSpec() hcldec.ObjectSpec {
 			Required: false,
 			Type:     cty.Map(cty.String),
 		},
+		"cookies": &hcldec.AttrSpec{
+			Name:     "cookies",
+			Required: false,
+			Type:     cty.Map(cty.String),
+		},
 		"body": &hcldec.AttrSpec{
 			Name:     "body",
 			Required: false,
@@ -149,7 +154,7 @@ func sortCrossDependency(deps []string, evCtx EvalContext) ([]string, error) {
 		}
 
 		// We don't care about the decoded body at this point
-		_, diags := hcldec.Decode(request.Body, spec, &ctxEvalContext)
+		_, diags := hcldec.Decode(request.Remain, spec, &ctxEvalContext)
 		dependencies, _ := getPossibleDependencies(diags)
 
 		var relevantDeps []string
@@ -213,17 +218,43 @@ func processDependency(dependency string, evCtx *EvalContext, execCtx *Execution
 	return evCtx, request.Response, nil
 }
 
-func getRequest(cfg cty.Value, requestCfg RequestCfg, evCtx EvalContext, execCtx *ExecutionContext) (*Request, error, hcl.Diagnostics) {
+func getHeadersAsMap(cfg cty.Value) (map[string]string, error) {
 	headersMap := map[string]string{}
 	if cfg.Type().HasAttribute("headers") {
 		headerErr := gocty.FromCtyValue(cfg.GetAttr("headers"), &headersMap)
 		if headerErr != nil {
-			return nil, Errorf("Error: failed to parse headers, \n%s\n", headerErr), nil
+			return headersMap, Errorf("Error: failed to parse headers, \n%s\n", headerErr)
 		}
 	}
 
+	return headersMap, nil
+}
+
+func getCookiesAsMap(cfg cty.Value) (map[string]string, error) {
+	cookiesMap := map[string]string{}
+	if cfg.Type().HasAttribute("cookies") {
+		cookieErr := gocty.FromCtyValue(cfg.GetAttr("cookies"), &cookiesMap)
+		if cookieErr != nil {
+			return cookiesMap, Errorf("Error: failed to parse cookies, \n%s\n", cookieErr)
+		}
+	}
+
+	return cookiesMap, nil
+}
+
+func getRequest(cfg cty.Value, requestCfg RequestCfg, evCtx EvalContext, execCtx *ExecutionContext) (*Request, error, hcl.Diagnostics) {
 	headers := Headers{}
-	headers.AddBulk(headersMap)
+	headersAsMap, err := getHeadersAsMap(cfg)
+	if err != nil {
+		return nil, err, nil
+	}
+	headers.AddBulk(headersAsMap)
+
+	cookiesAsMap, err := getCookiesAsMap(cfg)
+	if err != nil {
+		return nil, err, nil
+	}
+	headers.SetCookies(cookiesAsMap)
 
 	var body io.Reader
 	if cfg.Type().HasAttribute("body") {
@@ -247,7 +278,6 @@ func getRequest(cfg cty.Value, requestCfg RequestCfg, evCtx EvalContext, execCtx
 	url := cfg.GetAttr("url").AsString()
 
 	roundTripper := http.DefaultTransport
-
 	request := &Request{
 		Method:           method,
 		Url:              url,
@@ -304,7 +334,7 @@ func retryWithDependency(requestCfg *RequestCfg, cfg cty.Value, diags hcl.Diagno
 
 		spec := getRequestObjSpec()
 		ctxEvalContext := getCtxEvalContext(evCtx)
-		cfg, diags = hcldec.Decode(requestCfg.Body, spec, &ctxEvalContext)
+		cfg, diags = hcldec.Decode(requestCfg.Remain, spec, &ctxEvalContext)
 
 		if len(diags) > 0 {
 			errTxt := ""
@@ -352,7 +382,7 @@ func parseRequest(name string, evCtx EvalContext, execCtx *ExecutionContext) (*R
 
 	ctxEvalContext := getCtxEvalContext(evCtx)
 	spec := getRequestObjSpec()
-	cfg, diags := hcldec.Decode(requestCfg.Body, spec, &ctxEvalContext)
+	cfg, diags := hcldec.Decode(requestCfg.Remain, spec, &ctxEvalContext)
 
 	cfg, responses, err = retryWithDependency(requestCfg, cfg, diags, evCtx, execCtx, responses)
 	if err != nil {

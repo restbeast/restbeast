@@ -36,7 +36,7 @@ type ParamsBlockCfg struct {
 type RequestCfg struct {
 	Name      string          `hcl:"name,label"`
 	DependsOn []string        `hcl:"depends_on,optional"`
-	Body      hcl.Body        `hcl:",remain"`
+	Remain    hcl.Body        `hcl:",remain"`
 	Auth      *AuthCfg        `hcl:"auth,block"`
 	Params    *ParamsBlockCfg `hcl:"params,block"`
 }

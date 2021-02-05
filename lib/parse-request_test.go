@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hcldec"
+	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/function"
 	"net/http"
@@ -57,6 +58,11 @@ func Test_getRequestObjSpec(t *testing.T) {
 				Name:     "url",
 				Required: true,
 				Type:     cty.String,
+			},
+			"cookies": &hcldec.AttrSpec{
+				Name:     "cookies",
+				Required: false,
+				Type:     cty.Map(cty.String),
 			},
 			"headers": &hcldec.AttrSpec{
 				Name:     "headers",
@@ -208,7 +214,7 @@ func Test_findRequest(t *testing.T) {
 	cfg1 := RequestCfg{
 		Name:      "x",
 		DependsOn: nil,
-		Body:      nil,
+		Remain:    nil,
 	}
 
 	type args struct {
@@ -251,6 +257,7 @@ func Test_getRequest(t *testing.T) {
 			"body": cty.StringVal(`{ x: "y" }`),
 			"headers": cty.MapVal(map[string]cty.Value{
 				"content-type": cty.StringVal("application/json"),
+				"Cookie":       cty.StringVal("name=value; another-name=another-value"),
 			}),
 			"method": cty.StringVal("GET"),
 			"url":    cty.StringVal("localhost"),
@@ -258,7 +265,7 @@ func Test_getRequest(t *testing.T) {
 		RequestCfg{
 			Name:      "",
 			DependsOn: nil,
-			Body:      nil,
+			Remain:    nil,
 			Auth:      nil,
 		},
 		&ExecutionContext{
@@ -282,7 +289,7 @@ func Test_getRequest(t *testing.T) {
 		RequestCfg{
 			Name:      "",
 			DependsOn: nil,
-			Body:      nil,
+			Remain:    nil,
 			Auth:      nil,
 		},
 		&ExecutionContext{
@@ -308,7 +315,7 @@ func Test_getRequest(t *testing.T) {
 		RequestCfg{
 			Name:      "",
 			DependsOn: nil,
-			Body:      nil,
+			Remain:    nil,
 			Auth:      nil,
 		},
 		&ExecutionContext{
@@ -420,7 +427,7 @@ func Test_retryWithDependency(t *testing.T) {
 		requestCfg: &RequestCfg{
 			Name:      "a-request",
 			DependsOn: nil,
-			Body:      hcl.EmptyBody(),
+			Remain:    hcl.EmptyBody(),
 			Auth:      nil,
 		},
 	}
@@ -445,6 +452,173 @@ func Test_retryWithDependency(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got1, tt.want1) {
 				t.Errorf("retryWithDependency() got1 = %v, want %v", got1, tt.want1)
+			}
+		})
+	}
+}
+
+func Test_getHeadersAsMap(t *testing.T) {
+	type args struct {
+		cfg cty.Value
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    map[string]string
+		wantErr bool
+	}{
+		{"success", args{cty.ObjectVal(map[string]cty.Value{"headers": cty.MapVal(map[string]cty.Value{"hey": cty.StringVal("ho")})})}, map[string]string{"hey": "ho"}, false},
+		{"no headers", args{cty.ObjectVal(map[string]cty.Value{})}, map[string]string{}, false},
+		{"error", args{cty.ObjectVal(map[string]cty.Value{"headers": cty.StringVal("o.O")})}, map[string]string{}, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := getHeadersAsMap(tt.args.cfg)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("getHeadersAsMap() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("getHeadersAsMap() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_parseRequest(t *testing.T) {
+	type args struct {
+		name    string
+		evCtx   EvalContext
+		execCtx *ExecutionContext
+	}
+
+	args1 := args{
+		name:    "not-found-request",
+		evCtx:   EvalContext{},
+		execCtx: nil,
+	}
+
+	parser := hclparse.NewParser()
+	testStringBody1 := `
+		url = "test"
+		method = "get"
+	`
+	file, _ := parser.ParseHCL([]byte(testStringBody1), "test.hcl")
+	args2 := args{
+		name: "a-request",
+		evCtx: EvalContext{
+			RawRequests: RequestCfgs{
+				&RequestCfg{
+					Name:      "a-request",
+					DependsOn: []string{},
+					Remain:    file.Body,
+					Auth:      nil,
+					Params:    nil,
+				},
+			},
+			RequestAsVars: RequestAsVars{},
+			RawDynamics:   VariableCfgs{},
+			RawTests:      TestCfgs{},
+		},
+		execCtx: nil,
+	}
+
+	parse3 := hclparse.NewParser()
+	testStringBody3 := `
+		url = "test+${request.parent.body.hey}"
+		method = "get"
+	`
+	file3, _ := parse3.ParseHCL([]byte(testStringBody3), "test.hcl")
+	args3 := args{
+		name: "a-request",
+		evCtx: EvalContext{
+			RawRequests: RequestCfgs{
+				&RequestCfg{
+					Name:      "a-request",
+					DependsOn: []string{},
+					Remain:    file3.Body,
+					Auth:      nil,
+					Params:    nil,
+				},
+			},
+			RequestAsVars: RequestAsVars{},
+			RawDynamics:   VariableCfgs{},
+			RawTests:      TestCfgs{},
+		},
+		execCtx: nil,
+	}
+
+	parse4 := hclparse.NewParser()
+	testStringBody4 := `
+		url = "test+${request.parent.body.x}"
+		method = "get"
+	`
+	file4, _ := parse4.ParseHCL([]byte(testStringBody4), "test.hcl")
+	args4 := args{
+		name: "a-request",
+		evCtx: EvalContext{
+			RawRequests: RequestCfgs{
+				&RequestCfg{
+					Name:      "a-request",
+					DependsOn: []string{},
+					Remain:    file4.Body,
+					Auth:      nil,
+					Params:    nil,
+				},
+			},
+			RequestAsVars: RequestAsVars{
+				"parent": cty.MapVal(map[string]cty.Value{"body": cty.ObjectVal(map[string]cty.Value{"x": cty.StringVal("y")})}),
+			},
+			RawDynamics: VariableCfgs{},
+			RawTests:    TestCfgs{},
+		},
+		execCtx: nil,
+	}
+
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{"error, request not found", args1, true},
+		{"a-request", args2, false},
+		{"error with-deps", args3, true},
+		{"request-with-resolved-deps", args4, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := parseRequest(tt.args.name, tt.args.evCtx, tt.args.execCtx)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("parseRequest() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+		})
+	}
+}
+
+func Test_getCookiesAsMap(t *testing.T) {
+	type args struct {
+		cfg cty.Value
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    map[string]string
+		wantErr bool
+	}{
+		{"success", args{cty.ObjectVal(map[string]cty.Value{"cookies": cty.MapVal(map[string]cty.Value{"hey": cty.StringVal("ho")})})}, map[string]string{"hey": "ho"}, false},
+		{"no headers", args{cty.ObjectVal(map[string]cty.Value{})}, map[string]string{}, false},
+		{"error", args{cty.ObjectVal(map[string]cty.Value{"cookies": cty.StringVal("o.O")})}, map[string]string{}, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := getCookiesAsMap(tt.args.cfg)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("getCookiesAsMap() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("getCookiesAsMap() got = %v, want %v", got, tt.want)
 			}
 		})
 	}
