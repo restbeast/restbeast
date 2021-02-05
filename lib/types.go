@@ -116,6 +116,7 @@ type Request struct {
 	Method  string
 	Url     string
 	Headers Headers
+	Cookies Cookies
 	Body    io.Reader
 	Params  map[string]string
 	EvalContext

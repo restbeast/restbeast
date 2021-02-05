@@ -225,6 +225,18 @@ func getHeadersAsMap(cfg cty.Value) (map[string]string, error) {
 	return headersMap, nil
 }
 
+func getCookiesAsMap(cfg cty.Value) (map[string]string, error) {
+	cookiesMap := map[string]string{}
+	if cfg.Type().HasAttribute("cookies") {
+		cookieErr := gocty.FromCtyValue(cfg.GetAttr("cookies"), &cookiesMap)
+		if cookieErr != nil {
+			return cookiesMap, Errorf("Error: failed to parse cookies, \n%s\n", cookieErr)
+		}
+	}
+
+	return cookiesMap, nil
+}
+
 func getRequest(cfg cty.Value, requestCfg RequestCfg, evCtx EvalContext, execCtx *ExecutionContext) (*Request, error, hcl.Diagnostics) {
 	headers := Headers{}
 	headersAsMap, err := getHeadersAsMap(cfg)

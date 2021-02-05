@@ -589,3 +589,31 @@ func Test_parseRequest(t *testing.T) {
 		})
 	}
 }
+
+func Test_getCookiesAsMap(t *testing.T) {
+	type args struct {
+		cfg cty.Value
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    map[string]string
+		wantErr bool
+	}{
+		{"success", args{cty.ObjectVal(map[string]cty.Value{"cookies": cty.MapVal(map[string]cty.Value{"hey": cty.StringVal("ho")})})}, map[string]string{"hey": "ho"}, false},
+		{"no headers", args{cty.ObjectVal(map[string]cty.Value{})}, map[string]string{}, false},
+		{"error", args{cty.ObjectVal(map[string]cty.Value{"cookies": cty.StringVal("o.O")})}, map[string]string{}, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := getCookiesAsMap(tt.args.cfg)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("getCookiesAsMap() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("getCookiesAsMap() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
