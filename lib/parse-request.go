@@ -213,17 +213,25 @@ func processDependency(dependency string, evCtx *EvalContext, execCtx *Execution
 	return evCtx, request.Response, nil
 }
 
-func getRequest(cfg cty.Value, requestCfg RequestCfg, evCtx EvalContext, execCtx *ExecutionContext) (*Request, error, hcl.Diagnostics) {
+func getHeadersAsMap(cfg cty.Value) (map[string]string, error) {
 	headersMap := map[string]string{}
 	if cfg.Type().HasAttribute("headers") {
 		headerErr := gocty.FromCtyValue(cfg.GetAttr("headers"), &headersMap)
 		if headerErr != nil {
-			return nil, Errorf("Error: failed to parse headers, \n%s\n", headerErr), nil
+			return headersMap, Errorf("Error: failed to parse headers, \n%s\n", headerErr)
 		}
 	}
 
+	return headersMap, nil
+}
+
+func getRequest(cfg cty.Value, requestCfg RequestCfg, evCtx EvalContext, execCtx *ExecutionContext) (*Request, error, hcl.Diagnostics) {
 	headers := Headers{}
-	headers.AddBulk(headersMap)
+	headersAsMap, err := getHeadersAsMap(cfg)
+	if err != nil {
+		return nil, err, nil
+	}
+	headers.AddBulk(headersAsMap)
 
 	var body io.Reader
 	if cfg.Type().HasAttribute("body") {
