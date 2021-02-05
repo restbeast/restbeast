@@ -59,6 +59,11 @@ func Test_getRequestObjSpec(t *testing.T) {
 				Required: true,
 				Type:     cty.String,
 			},
+			"cookies": &hcldec.AttrSpec{
+				Name:     "cookies",
+				Required: false,
+				Type:     cty.Map(cty.String),
+			},
 			"headers": &hcldec.AttrSpec{
 				Name:     "headers",
 				Required: false,
@@ -252,6 +257,7 @@ func Test_getRequest(t *testing.T) {
 			"body": cty.StringVal(`{ x: "y" }`),
 			"headers": cty.MapVal(map[string]cty.Value{
 				"content-type": cty.StringVal("application/json"),
+				"Cookie":       cty.StringVal("name=value; another-name=another-value"),
 			}),
 			"method": cty.StringVal("GET"),
 			"url":    cty.StringVal("localhost"),

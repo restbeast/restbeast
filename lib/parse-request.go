@@ -36,6 +36,11 @@ func getRequestObjSpec() hcldec.ObjectSpec {
 			Required: false,
 			Type:     cty.Map(cty.String),
 		},
+		"cookies": &hcldec.AttrSpec{
+			Name:     "cookies",
+			Required: false,
+			Type:     cty.Map(cty.String),
+		},
 		"body": &hcldec.AttrSpec{
 			Name:     "body",
 			Required: false,
@@ -245,6 +250,12 @@ func getRequest(cfg cty.Value, requestCfg RequestCfg, evCtx EvalContext, execCtx
 	}
 	headers.AddBulk(headersAsMap)
 
+	cookiesAsMap, err := getCookiesAsMap(cfg)
+	if err != nil {
+		return nil, err, nil
+	}
+	headers.SetCookies(cookiesAsMap)
+
 	var body io.Reader
 	if cfg.Type().HasAttribute("body") {
 		var bodyError error
@@ -267,7 +278,6 @@ func getRequest(cfg cty.Value, requestCfg RequestCfg, evCtx EvalContext, execCtx
 	url := cfg.GetAttr("url").AsString()
 
 	roundTripper := http.DefaultTransport
-
 	request := &Request{
 		Method:           method,
 		Url:              url,
