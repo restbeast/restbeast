@@ -1,5 +1,6 @@
-0.14.0
+1.0.0 (Unreleased)
  - Ability to construct body with content/type [#12](https://github.com/restbeast/restbeast/issues/12)
+ - Cookie support [#16](https://github.com/restbeast/restbeast/issues/16)
 
 0.13.0
 - Request parameters [#13](https://github.com/restbeast/restbeast/issues/13)

@@ -149,7 +149,7 @@ func sortCrossDependency(deps []string, evCtx EvalContext) ([]string, error) {
 		}
 
 		// We don't care about the decoded body at this point
-		_, diags := hcldec.Decode(request.Body, spec, &ctxEvalContext)
+		_, diags := hcldec.Decode(request.Remain, spec, &ctxEvalContext)
 		dependencies, _ := getPossibleDependencies(diags)
 
 		var relevantDeps []string
@@ -304,7 +304,7 @@ func retryWithDependency(requestCfg *RequestCfg, cfg cty.Value, diags hcl.Diagno
 
 		spec := getRequestObjSpec()
 		ctxEvalContext := getCtxEvalContext(evCtx)
-		cfg, diags = hcldec.Decode(requestCfg.Body, spec, &ctxEvalContext)
+		cfg, diags = hcldec.Decode(requestCfg.Remain, spec, &ctxEvalContext)
 
 		if len(diags) > 0 {
 			errTxt := ""
@@ -352,7 +352,7 @@ func parseRequest(name string, evCtx EvalContext, execCtx *ExecutionContext) (*R
 
 	ctxEvalContext := getCtxEvalContext(evCtx)
 	spec := getRequestObjSpec()
-	cfg, diags := hcldec.Decode(requestCfg.Body, spec, &ctxEvalContext)
+	cfg, diags := hcldec.Decode(requestCfg.Remain, spec, &ctxEvalContext)
 
 	cfg, responses, err = retryWithDependency(requestCfg, cfg, diags, evCtx, execCtx, responses)
 	if err != nil {

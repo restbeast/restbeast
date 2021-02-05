@@ -208,7 +208,7 @@ func Test_findRequest(t *testing.T) {
 	cfg1 := RequestCfg{
 		Name:      "x",
 		DependsOn: nil,
-		Body:      nil,
+		Remain:    nil,
 	}
 
 	type args struct {
@@ -258,7 +258,7 @@ func Test_getRequest(t *testing.T) {
 		RequestCfg{
 			Name:      "",
 			DependsOn: nil,
-			Body:      nil,
+			Remain:    nil,
 			Auth:      nil,
 		},
 		&ExecutionContext{
@@ -282,7 +282,7 @@ func Test_getRequest(t *testing.T) {
 		RequestCfg{
 			Name:      "",
 			DependsOn: nil,
-			Body:      nil,
+			Remain:    nil,
 			Auth:      nil,
 		},
 		&ExecutionContext{
@@ -308,7 +308,7 @@ func Test_getRequest(t *testing.T) {
 		RequestCfg{
 			Name:      "",
 			DependsOn: nil,
-			Body:      nil,
+			Remain:    nil,
 			Auth:      nil,
 		},
 		&ExecutionContext{
@@ -420,7 +420,7 @@ func Test_retryWithDependency(t *testing.T) {
 		requestCfg: &RequestCfg{
 			Name:      "a-request",
 			DependsOn: nil,
-			Body:      hcl.EmptyBody(),
+			Remain:    hcl.EmptyBody(),
 			Auth:      nil,
 		},
 	}
