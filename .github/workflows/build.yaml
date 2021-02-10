@@ -10,10 +10,11 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
-      - name: Set up Go 1.14
-        uses: actions/setup-go@v1
+      - name: Set up Go 1.16
+        uses: actions/setup-go@v2
         with:
-          go-version: 1.14
+          stable: false
+          go-version: 1.16.0-rc1
         id: go
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
