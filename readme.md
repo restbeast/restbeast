@@ -253,8 +253,8 @@ request patch-example {
 }
 ```
  
-```shell script
-restbeast r patch-example | jq
+```shell
+$ restbeast request patch-example | jq
 ```
 
 Example response will containt the first and the second `X-Amzn-Trace-Id` also 
