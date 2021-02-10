@@ -201,7 +201,7 @@ func processDependency(dependency string, evCtx *EvalContext, execCtx *Execution
 		err := json.Unmarshal(request.Response.Body, &decodedBody)
 
 		if err != nil {
-			return nil, nil, Errorf("error decoding json response body\n%s\n", err)
+			return nil, nil, Errorf("error decoding json response body for request\n%s\nResponse body:\n%s\n", err, string(request.Response.Body))
 		}
 
 		responseAsCty["body"] = walkThrough(reflect.ValueOf(decodedBody))
