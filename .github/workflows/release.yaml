@@ -19,6 +19,8 @@ jobs:
             goos: freebsd
           - goarch: 386
             goos: freebsd
+          - goarch: arm64
+            goos: darwin
     steps:
       - name: Set up Go 1.16
         uses: actions/setup-go@v1
