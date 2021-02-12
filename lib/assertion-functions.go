@@ -216,6 +216,27 @@ var assertionFunctionList = map[string]AssertionFunc{
 			return cty.StringVal(rVal), nil
 		},
 	},
+	"assertNonEmptyString": {
+		Params: []function.Parameter{
+			function.Parameter{
+				Name: "value",
+				Type: cty.DynamicPseudoType,
+			},
+		},
+		Type: function.StaticReturnType(cty.String),
+		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
+			rVal := "PASS"
+
+			if args[0].IsNull() ||
+				!args[0].Type().IsPrimitiveType() ||
+				args[0].Type().FriendlyName() != "string" ||
+				len(args[0].AsString()) == 0 {
+				rVal = Sprintf("expected value to be a non empty string")
+			}
+
+			return cty.StringVal(rVal), nil
+		},
+	},
 	// Regex based assertions
 	"assertEmail": {
 		Params: []function.Parameter{

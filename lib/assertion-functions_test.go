@@ -236,3 +236,23 @@ func Test_assertFalse(t *testing.T) {
 		})
 	}
 }
+
+func Test_assertNonEmptyString(t *testing.T) {
+	tests := []struct {
+		name string
+		args []cty.Value
+		want cty.Value
+	}{
+		{"true", []cty.Value{cty.StringVal("test string")}, cty.StringVal("PASS")},
+		{"error", []cty.Value{cty.BoolVal(false)}, cty.StringVal("expected value to be a non empty string")},
+		{"error", []cty.Value{cty.NumberIntVal(int64(10))}, cty.StringVal("expected value to be a non empty string")},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got, _ := assertionFunctionList["assertNonEmptyString"].Impl(tt.args, cty.String); tt.want.NotEqual(got).True() {
+				t.Errorf("assertFalse() = %v, want %v", got.AsString(), tt.want.AsString())
+			}
+		})
+	}
+}
