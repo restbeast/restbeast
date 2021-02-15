@@ -71,3 +71,45 @@ func Test_readAndDecodeBody(t *testing.T) {
 		})
 	}
 }
+
+func TestListRequestsAndTests(t *testing.T) {
+	testHcl := `
+	version = "1.0.0"
+	request test-1 {}
+	request test-2 {}
+	test test-1 {}
+	test test-2 {}
+`
+	type args struct {
+		lsType  string
+		execCtx *ExecutionContext
+	}
+	tests := []struct {
+		name           string
+		args           args
+		wantList       []ListObject
+		wantMaxNameLen int
+		contents       []byte
+		wantErr        bool
+	}{
+		{"only requests", args{"request", &ExecutionContext{Version: "1.0.0"}}, []ListObject{{"test-1", "request"}, {"test-2", "request"}}, 6, []byte(testHcl), false},
+		{"only tests", args{"test", &ExecutionContext{Version: "1.0.0"}}, []ListObject{{"test-1", "test"}, {"test-2", "test"}}, 6, []byte(testHcl), false},
+	}
+	for _, tt := range tests {
+		createTestFile(tt.contents)
+		defer removeTestFile()
+		t.Run(tt.name, func(t *testing.T) {
+			gotList, gotMaxNameLen, err := ListRequestsAndTests(tt.args.lsType, tt.args.execCtx)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ListRequestsAndTests() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(gotList, tt.wantList) {
+				t.Errorf("ListRequestsAndTests() gotList = %v, want %v", gotList, tt.wantList)
+			}
+			if gotMaxNameLen != tt.wantMaxNameLen {
+				t.Errorf("ListRequestsAndTests() gotMaxNameLen = %v, want %v", gotMaxNameLen, tt.wantMaxNameLen)
+			}
+		})
+	}
+}

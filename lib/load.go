@@ -6,6 +6,7 @@ import (
 	"github.com/Masterminds/semver"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/zclconf/go-cty/cty"
+	"sort"
 	"strings"
 )
 
@@ -145,6 +146,48 @@ func LoadWhole(name, env string, execCtx *ExecutionContext) (request *Request, e
 	}
 
 	return parseRequest(name, *evCtx, execCtx)
+}
+
+func ListRequestsAndTests(lsType string, execCtx *ExecutionContext) (list []ListObject, maxNameLen int, err error) {
+	maxNameLen = 0
+	root, err := readAndDecodeBody()
+	if err != nil {
+		return list, maxNameLen, err
+	}
+
+	if root.Version != "" {
+		err = compareVersion(root.Version, execCtx.Version)
+
+		if err != nil {
+			return list, maxNameLen, err
+		}
+	}
+
+	if lsType == "" || lsType == "request" {
+		for _, requestCfg := range root.Requests {
+			thisLen := len([]rune(requestCfg.Name))
+			if thisLen > maxNameLen {
+				maxNameLen = thisLen
+			}
+			list = append(list, ListObject{requestCfg.Name, "request"})
+		}
+	}
+
+	if lsType == "" || lsType == "test" {
+		for _, testCfg := range root.Tests {
+			thisLen := len([]rune(testCfg.Name))
+			if thisLen > maxNameLen {
+				maxNameLen = thisLen
+			}
+			list = append(list, ListObject{testCfg.Name, "test"})
+		}
+	}
+
+	sort.Slice(list, func(i, j int) bool {
+		return list[i].Name < list[j].Name
+	})
+
+	return list, maxNameLen, nil
 }
 
 func LoadTest(name, env string, execCtx *ExecutionContext) (request *Test, err error) {

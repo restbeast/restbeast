@@ -43,6 +43,11 @@ type RequestCfg struct {
 
 type RequestCfgs []*RequestCfg
 
+type ListObject struct {
+	Name string
+	Type string
+}
+
 type SecretCfg struct {
 	Name  string            `hcl:"name,label"`
 	Type  string            `hcl:"type,attr"`
