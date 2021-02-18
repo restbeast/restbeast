@@ -1,4 +1,4 @@
-1.0.0 (Unreleased)
+1.0.0
  - Ability to construct body with content/type [#12](https://github.com/restbeast/restbeast/issues/12)
  - Cookie support [#16](https://github.com/restbeast/restbeast/issues/16)
  - Apple Silicon M1 support for macOS
