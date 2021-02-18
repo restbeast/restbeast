@@ -120,6 +120,7 @@ type Response struct {
 type Request struct {
 	Method  string
 	Url     string
+	FullUrl string
 	Headers Headers
 	Body    io.Reader
 	Params  map[string]string

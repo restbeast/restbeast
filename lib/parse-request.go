@@ -265,27 +265,19 @@ func getRequest(cfg cty.Value, requestCfg RequestCfg, evCtx EvalContext, execCtx
 		}
 	}
 
-	var method string
-	if !cfg.GetAttr("method").IsNull() {
-		method = cfg.GetAttr("method").AsString()
-	} else {
-		method = "GET"
-	}
-
-	if !cfg.GetAttr("url").IsWhollyKnown() {
-		return nil, Errorf("Error: failed to parse url, possible unknown variable used.\n"), nil
-	}
-	url := cfg.GetAttr("url").AsString()
-
 	roundTripper := http.DefaultTransport
 	request := &Request{
-		Method:           method,
-		Url:              url,
 		Headers:          headers,
 		Body:             body,
 		ExecutionContext: execCtx,
 		RoundTripper:     roundTripper,
 	}
+
+	var method string
+	if !cfg.GetAttr("method").IsNull() {
+		method = cfg.GetAttr("method").AsString()
+	}
+	request.SetMethod(method)
 
 	authBlockDiags := parseAuthBlock(request, requestCfg.Auth, getCtxEvalContext(evCtx))
 	if authBlockDiags != nil {
@@ -296,6 +288,13 @@ func getRequest(cfg cty.Value, requestCfg RequestCfg, evCtx EvalContext, execCtx
 	if paramsBlockDiags != nil {
 		return nil, nil, paramsBlockDiags
 	}
+
+	// URL has to be set AFTER params processed
+	if !cfg.GetAttr("url").IsWhollyKnown() {
+		return nil, Errorf("Error: failed to parse url, possible unknown variable used.\n"), nil
+	}
+	url := cfg.GetAttr("url").AsString()
+	request.SetUrl(url)
 
 	return request, nil, nil
 }

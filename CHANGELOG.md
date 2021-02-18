@@ -5,6 +5,7 @@
  - Enhance json decode error message
  - New assertion function `assertNonEmptyString` [#35](https://github.com/restbeast/restbeast/issues/35)
  - List command [#30](https://github.com/restbeast/restbeast/issues/30)
+ - Respect response content-type [#34](https://github.com/restbeast/restbeast/issues/34)
 
 0.13.0
 - Request parameters [#13](https://github.com/restbeast/restbeast/issues/13)

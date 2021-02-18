@@ -31,6 +31,7 @@ func TestRequest_Exec(t *testing.T) {
 	type fields struct {
 		Method            string
 		Url               string
+		FullUrl           string
 		Headers           Headers
 		Body              io.Reader
 		Params            *map[string]string
@@ -50,6 +51,7 @@ func TestRequest_Exec(t *testing.T) {
 			fields: fields{
 				Method:      "",
 				Url:         "URL1",
+				FullUrl:     "URL1",
 				Headers:     testHeaders1,
 				Body:        nil,
 				EvalContext: EvalContext{},
@@ -68,6 +70,7 @@ func TestRequest_Exec(t *testing.T) {
 			fields: fields{
 				Method:      "GET",
 				Url:         "URL1",
+				FullUrl:     "URL1",
 				Headers:     testHeaders1,
 				Body:        nil,
 				EvalContext: EvalContext{},
@@ -86,6 +89,7 @@ func TestRequest_Exec(t *testing.T) {
 			fields: fields{
 				Method:      "GET",
 				Url:         "URL2",
+				FullUrl:     "URL2",
 				Headers:     testHeaders1,
 				Body:        nil,
 				EvalContext: EvalContext{},
@@ -105,6 +109,7 @@ func TestRequest_Exec(t *testing.T) {
 			request := &Request{
 				Method:            tt.fields.Method,
 				Url:               tt.fields.Url,
+				FullUrl:           tt.fields.FullUrl,
 				Headers:           tt.fields.Headers,
 				Body:              tt.fields.Body,
 				EvalContext:       tt.fields.EvalContext,
@@ -115,6 +120,63 @@ func TestRequest_Exec(t *testing.T) {
 			}
 			if err := request.Exec(); (err != nil) != tt.wantErr {
 				t.Errorf("Exec() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestRequest_SetUrl(t *testing.T) {
+	type args struct {
+		urlToSet string
+		params   map[string]string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{"test-1", args{"test-1", map[string]string{}}, "test-1"},
+		{"test-2", args{"test-1", map[string]string{"key1": "value1"}}, "test-1?key1=value1"},
+		{"test-3", args{"test-1?key1=value1", map[string]string{"key2": "value2"}}, "test-1?key1=value1&key2=value2"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			request := &Request{
+				Params: tt.args.params,
+			}
+			request.SetUrl(tt.args.urlToSet)
+
+			if request.Url != tt.args.urlToSet {
+				t.Errorf("SetUrl() got = %s, want %s", request.Url, tt.args.urlToSet)
+			}
+
+			if request.FullUrl != tt.want {
+				t.Errorf("Exec() got = %s, want %s", request.FullUrl, tt.want)
+			}
+		})
+	}
+}
+
+func TestRequest_SetMethod(t *testing.T) {
+	type args struct {
+		methodToSet string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{"post", args{"post"}, "POST"},
+		{"get", args{"get"}, "GET"},
+		{"empty", args{""}, "GET"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			request := &Request{}
+			request.SetMethod(tt.args.methodToSet)
+
+			if request.Method != tt.want {
+				t.Errorf("SetMethod() got = %s, want %s", request.Method, tt.want)
 			}
 		})
 	}

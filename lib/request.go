@@ -14,10 +14,7 @@ import (
 	"time"
 )
 
-func (request *Request) Exec() error {
-	start := time.Now()
-	var dnsTime, connectionTime, tlsHandshakeTime, firstByteTime, totalTime time.Duration
-
+func (request *Request) SetUrl(urlToSet string) {
 	var encodedParams string
 	if request.Params != nil {
 		params := url.Values{}
@@ -29,7 +26,7 @@ func (request *Request) Exec() error {
 		encodedParams = params.Encode()
 	}
 
-	fullUrl := request.Url
+	fullUrl := urlToSet
 	if encodedParams != "" {
 		if strings.Contains(fullUrl, "?") {
 			fullUrl += "&" + encodedParams
@@ -38,7 +35,23 @@ func (request *Request) Exec() error {
 		}
 	}
 
-	httpReq, err := http.NewRequest(strings.ToUpper(request.Method), fullUrl, request.Body)
+	request.Url = urlToSet
+	request.FullUrl = fullUrl
+}
+
+func (request *Request) SetMethod(method string) {
+	if method != "" {
+		request.Method = strings.ToUpper(method)
+	} else {
+		request.Method = "GET"
+	}
+}
+
+func (request *Request) Exec() error {
+	start := time.Now()
+	var dnsTime, connectionTime, tlsHandshakeTime, firstByteTime, totalTime time.Duration
+
+	httpReq, err := http.NewRequest(strings.ToUpper(request.Method), request.FullUrl, request.Body)
 	if err != nil {
 		return Errorf("unable to construct request, %s\n", err)
 	}
@@ -49,7 +62,7 @@ func (request *Request) Exec() error {
 
 	if request.ExecutionContext.Debug {
 		log.Printf("request method: %s", request.Method)
-		log.Printf("request url: %s", fullUrl)
+		log.Printf("request url: %s", request.FullUrl)
 
 		for k, v := range httpReq.Header {
 			log.Printf("request header: %s=%s", k, v)
