@@ -18,11 +18,6 @@ jobs:
           - goarch: 386
             goos: freebsd
     steps:
-      - name: Set up Go 1.16
-        uses: actions/setup-go@v2
-        with:
-          go-version: '^1.16.0'
-        id: go
       - uses: actions/checkout@v2
       - name: Login to DockerHub
         uses: docker/login-action@v1
@@ -36,5 +31,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}
+          goversion: https://dl.google.com/go/go1.16.linux-amd64.tar.gz
           ldflags: -X "main.version=${{ env.VERSION }}" -X "main.sentryDsn=${{ secrets.SENTRY_DSN }}"
           binary_name: "restbeast"
