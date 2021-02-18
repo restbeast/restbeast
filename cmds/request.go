@@ -9,7 +9,6 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 	"net/http"
 	"os"
-	"strings"
 )
 
 var outputTiming, outputDetailedTiming, showHeaders bool
@@ -111,8 +110,8 @@ func printHeaders(response lib.Response) string {
 
 	if showHeaders {
 		returnVal += Sprintf("\n")
-		for k, v := range response.Headers {
-			returnVal += Sprintf("\033[1m%s\033[0m: %s\n", k, strings.Join(v, ","))
+		for k, v := range response.Headers.GetAllUnique() {
+			returnVal += Sprintf("\033[1m%s\033[0m: %s\n", k, v)
 		}
 	}
 

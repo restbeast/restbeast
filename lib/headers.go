@@ -34,6 +34,10 @@ func (headers *Headers) Add(k string, v string) *Headers {
 }
 
 func (headers *Headers) Set(k string, v string) *Headers {
+	if headers.kv == nil {
+		headers.kv = make(map[string]string)
+	}
+
 	existingKey := headers.GetKey(k)
 	if existingKey != nil {
 		headers.kv[*existingKey] = v
@@ -58,7 +62,7 @@ func (headers *Headers) Get(searchKey string) (found *string) {
 	return nil
 }
 
-func (headers *Headers) GetKey(searchKey string) (key *string) {
+func (headers *Headers) GetKey(searchKey string) *string {
 	if headers.kv == nil {
 		return nil
 	}
@@ -70,6 +74,21 @@ func (headers *Headers) GetKey(searchKey string) (key *string) {
 	}
 
 	return nil
+}
+
+func (headers *Headers) GetAll() map[string]string {
+	allHeaders := map[string]string{}
+
+	for key, val := range headers.kv {
+		allHeaders[key] = val
+		allHeaders[strings.ToLower(key)] = val
+	}
+
+	return allHeaders
+}
+
+func (headers *Headers) GetAllUnique() map[string]string {
+	return headers.kv
 }
 
 func (headers *Headers) SetCookies(cookies map[string]string) {
@@ -101,4 +120,16 @@ func (headers *Headers) ToRequest(httpReq *http.Request) {
 	for key, value := range headers.kv {
 		httpReq.Header.Set(key, value)
 	}
+}
+
+func (headers *Headers) FromResponse(resHeaders http.Header) *Headers {
+	if headers.kv == nil {
+		headers.kv = make(map[string]string)
+	}
+
+	for key, slice := range resHeaders {
+		headers.kv[key] = slice[0]
+	}
+
+	return headers
 }

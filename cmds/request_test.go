@@ -3,7 +3,6 @@ package cmds
 import (
 	"fmt"
 	"github.com/restbeast/restbeast/lib"
-	"net/http"
 	"testing"
 )
 
@@ -19,7 +18,7 @@ func Test_printJustTiming(t *testing.T) {
 		StatusCode:    0,
 		Proto:         "",
 		Body:          nil,
-		Headers:       nil,
+		Headers:       &lib.Headers{},
 		Timing:        lib.RequestTiming{},
 		Request:       nil,
 		BytesSend:     0,
@@ -36,7 +35,7 @@ func Test_printJustTiming(t *testing.T) {
 		StatusCode:    0,
 		Proto:         "",
 		Body:          nil,
-		Headers:       nil,
+		Headers:       &lib.Headers{},
 		Timing:        lib.RequestTiming{},
 		Request:       nil,
 		BytesSend:     10,
@@ -54,7 +53,7 @@ func Test_printJustTiming(t *testing.T) {
 		StatusCode:    0,
 		Proto:         "",
 		Body:          nil,
-		Headers:       nil,
+		Headers:       &lib.Headers{},
 		Timing:        lib.RequestTiming{},
 		Request:       nil,
 		BytesSend:     10,
@@ -98,7 +97,7 @@ func Test_printDetailedTiming(t *testing.T) {
 		StatusCode:    0,
 		Proto:         "",
 		Body:          nil,
-		Headers:       nil,
+		Headers:       &lib.Headers{},
 		Timing:        lib.RequestTiming{},
 		Request:       nil,
 		BytesSend:     0,
@@ -118,7 +117,7 @@ func Test_printDetailedTiming(t *testing.T) {
 		StatusCode:    0,
 		Proto:         "",
 		Body:          nil,
-		Headers:       nil,
+		Headers:       &lib.Headers{},
 		Timing:        lib.RequestTiming{},
 		Request:       nil,
 		BytesSend:     10,
@@ -139,7 +138,7 @@ func Test_printDetailedTiming(t *testing.T) {
 		StatusCode: 0,
 		Proto:      "",
 		Body:       nil,
-		Headers:    nil,
+		Headers:    &lib.Headers{},
 		Timing: lib.RequestTiming{
 			Dns:       10,
 			Conn:      10,
@@ -166,7 +165,7 @@ func Test_printDetailedTiming(t *testing.T) {
 		StatusCode: 0,
 		Proto:      "",
 		Body:       nil,
-		Headers:    nil,
+		Headers:    &lib.Headers{},
 		Timing: lib.RequestTiming{
 			Dns:       10,
 			Conn:      10,
@@ -194,7 +193,7 @@ func Test_printDetailedTiming(t *testing.T) {
 		StatusCode: 0,
 		Proto:      "",
 		Body:       nil,
-		Headers:    nil,
+		Headers:    &lib.Headers{},
 		Timing: lib.RequestTiming{
 			Dns:       10,
 			Conn:      10,
@@ -334,15 +333,14 @@ func Test_printTiming(t *testing.T) {
 }
 
 func Test_printHeaders(t *testing.T) {
-	headers1 := http.Header{}
-	headers1.Set("header-key", "header-value")
-	headers1.Set("an-other-header-key", "an-other-header-value")
+	headers1 := &lib.Headers{}
+	headers1.Set("Header-Key", "header-value")
 
-	match := fmt.Sprintf("\n\u001B[1m%s\u001B[0m: %s\n\u001B[1m%s\u001B[0m: %s\n", "Header-Key", "header-value", "An-Other-Header-Key", "an-other-header-value")
+	match := fmt.Sprintf("\n\u001B[1m%s\u001B[0m: %s\n", "Header-Key", "header-value")
 
 	tests := []struct {
 		name    string
-		headers http.Header
+		headers *lib.Headers
 		show    bool
 		want    string
 	}{

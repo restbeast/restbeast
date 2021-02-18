@@ -113,13 +113,16 @@ func (request *Request) Exec() error {
 		bodySize, _ = io.Copy(buf, request.Body)
 	}
 
+	headers := &Headers{}
+	headers.FromResponse(res.Header)
+
 	request.Response = &Response{
 		Method:        request.Method,
 		Url:           request.Url,
 		StatusCode:    res.StatusCode,
 		Proto:         res.Proto,
 		Body:          data,
-		Headers:       res.Header,
+		Headers:       headers,
 		Timing:        timing,
 		Request:       request,
 		BytesSend:     uint64(bodySize),

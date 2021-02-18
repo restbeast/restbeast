@@ -7,41 +7,9 @@ import (
 	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/function"
-	"net/http"
 	"reflect"
 	"testing"
 )
-
-func Test_lowercaseHeaders(t *testing.T) {
-	val1 := []string{
-		"header-value-1",
-	}
-	headers := http.Header{}
-	headers["Key1"] = val1
-
-	wantHeaders := headers
-	wantHeaders["key1"] = val1
-
-	type args struct {
-		headers http.Header
-	}
-
-	tests := []struct {
-		name string
-		args args
-		want http.Header
-	}{
-		{"adds lower case headers", args{headers}, wantHeaders},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := lowercaseHeaders(tt.args.headers); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("lowercaseHeaders() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
 
 func Test_getRequestObjSpec(t *testing.T) {
 	tests := []struct {
@@ -106,40 +74,6 @@ func Test_getUniqueDependencies(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := getUniqueDependencies(tt.args.intSlice); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("getUniqueDependencies() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func Test_lowercaseHeaders1(t *testing.T) {
-	testGot1 := map[string][]string{
-		"content-type": []string{"application/json"},
-	}
-
-	testGot2 := map[string][]string{
-		"Content-Type": []string{"application/json"},
-	}
-
-	testWant2 := map[string][]string{
-		"Content-Type": []string{"application/json"},
-		"content-type": []string{"application/json"},
-	}
-
-	type args struct {
-		headers http.Header
-	}
-	tests := []struct {
-		name string
-		args args
-		want http.Header
-	}{
-		{"test1", args{testGot1}, testGot1},
-		{"test1", args{testGot2}, testWant2},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := lowercaseHeaders(tt.args.headers); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("lowercaseHeaders() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -619,6 +553,40 @@ func Test_getCookiesAsMap(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("getCookiesAsMap() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_processResponseBody(t *testing.T) {
+	jsonCt := "application/json; utf-8"
+	textCt := "text/plain; utf-8"
+
+	type args struct {
+		contentType *string
+		body        []byte
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    cty.Value
+		wantErr bool
+	}{
+		{"empty body", args{&jsonCt, []byte("")}, cty.Value{}, false},
+		{"text body", args{nil, []byte("text")}, cty.StringVal("text"), false},
+		{"text body", args{&textCt, []byte("text")}, cty.StringVal("text"), false},
+		{"json body", args{&jsonCt, []byte(`["text"]`)}, cty.ListVal([]cty.Value{cty.StringVal("text")}), false},
+		{"error json body", args{&jsonCt, []byte(`=::`)}, cty.Value{}, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := processResponseBody(tt.args.contentType, tt.args.body)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("processResponseBody() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("processResponseBody() got = %v, want %v", got, tt.want)
 			}
 		})
 	}

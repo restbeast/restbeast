@@ -174,13 +174,22 @@ func sortCrossDependency(deps []string, evCtx EvalContext) ([]string, error) {
 	return deps, nil
 }
 
-// Make headers accessible with lowercase variations
-func lowercaseHeaders(headers http.Header) http.Header {
-	for k, v := range headers {
-		headers[strings.ToLower(k)] = v
+func processResponseBody(contentType *string, body []byte) (cty.Value, error) {
+	switch true {
+	case len(body) == 0:
+		return cty.Value{}, nil
+	case contentType == nil || strings.HasPrefix(*contentType, "text/plain"):
+		return cty.StringVal(string(body)), nil
+	case strings.HasPrefix(*contentType, "application/json"):
+		var decodedBody interface{}
+		err := json.Unmarshal(body, &decodedBody)
+		if err != nil {
+			return cty.Value{}, Errorf("error decoding json response body for request\n%s\nResponse body:\n%s\n", err, string(body))
+		}
+		return walkThrough(reflect.ValueOf(decodedBody)), nil
 	}
 
-	return headers
+	return cty.Value{}, nil
 }
 
 func processDependency(dependency string, evCtx *EvalContext, execCtx *ExecutionContext) (*EvalContext, *Response, error) {
@@ -195,21 +204,12 @@ func processDependency(dependency string, evCtx *EvalContext, execCtx *Execution
 	}
 
 	var responseAsCty = map[string]cty.Value{}
-
-	var decodedBody interface{}
-	if len(request.Response.Body) > 0 {
-		err := json.Unmarshal(request.Response.Body, &decodedBody)
-
-		if err != nil {
-			return nil, nil, Errorf("error decoding json response body for request\n%s\nResponse body:\n%s\n", err, string(request.Response.Body))
-		}
-
-		responseAsCty["body"] = walkThrough(reflect.ValueOf(decodedBody))
+	headersAsCty := walkThrough(reflect.ValueOf(request.Response.Headers.GetAll()))
+	bodyAsCty, err := processResponseBody(request.Response.Headers.Get("content-type"), request.Response.Body)
+	if err != nil {
+		return nil, nil, err
 	}
-
-	convertedHeaders := lowercaseHeaders(request.Response.Headers)
-	headersAsCty := walkThrough(reflect.ValueOf(convertedHeaders))
-
+	responseAsCty["body"] = bodyAsCty
 	responseAsCty["headers"] = headersAsCty
 	responseAsCty["status"] = cty.NumberIntVal(int64(request.Response.StatusCode))
 

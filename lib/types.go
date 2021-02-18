@@ -110,7 +110,7 @@ type Response struct {
 	StatusCode    int
 	Proto         string
 	Body          []byte
-	Headers       http.Header
+	Headers       *Headers
 	Timing        RequestTiming
 	Request       *Request
 	BytesSend     uint64
