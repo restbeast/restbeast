@@ -15,6 +15,8 @@ This open source terminal client aims to simplify api development, api testing, 
 
 ### Homebrew
 
+> :warning: **Big Sur arm64 owners** Homebrew doesn't support go 1.16 yet. Please use binary packages instead!
+
 Go [here](https://brew.sh/) to install brew, then; 
 
 ```shell
