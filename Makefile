@@ -2,7 +2,7 @@ PROJECT_NAME= "restbeast"
 PKG = "github.com/restbeast/restbeast"
 CGO_ENABLED = 0
 SENTRY_DSN = "https://9c22d42ad3594172b24f9f5fc4db9d73@o421531.ingest.sentry.io/5341476"
-BUILD_CMD := CGO_ENABLED=0 go build -i -o $(PROJECT_NAME) -ldflags "-X 'main.version=$(VERSION)' -X 'main.sentryDsn=$(SENTRY_DSN)'" -v -buildmode=exe $(PKG)
+BUILD_CMD := CGO_ENABLED=0 go build -o $(PROJECT_NAME) -ldflags "-X 'main.version=$(VERSION)' -X 'main.sentryDsn=$(SENTRY_DSN)'" -v -buildmode=exe $(PKG)
 PREFIX = /usr/local
 
 .PHONY: all dep build upload release clean linux linux-386 linux-amd64 linux-arm64 darwin darwin-amd64 freebsd freebsd-amd64 freebsd-arm clean test help
