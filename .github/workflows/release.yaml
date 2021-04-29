@@ -19,11 +19,6 @@ jobs:
             goos: freebsd
     steps:
       - uses: actions/checkout@v2
-      - name: Login to DockerHub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
       - name: Set VERSION env
         run: echo "VERSION=$(echo ${GITHUB_REF} | rev | cut -d'/' -f 1 | rev )" >> $GITHUB_ENV
       - uses: wangyoucao577/go-release-action@master
