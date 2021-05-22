@@ -5,6 +5,7 @@ import (
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/function"
 	"github.com/zclconf/go-cty/cty/function/stdlib"
+	"math/rand"
 )
 
 var defaultFunctions = map[string]function.Function{
@@ -488,6 +489,37 @@ var restbeastFunctionList = map[string]function.Function{
 			}
 
 			return cty.StringVal(fmt.Sprintf("###READFILE=%s###", args[0].AsString())), nil
+		},
+	}),
+	"fill_null": function.New(&function.Spec{
+		Params: []function.Parameter{
+			{
+				Name:             "probability",
+				Type:             cty.Number,
+				AllowNull:        false,
+				AllowUnknown:     false,
+				AllowDynamicType: false,
+				AllowMarked:      false,
+			},
+			{
+				Name:             "nonNullValue",
+				Type:             cty.DynamicPseudoType,
+				AllowNull:        false,
+				AllowUnknown:     false,
+				AllowDynamicType: true,
+				AllowMarked:      false,
+			},
+		},
+		Type: function.StaticReturnType(cty.DynamicPseudoType),
+		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
+			r := rand.Float32()
+			p, _ := args[0].AsBigFloat().Float32()
+
+			if r > p/100 {
+				return args[1], nil
+			} else {
+				return cty.NilVal, nil
+			}
 		},
 	}),
 }
