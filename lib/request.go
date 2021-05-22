@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	. "fmt"
+	"github.com/dustin/go-humanize"
 	"io"
 	"io/ioutil"
 	"log"
@@ -102,15 +103,6 @@ func (request *Request) Exec() error {
 		return err
 	}
 
-	if request.ExecutionContext.Debug {
-		log.Printf("response status: %d %s", res.StatusCode, res.Status)
-		for k, v := range res.Header {
-			log.Printf("response header: %s=%s", k, v)
-		}
-
-		log.Printf("response body: %s", data)
-	}
-
 	totalTime = time.Since(start)
 	timing := RequestTiming{
 		Dns:       dnsTime,
@@ -128,6 +120,27 @@ func (request *Request) Exec() error {
 
 	headers := &Headers{}
 	headers.FromResponse(res.Header)
+
+	if request.ExecutionContext.Debug {
+		log.Printf("response status: %d %s", res.StatusCode, res.Status)
+		log.Printf("response DNS Resolve time: %d ms", timing.Dns.Milliseconds())
+		log.Printf("response Connection time: %d ms", timing.Conn.Milliseconds())
+		if timing.Tls > 0 {
+			log.Printf("response TLS Handshake time: %d ms", timing.Tls.Milliseconds())
+		}
+		log.Printf("response Firstbyte time: %d ms", timing.FirstByte.Milliseconds())
+		log.Printf("response Total time: %d ms", timing.Total.Milliseconds())
+		if bodySize > 0 {
+			log.Printf("response Bytes Sent: %s", humanize.Bytes(uint64(bodySize)))
+		}
+		log.Printf("response Bytes Received: %s", humanize.Bytes(uint64(len(data))))
+
+		for k, v := range res.Header {
+			log.Printf("response header: %s=%s", k, v)
+		}
+
+		log.Printf("response body: %s", data)
+	}
 
 	request.Response = &Response{
 		Method:        request.Method,
