@@ -8,7 +8,7 @@ require (
 	github.com/brianvoe/gofakeit/v5 v5.11.2
 	github.com/dustin/go-humanize v1.0.0
 	github.com/getsentry/sentry-go v0.11.0
-	github.com/go-errors/errors v1.2.0
+	github.com/go-errors/errors v1.4.0
 	github.com/h2non/filetype v1.1.1
 	github.com/hashicorp/hcl/v2 v2.10.0
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
