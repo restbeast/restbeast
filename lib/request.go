@@ -135,9 +135,9 @@ func (request *Request) Exec() error {
 		}
 		log.Printf("response Bytes Received: %s", humanize.Bytes(uint64(len(data))))
 
-		for k, v := range res.Header {
+		headers.OrderedCallBack(func(k, v string) {
 			log.Printf("response header: %s=%s", k, v)
-		}
+		})
 
 		log.Printf("response body: %s", data)
 	}

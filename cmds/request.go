@@ -110,9 +110,9 @@ func printHeaders(response lib.Response) string {
 
 	if showHeaders {
 		returnVal += Sprintf("\n")
-		for k, v := range response.Headers.GetAllUnique() {
+		response.Headers.OrderedCallBack(func(k, v string) {
 			returnVal += Sprintf("\033[1m%s\033[0m: %s\n", k, v)
-		}
+		})
 	}
 
 	return returnVal

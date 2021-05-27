@@ -4,12 +4,15 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
+	"sort"
 	"strings"
 )
 
 type Headers struct {
 	kv map[string]string
 }
+
+type OrderedMapCallback func(k, v string)
 
 func (headers *Headers) AddBulk(all map[string]string) *Headers {
 	if headers.kv == nil {
@@ -132,4 +135,20 @@ func (headers *Headers) FromResponse(resHeaders http.Header) *Headers {
 	}
 
 	return headers
+}
+
+func (headers *Headers) OrderedCallBack(cb OrderedMapCallback) {
+	if headers.kv == nil {
+		headers.kv = make(map[string]string)
+	}
+
+	keys := make([]string, 0, len(headers.kv))
+	for k := range headers.kv {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	for _, k := range keys {
+		cb(k, headers.kv[k])
+	}
 }
