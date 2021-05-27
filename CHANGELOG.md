@@ -1,6 +1,7 @@
 1.1.0 (Unreleased)
  - Improved logging
  - Add fill_null function [#48](https://github.com/restbeast/restbeast/issues/48)
+ - Fix headers printout order [#49](https://github.com/restbeast/restbeast/issues/49)
 
 1.0.0
  - Ability to construct body with content/type [#12](https://github.com/restbeast/restbeast/issues/12)
