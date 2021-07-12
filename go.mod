@@ -15,7 +15,7 @@ require (
 	github.com/nathan-fiscaletti/consolesize-go v0.0.0-20210105204122-a87d9f614b9d
 	github.com/spf13/cobra v1.1.3
 	github.com/ttacon/chalk v0.0.0-20160626202418-22c06c80ed31
-	github.com/zclconf/go-cty v1.8.3
+	github.com/zclconf/go-cty v1.9.0
 	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad
 	golang.org/x/sys v0.0.0-20210216163648-f7da38b97c65 // indirect
 	golang.org/x/term v0.0.0-20201210144234-2321bbc49cbf // indirect
