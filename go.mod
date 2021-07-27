@@ -10,7 +10,7 @@ require (
 	github.com/getsentry/sentry-go v0.11.0
 	github.com/go-errors/errors v1.4.0
 	github.com/h2non/filetype v1.1.1
-	github.com/hashicorp/hcl/v2 v2.10.0
+	github.com/hashicorp/hcl/v2 v2.10.1
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	github.com/nathan-fiscaletti/consolesize-go v0.0.0-20210105204122-a87d9f614b9d
 	github.com/spf13/cobra v1.1.3
