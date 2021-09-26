@@ -14,6 +14,11 @@ func walkThrough(v reflect.Value) cty.Value {
 	case reflect.Array, reflect.Slice:
 		length := v.Len()
 
+		// Return empty value for empty slice
+		if length == 0 {
+			return cty.Value{}
+		}
+
 		newSlice := make([]cty.Value, length)
 
 		for i := 0; i < length; i++ {
