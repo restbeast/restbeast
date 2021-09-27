@@ -56,7 +56,7 @@ func compareVersion(constraint, actual string) error {
 	return nil
 }
 
-// Get all internal functions
+// LoadEvalCtx Get all internal functions
 // Parse external functions
 // Parse environment variables
 // Parse variables
@@ -123,7 +123,7 @@ func loadDynamics(evCtx *EvalContext) error {
 	return nil
 }
 
-// Load only request with given EvalContext
+// LoadOnlyRequest Load only request with given EvalContext
 func LoadOnlyRequest(name string, evCtx *EvalContext, execCtx *ExecutionContext) (request *Request, err error) {
 	err = loadDynamics(evCtx)
 	if err != nil {
@@ -133,7 +133,7 @@ func LoadOnlyRequest(name string, evCtx *EvalContext, execCtx *ExecutionContext)
 	return parseRequest(name, *evCtx, execCtx)
 }
 
-// Gather EvalContext and load given request
+// LoadWhole Gather EvalContext and load given request
 func LoadWhole(name, env string, execCtx *ExecutionContext) (request *Request, err error) {
 	evCtx, err := LoadEvalCtx(env, execCtx)
 	if err != nil {
@@ -234,4 +234,8 @@ func LoadAllTests(env string, execCtx *ExecutionContext) (tests Tests, err error
 	}
 
 	return tests, err
+}
+
+func LoadRepeatCount(name string, evCtx *EvalContext) (int, error) {
+	return getRequestRepeatCount(name, *evCtx)
 }

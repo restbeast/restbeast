@@ -39,6 +39,7 @@ type RequestCfg struct {
 	Remain    hcl.Body        `hcl:",remain"`
 	Auth      *AuthCfg        `hcl:"auth,block"`
 	Params    *ParamsBlockCfg `hcl:"params,block"`
+	Repeat    int             `hcl:"repeat,optional"`
 }
 
 type RequestCfgs []*RequestCfg

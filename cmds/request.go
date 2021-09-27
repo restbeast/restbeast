@@ -14,12 +14,14 @@ import (
 var outputTiming, outputDetailedTiming, showHeaders bool
 var env string
 var screenWidth int
+var repeat int
 
 func init() {
 	requestCmd.Flags().BoolVarP(&showHeaders, "headers", "H", false, "Show response headers")
 	requestCmd.Flags().BoolVar(&outputTiming, "timing", false, "Displays timings")
 	requestCmd.Flags().BoolVar(&outputDetailedTiming, "detailed-timing", false, "Displays detailed timings")
 	requestCmd.Flags().StringVar(&env, "env", "", "Selected environment")
+	requestCmd.Flags().IntVar(&repeat, "repeat", 1, "Repeat this request X times")
 
 	rootCmd.AddCommand(requestCmd)
 	screenWidth, _ = consolesize.GetConsoleSize()
@@ -126,30 +128,54 @@ func doRequest(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
-	request, err := lib.LoadWhole(args[0], env, execCtx)
+	evalCtx, err := lib.LoadEvalCtx(env, execCtx)
 	if err != nil {
 		Printf("Error: Failed to load given request\n%s\n", err)
 		os.Exit(1)
 	}
 
-	requestErr := request.Exec()
-	if requestErr != nil {
-		Printf("Error: Failed to execute request\n%s\n", requestErr)
+	repeatCount, err := lib.LoadRepeatCount(args[0], evalCtx)
+	if err != nil {
+		Printf("Error: Failed to load given request\n%s\n", err)
 		os.Exit(1)
 	}
 
-	// Check if output is terminal or pipe
-	if isTerminal {
-		// Print out response information
-		Printf("%s %d %s\n", request.Response.Proto, request.Response.StatusCode, http.StatusText(request.Response.StatusCode))
-		Print(printTiming(outputTiming, outputDetailedTiming, *request, *request.Response, ""))
-		Print(printHeaders(*request.Response))
-
-		if len(request.Response.Body) > 0 {
-			Printf("\n\n%s", request.Response.Body)
+	if repeat == 1 {
+		if repeatCount > 0 {
+			repeat = repeatCount
 		}
-	} else { // piped output
-		Printf("%s", request.Response.Body)
+	}
+
+	for i := 0; i < repeat; i++ {
+		request, err := lib.LoadOnlyRequest(args[0], evalCtx, execCtx)
+		if err != nil {
+			Printf("Error: Failed to load given request\n%s\n", err)
+			os.Exit(1)
+		}
+
+		requestErr := request.Exec()
+		if requestErr != nil {
+			Printf("Error: Failed to execute request\n%s\n", requestErr)
+			os.Exit(1)
+		}
+
+		// Check if output is terminal or pipe
+		if isTerminal {
+			// Print out response information
+			if i > 0 {
+				Print("\n")
+			}
+
+			Printf("%s %d %s\n", request.Response.Proto, request.Response.StatusCode, http.StatusText(request.Response.StatusCode))
+			Print(printTiming(outputTiming, outputDetailedTiming, *request, *request.Response, ""))
+			Print(printHeaders(*request.Response))
+
+			if len(request.Response.Body) > 0 {
+				Printf("\n\n%s", request.Response.Body)
+			}
+		} else { // piped output
+			Printf("%s", request.Response.Body)
+		}
 	}
 }
 

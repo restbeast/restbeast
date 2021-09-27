@@ -193,14 +193,29 @@ func processResponseBody(contentType *string, body []byte) (cty.Value, error) {
 }
 
 func processDependency(dependency string, evCtx *EvalContext, execCtx *ExecutionContext) (*EvalContext, *Response, error) {
-	request, parseErr := parseRequest(dependency, *evCtx, execCtx)
+	repeatCount, parseErr := getRequestRepeatCount(dependency, *evCtx)
 	if parseErr != nil {
 		return nil, nil, parseErr
 	}
 
-	requestErr := request.Exec()
-	if requestErr != nil {
-		return nil, nil, requestErr
+	if repeatCount == 0 {
+		repeatCount = 1
+	}
+
+	var request *Request
+
+	// Request loaded and executed X repeat count
+	// Only the last response will be assigned to request
+	for i := 0; i < repeatCount; i++ {
+		request, parseErr = parseRequest(dependency, *evCtx, execCtx)
+		if parseErr != nil {
+			return nil, nil, parseErr
+		}
+
+		requestErr := request.Exec()
+		if requestErr != nil {
+			return nil, nil, requestErr
+		}
 	}
 
 	var responseAsCty = map[string]cty.Value{}
@@ -350,9 +365,17 @@ func retryWithDependency(requestCfg *RequestCfg, cfg cty.Value, diags hcl.Diagno
 	return cfg, responses, nil
 }
 
+func getRequestRepeatCount(name string, evCtx EvalContext) (int, error) {
+	requestCfg, err := findRequest(name, evCtx.RawRequests)
+	if err != nil {
+		return 0, err
+	}
+
+	return requestCfg.Repeat, nil
+}
+
 func parseRequest(name string, evCtx EvalContext, execCtx *ExecutionContext) (*Request, error) {
 	requestCfg, err := findRequest(name, evCtx.RawRequests)
-
 	if err != nil {
 		return nil, err
 	}
