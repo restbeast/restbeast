@@ -9,7 +9,7 @@ In a nut shell;
 
 This open source terminal client aims to simplify api development, api testing, service health checks and load testing by putting them together under one roof.
 
-## Visit [https://restbeast.com/docs/v1.1/](https://restbeast.com/docs/v1.1/) website for the documentation, and examples
+## Visit [https://restbeast.com/docs/v1.2/](https://restbeast.com/docs/v1.2/) website for the documentation, and examples
 
 ## Installation
 
@@ -29,7 +29,7 @@ Get the latest build from [github release page](https://github.com/restbeast/res
 Decompress the file and move the executable file to a location in $PATH
 
 ```shell
-tar zxvf restbeast-v1.1.0-linux-amd64.tar.gz
+tar zxvf restbeast-v1.2.0-linux-amd64.tar.gz
 sudo mv restbeast /usr/local/bin/
 ```
 
@@ -38,8 +38,8 @@ Install `go >= 1.16` [go docs](https://golang.org/doc/install)
 
 Get the latest source from [github release page](https://github.com/restbeast/restbeast/releases/latest) and unzip
 ```shell
-unzip restbeast-v1.1.0.zip
-cd restbeast-v1.1.0
+unzip restbeast-v1.2.0.zip
+cd restbeast-v1.2.0
 ```
 
 Or clone from github
@@ -49,7 +49,7 @@ cd restbeast
 ```
 
 ```shell
-make VERSION=v1.1.0
+make VERSION=v1.2.0
 sudo make install
 ```
 
