@@ -320,7 +320,7 @@ var gofakeitFunctionList = map[string]GofakeitFunc{
 			Name:             "max",
 			Type:             cty.Number,
 			AllowDynamicType: false,
-		}}, Type: function.StaticReturnType(cty.String), Impl: gofakeitPriceImpl},
+		}}, Type: function.StaticReturnType(cty.Number), Impl: gofakeitPriceImpl},
 	"gofakeitCreditCardCvv": GofakeitFunc{Params: []function.Parameter{}, Type: function.StaticReturnType(cty.String), Impl: gofakeitCreditCardCvvImpl},
 	"gofakeitCreditCardExp": GofakeitFunc{Params: []function.Parameter{}, Type: function.StaticReturnType(cty.String), Impl: gofakeitCreditCardExpImpl},
 	"gofakeitCreditCardNumber": GofakeitFunc{Params: []function.Parameter{{
