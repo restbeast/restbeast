@@ -1,6 +1,6 @@
 module github.com/restbeast/restbeast
 
-go 1.16
+go 1.17
 
 require (
 	github.com/Masterminds/semver v1.5.0
@@ -18,4 +18,13 @@ require (
 	github.com/zclconf/go-cty v1.9.1
 	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad
 	golang.org/x/term v0.0.0-20201210144234-2321bbc49cbf // indirect
+)
+
+require (
+	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
+	github.com/google/go-cmp v0.5.5 // indirect
+	github.com/inconshreveable/mousetrap v1.0.0 // indirect
+	github.com/spf13/pflag v1.0.5 // indirect
+	golang.org/x/sys v0.0.0-20210510120138-977fb7262007 // indirect
+	golang.org/x/text v0.3.5 // indirect
 )

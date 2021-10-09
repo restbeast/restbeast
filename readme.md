@@ -32,7 +32,7 @@ sudo mv restbeast /usr/local/bin/
 ```
 
 ### Compile From Source
-Install `go >= 1.16` [go docs](https://golang.org/doc/install)
+Install `go >= 1.17` [go docs](https://golang.org/doc/install)
 
 Get the latest source from [github release page](https://github.com/restbeast/restbeast/releases/latest) and unzip
 ```shell

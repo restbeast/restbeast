@@ -1,4 +1,11 @@
-1.1.0 (Unreleased)
+1.2.1
+ - Fix gofakeitPrice return value
+
+1.2.0
+ - Fix crash on empty slice
+ - Repeat request by param and argument [#60](https://github.com/restbeast/restbeast/issues/60) [#61](https://github.com/restbeast/restbeast/issues/61)
+
+1.1.0
  - Improved logging
  - Add fill_null function [#48](https://github.com/restbeast/restbeast/issues/48)
  - Fix headers printout order [#49](https://github.com/restbeast/restbeast/issues/49)
