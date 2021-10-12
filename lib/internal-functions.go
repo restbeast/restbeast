@@ -6,6 +6,7 @@ import (
 	"github.com/zclconf/go-cty/cty/function"
 	"github.com/zclconf/go-cty/cty/function/stdlib"
 	"math/rand"
+	"os"
 )
 
 var defaultFunctions = map[string]function.Function{
@@ -520,6 +521,24 @@ var restbeastFunctionList = map[string]function.Function{
 			} else {
 				return cty.NilVal, nil
 			}
+		},
+	}),
+	"env_var": function.New(&function.Spec{
+		Params: []function.Parameter{
+			{
+				Name:             "key",
+				Type:             cty.String,
+				AllowNull:        false,
+				AllowUnknown:     false,
+				AllowDynamicType: false,
+				AllowMarked:      false,
+			},
+		},
+		Type: function.StaticReturnType(cty.String),
+		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
+			varKey := args[0].AsString()
+			value := os.Getenv(fmt.Sprintf("restbeast_var_%s", varKey))
+			return cty.StringVal(value), nil
 		},
 	}),
 }

@@ -1,5 +1,6 @@
-1.2.1
- - Fix gofakeitPrice return value
+1.3.0 (unreleased)
+- Fix gofakeitPrice return value
+- Use environment variables directly in hcl [#63](https://github.com/restbeast/restbeast/issues/63)
 
 1.2.0
  - Fix crash on empty slice
