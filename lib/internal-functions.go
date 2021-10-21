@@ -7,6 +7,7 @@ import (
 	"github.com/zclconf/go-cty/cty/function/stdlib"
 	"math/rand"
 	"os"
+	"time"
 )
 
 var defaultFunctions = map[string]function.Function{
@@ -539,6 +540,29 @@ var restbeastFunctionList = map[string]function.Function{
 			varKey := args[0].AsString()
 			value := os.Getenv(fmt.Sprintf("restbeast_var_%s", varKey))
 			return cty.StringVal(value), nil
+		},
+	}),
+	"unixTimestamp": function.New(&function.Spec{
+		Params: []function.Parameter{
+			{
+				Name:             "timestamp",
+				Type:             cty.String,
+				AllowNull:        false,
+				AllowUnknown:     false,
+				AllowDynamicType: false,
+				AllowMarked:      false,
+			},
+		},
+		Type: function.StaticReturnType(cty.Number),
+		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
+			varDate := args[0].AsString()
+			t, err := time.Parse(time.RFC3339, varDate)
+
+			if err != nil {
+				return cty.NilVal, err
+			}
+
+			return cty.NumberIntVal(t.Unix()), nil
 		},
 	}),
 }
