@@ -15,16 +15,16 @@ require (
 	github.com/nathan-fiscaletti/consolesize-go v0.0.0-20210105204122-a87d9f614b9d
 	github.com/spf13/cobra v1.2.1
 	github.com/ttacon/chalk v0.0.0-20160626202418-22c06c80ed31
-	github.com/zclconf/go-cty v1.9.1
-	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad
-	golang.org/x/term v0.0.0-20201210144234-2321bbc49cbf // indirect
+	github.com/zclconf/go-cty v1.10.0
+	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
+	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
 )
 
 require (
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
-	github.com/google/go-cmp v0.5.5 // indirect
+	github.com/google/go-cmp v0.5.6 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	golang.org/x/sys v0.0.0-20210510120138-977fb7262007 // indirect
-	golang.org/x/text v0.3.5 // indirect
+	golang.org/x/sys v0.0.0-20211103235746-7861aae1554b // indirect
+	golang.org/x/text v0.3.7 // indirect
 )
