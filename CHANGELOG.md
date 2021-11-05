@@ -3,6 +3,7 @@
 - Use environment variables directly in hcl [#63](https://github.com/restbeast/restbeast/issues/63)
 - Added `unixTimestamp` function  [#64](https://github.com/restbeast/restbeast/issues/64)
 - Added `now` function  [#65](https://github.com/restbeast/restbeast/issues/65)
+- Fixed fatal error: concurrent map writes [#66](https://github.com/restbeast/restbeast/issues/66)
 
 1.2.0
  - Fix crash on empty slice
