@@ -3,10 +3,11 @@ package lib
 import (
 	"encoding/json"
 	. "fmt"
+	"regexp"
+
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/function"
 	ctyjson "github.com/zclconf/go-cty/cty/json"
-	"regexp"
 )
 
 type AssertionFunc struct {
@@ -22,18 +23,18 @@ func formatRegexAssertionError(format string, arg cty.Value) string {
 var assertionFunctionList = map[string]AssertionFunc{
 	"assertEqual": {
 		Params: []function.Parameter{
-			function.Parameter{
+			{
 				Name:             "a",
 				Type:             cty.DynamicPseudoType,
 				AllowNull:        true,
 				AllowDynamicType: true,
-			},
-			function.Parameter{
+						},
+			{
 				Name:             "b",
 				Type:             cty.DynamicPseudoType,
 				AllowNull:        true,
 				AllowDynamicType: true,
-			},
+						},
 		},
 		Type: function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
@@ -58,18 +59,18 @@ var assertionFunctionList = map[string]AssertionFunc{
 	},
 	"assertNotEqual": {
 		Params: []function.Parameter{
-			function.Parameter{
+			{
 				Name:             "a",
 				Type:             cty.DynamicPseudoType,
 				AllowNull:        true,
 				AllowDynamicType: true,
-			},
-			function.Parameter{
+						},
+			{
 				Name:             "b",
 				Type:             cty.DynamicPseudoType,
 				AllowNull:        true,
 				AllowDynamicType: true,
-			},
+						},
 		},
 		Type: function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
@@ -94,21 +95,23 @@ var assertionFunctionList = map[string]AssertionFunc{
 	},
 	"assertGreaterThan": {
 		Params: []function.Parameter{
-			function.Parameter{
+			{
 				Name: "a",
 				Type: cty.Number,
-			},
-			function.Parameter{
+						},
+			{
 				Name: "b",
 				Type: cty.Number,
-			},
+						},
 		},
 		Type: function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			rVal := "PASS"
 
 			if args[0].GreaterThan(args[1]).False() {
-				rVal = Sprintf("expected %s to be greater than %s", args[0].AsBigFloat().String(), args[1].AsBigFloat().String())
+				rVal = Sprintf(
+					"expected %s to be greater than %s", args[0].AsBigFloat().String(), args[1].AsBigFloat().String(),
+				)
 			}
 
 			return cty.StringVal(rVal), nil
@@ -116,21 +119,23 @@ var assertionFunctionList = map[string]AssertionFunc{
 	},
 	"assertGreaterThanOrEqualTo": {
 		Params: []function.Parameter{
-			function.Parameter{
+			{
 				Name: "a",
 				Type: cty.Number,
-			},
-			function.Parameter{
+						},
+			{
 				Name: "b",
 				Type: cty.Number,
-			},
+						},
 		},
 		Type: function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			rVal := "PASS"
 
 			if args[0].GreaterThanOrEqualTo(args[1]).False() {
-				rVal = Sprintf("expected %s to be greater than or equal to %s", args[0].AsBigFloat().String(), args[1].AsBigFloat().String())
+				rVal = Sprintf(
+					"expected %s to be greater than or equal to %s", args[0].AsBigFloat().String(), args[1].AsBigFloat().String(),
+				)
 			}
 
 			return cty.StringVal(rVal), nil
@@ -138,14 +143,14 @@ var assertionFunctionList = map[string]AssertionFunc{
 	},
 	"assertLessThan": {
 		Params: []function.Parameter{
-			function.Parameter{
+			{
 				Name: "a",
 				Type: cty.Number,
-			},
-			function.Parameter{
+						},
+			{
 				Name: "b",
 				Type: cty.Number,
-			},
+						},
 		},
 		Type: function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
@@ -160,21 +165,23 @@ var assertionFunctionList = map[string]AssertionFunc{
 	},
 	"assertLessThanOrEqualTo": {
 		Params: []function.Parameter{
-			function.Parameter{
+			{
 				Name: "a",
 				Type: cty.Number,
-			},
-			function.Parameter{
+						},
+			{
 				Name: "b",
 				Type: cty.Number,
-			},
+						},
 		},
 		Type: function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			rVal := "PASS"
 
 			if args[0].LessThanOrEqualTo(args[1]).False() {
-				rVal = Sprintf("expected %s to be less than or equal to %s", args[0].AsBigFloat().String(), args[1].AsBigFloat().String())
+				rVal = Sprintf(
+					"expected %s to be less than or equal to %s", args[0].AsBigFloat().String(), args[1].AsBigFloat().String(),
+				)
 			}
 
 			return cty.StringVal(rVal), nil
@@ -182,10 +189,10 @@ var assertionFunctionList = map[string]AssertionFunc{
 	},
 	"assertTrue": {
 		Params: []function.Parameter{
-			function.Parameter{
+			{
 				Name: "input",
 				Type: cty.Bool,
-			},
+						},
 		},
 		Type: function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
@@ -200,10 +207,10 @@ var assertionFunctionList = map[string]AssertionFunc{
 	},
 	"assertFalse": {
 		Params: []function.Parameter{
-			function.Parameter{
+			{
 				Name: "input",
 				Type: cty.Bool,
-			},
+						},
 		},
 		Type: function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
@@ -218,10 +225,10 @@ var assertionFunctionList = map[string]AssertionFunc{
 	},
 	"assertNonEmptyString": {
 		Params: []function.Parameter{
-			function.Parameter{
+			{
 				Name: "value",
 				Type: cty.DynamicPseudoType,
-			},
+						},
 		},
 		Type: function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
@@ -240,10 +247,10 @@ var assertionFunctionList = map[string]AssertionFunc{
 	// Regex based assertions
 	"assertEmail": {
 		Params: []function.Parameter{
-			function.Parameter{
+			{
 				Name: "email",
 				Type: cty.String,
-			},
+						},
 		},
 		Type: function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
@@ -260,10 +267,10 @@ var assertionFunctionList = map[string]AssertionFunc{
 	},
 	"assertUUIDv4": {
 		Params: []function.Parameter{
-			function.Parameter{
+			{
 				Name: "UUIDv4",
 				Type: cty.String,
-			},
+						},
 		},
 		Type: function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
@@ -280,10 +287,10 @@ var assertionFunctionList = map[string]AssertionFunc{
 	},
 	"assertIpv4": {
 		Params: []function.Parameter{
-			function.Parameter{
+			{
 				Name: "ipv4",
 				Type: cty.String,
-			},
+						},
 		},
 		Type: function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
@@ -300,14 +307,14 @@ var assertionFunctionList = map[string]AssertionFunc{
 	},
 	"assertRegex": {
 		Params: []function.Parameter{
-			function.Parameter{
+			{
 				Name: "regex",
 				Type: cty.String,
-			},
-			function.Parameter{
+						},
+			{
 				Name: "input",
 				Type: cty.String,
-			},
+						},
 		},
 		Type: function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {

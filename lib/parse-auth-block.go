@@ -3,24 +3,27 @@ package lib
 import (
 	b64 "encoding/base64"
 	. "fmt"
+
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hcldec"
 	"github.com/zclconf/go-cty/cty"
 )
 
 func parseBasicAuth(request *Request, basicAuth BasicAuthCfg, ctx hcl.EvalContext) hcl.Diagnostics {
-	cfg, diags := hcldec.Decode(basicAuth.Body, &hcldec.ObjectSpec{
-		"username": &hcldec.AttrSpec{
-			Name:     "username",
-			Required: true,
-			Type:     cty.String,
-		},
-		"password": &hcldec.AttrSpec{
-			Name:     "password",
-			Required: true,
-			Type:     cty.String,
-		},
-	}, &ctx)
+	cfg, diags := hcldec.Decode(
+		basicAuth.Body, &hcldec.ObjectSpec{
+			"username": &hcldec.AttrSpec{
+				Name:     "username",
+				Required: true,
+				Type:     cty.String,
+			},
+			"password": &hcldec.AttrSpec{
+				Name:     "password",
+				Required: true,
+				Type:     cty.String,
+			},
+		}, &ctx,
+	)
 
 	if diags != nil {
 		return diags
@@ -38,13 +41,15 @@ func parseBasicAuth(request *Request, basicAuth BasicAuthCfg, ctx hcl.EvalContex
 }
 
 func parseBearerAuth(request *Request, basicAuth BearerAuthCfg, ctx hcl.EvalContext) hcl.Diagnostics {
-	cfg, diags := hcldec.Decode(basicAuth.Body, &hcldec.ObjectSpec{
-		"token": &hcldec.AttrSpec{
-			Name:     "token",
-			Required: true,
-			Type:     cty.String,
-		},
-	}, &ctx)
+	cfg, diags := hcldec.Decode(
+		basicAuth.Body, &hcldec.ObjectSpec{
+			"token": &hcldec.AttrSpec{
+				Name:     "token",
+				Required: true,
+				Type:     cty.String,
+			},
+		}, &ctx,
+	)
 
 	if diags != nil {
 		return diags

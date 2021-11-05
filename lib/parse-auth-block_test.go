@@ -3,9 +3,10 @@ package lib
 import (
 	b64 "encoding/base64"
 	"fmt"
+	"testing"
+
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclparse"
-	"testing"
 )
 
 func Test_parseBasicAuth(t *testing.T) {
@@ -47,20 +48,28 @@ func Test_parseBasicAuth(t *testing.T) {
 		err    bool
 		header string
 	}{
-		{"success case", args1, false, b64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", "username-test-1", "password-test-1")))},
+		{
+			"success case", args1, false,
+			b64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", "username-test-1", "password-test-1"))),
+		},
 		{"error case", args2, true, ""},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			diags := parseBasicAuth(tt.args.request, tt.args.basicAuth, tt.args.ctx)
-			if tt.err && diags == nil {
-				t.Errorf("parseBasicAuth() = %v, want %v", diags, tt.err)
-			}
+		t.Run(
+			tt.name, func(t *testing.T) {
+				diags := parseBasicAuth(tt.args.request, tt.args.basicAuth, tt.args.ctx)
+				if tt.err && diags == nil {
+					t.Errorf("parseBasicAuth() = %v, want %v", diags, tt.err)
+				}
 
-			if !tt.err && fmt.Sprintf("Basic %s", tt.header) != *tt.args.request.Headers.Get("Authorization") {
-				t.Errorf("parseBasicAuth() = %v, want %v", *tt.args.request.Headers.Get("Authorization"), fmt.Sprintf("Basic %s", tt.header))
-			}
-		})
+				if !tt.err && fmt.Sprintf("Basic %s", tt.header) != *tt.args.request.Headers.Get("Authorization") {
+					t.Errorf(
+						"parseBasicAuth() = %v, want %v", *tt.args.request.Headers.Get("Authorization"),
+						fmt.Sprintf("Basic %s", tt.header),
+					)
+				}
+			},
+		)
 	}
 }
 
@@ -140,11 +149,13 @@ func Test_parseAuthBlock(t *testing.T) {
 		{"with bearer auth block with diags", args5, true},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := parseAuthBlock(tt.args.request, tt.args.authBlock, tt.args.ctx); !tt.err && got != nil {
-				t.Errorf("parseAuthBlock() = %v", got)
-			}
-		})
+		t.Run(
+			tt.name, func(t *testing.T) {
+				if got := parseAuthBlock(tt.args.request, tt.args.authBlock, tt.args.ctx); !tt.err && got != nil {
+					t.Errorf("parseAuthBlock() = %v", got)
+				}
+			},
+		)
 	}
 }
 
@@ -190,16 +201,21 @@ func Test_parseBearerAuth(t *testing.T) {
 		{"error case", args2, true, ""},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			diags := parseBearerAuth(tt.args.request, tt.args.basicAuth, tt.args.ctx)
+		t.Run(
+			tt.name, func(t *testing.T) {
+				diags := parseBearerAuth(tt.args.request, tt.args.basicAuth, tt.args.ctx)
 
-			if tt.err && diags == nil {
-				t.Errorf("parseBasicAuth() = %v, want %v", diags, tt.err)
-			}
+				if tt.err && diags == nil {
+					t.Errorf("parseBasicAuth() = %v, want %v", diags, tt.err)
+				}
 
-			if !tt.err && fmt.Sprintf("Bearer %s", tt.header) != *tt.args.request.Headers.Get("Authorization") {
-				t.Errorf("parseBearerAuth() = %v, want %v", *tt.args.request.Headers.Get("Authorization"), fmt.Sprintf("Bearer %s", tt.header))
-			}
-		})
+				if !tt.err && fmt.Sprintf("Bearer %s", tt.header) != *tt.args.request.Headers.Get("Authorization") {
+					t.Errorf(
+						"parseBearerAuth() = %v, want %v", *tt.args.request.Headers.Get("Authorization"),
+						fmt.Sprintf("Bearer %s", tt.header),
+					)
+				}
+			},
+		)
 	}
 }

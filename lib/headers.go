@@ -70,7 +70,7 @@ func (headers *Headers) GetKey(searchKey string) *string {
 		return nil
 	}
 
-	for key, _ := range headers.kv {
+	for key := range headers.kv {
 		if strings.ToLower(searchKey) == strings.ToLower(key) {
 			return &key
 		}

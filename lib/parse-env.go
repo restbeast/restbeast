@@ -2,11 +2,12 @@ package lib
 
 import (
 	. "fmt"
+	"log"
+
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hcldec"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/gocty"
-	"log"
 )
 
 type ParsedSecret map[string]string

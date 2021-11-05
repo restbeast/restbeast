@@ -26,11 +26,13 @@ func findTest(name string, rawTests TestCfgs) (*TestCfg, error) {
 func updateEvalContextWithTestFns(evCtx *EvalContext) {
 	fns := *evCtx.Functions
 	for k, v := range assertionFunctionList {
-		fns[k] = function.New(&function.Spec{
-			Params: v.Params,
-			Type:   v.Type,
-			Impl:   v.Impl,
-		})
+		fns[k] = function.New(
+			&function.Spec{
+				Params: v.Params,
+				Type:   v.Type,
+				Impl:   v.Impl,
+			},
+		)
 	}
 	evCtx.Functions = &fns
 }
@@ -40,25 +42,33 @@ func prepareResults(name string, assertions map[string]cty.Value) *Test {
 	var failResults Assertions
 	for k, v := range assertions {
 		if v.AsString() == "PASS" {
-			passResults = append(passResults, Assertion{
-				Name: k,
-				Pass: true,
-			})
+			passResults = append(
+				passResults, Assertion{
+					Name: k,
+					Pass: true,
+				},
+			)
 		} else {
-			failResults = append(failResults, Assertion{
-				Name: k,
-				Pass: false,
-				Text: v.AsString(),
-			})
+			failResults = append(
+				failResults, Assertion{
+					Name: k,
+					Pass: false,
+					Text: v.AsString(),
+				},
+			)
 		}
 	}
 
-	sort.Slice(passResults, func(i, j int) bool {
-		return passResults[i].Name < passResults[j].Name
-	})
-	sort.Slice(failResults, func(i, j int) bool {
-		return failResults[i].Name < failResults[j].Name
-	})
+	sort.Slice(
+		passResults, func(i, j int) bool {
+			return passResults[i].Name < passResults[j].Name
+		},
+	)
+	sort.Slice(
+		failResults, func(i, j int) bool {
+			return failResults[i].Name < failResults[j].Name
+		},
+	)
 
 	return &Test{
 		Name:       name,
@@ -66,7 +76,10 @@ func prepareResults(name string, assertions map[string]cty.Value) *Test {
 	}
 }
 
-func retryTestWithDependency(testCfg *TestCfg, diags hcl.Diagnostics, evCtx EvalContext, execCtx *ExecutionContext, responses []*Response, parsedAssertions *ParsedAssertions) error {
+func retryTestWithDependency(
+	testCfg *TestCfg, diags hcl.Diagnostics, evCtx *EvalContext, execCtx *ExecutionContext, responses []*Response,
+	parsedAssertions *ParsedAssertions,
+) error {
 	dependencies, restDiagMsgs := getPossibleDependencies(diags)
 	if len(restDiagMsgs) > 0 {
 		errTxt := ""
@@ -87,13 +100,13 @@ func retryTestWithDependency(testCfg *TestCfg, diags hcl.Diagnostics, evCtx Eval
 
 		for _, dependency := range sortedDeps {
 			if _, ok := evCtx.RequestAsVars.Load(dependency); !ok {
-				evCtxP, response, err := processDependency(dependency, &evCtx, execCtx)
+				evCtxP, response, err := processDependency(dependency, evCtx, execCtx)
 				if err != nil {
 					return err
 				}
 
 				responses = append(responses, response)
-				evCtx = *evCtxP
+				evCtx = evCtxP
 			}
 		}
 
@@ -113,13 +126,13 @@ func retryTestWithDependency(testCfg *TestCfg, diags hcl.Diagnostics, evCtx Eval
 	return nil
 }
 
-func parseTest(name string, evCtx EvalContext, execCtx *ExecutionContext) (*Test, error) {
+func parseTest(name string, evCtx *EvalContext, execCtx *ExecutionContext) (*Test, error) {
 	testCfg, err := findTest(name, evCtx.RawTests)
 	if err != nil {
 		return nil, err
 	}
 
-	updateEvalContextWithTestFns(&evCtx)
+	updateEvalContextWithTestFns(evCtx)
 
 	var responses []*Response
 	ctxHclEvalContext := getCtxEvalContext(evCtx)

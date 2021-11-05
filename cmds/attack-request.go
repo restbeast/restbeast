@@ -2,13 +2,14 @@ package cmds
 
 import (
 	"fmt"
-	"github.com/restbeast/restbeast/lib"
-	"github.com/spf13/cobra"
 	"log"
 	"os"
 	"sort"
 	"sync"
 	"time"
+
+	"github.com/restbeast/restbeast/lib"
+	"github.com/spf13/cobra"
 )
 
 var count int
@@ -67,7 +68,7 @@ func doAttackRequest(cmd *cobra.Command, args []string) {
 			go func() {
 				defer wg.Done()
 
-				evCtx.RequestAsVars = lib.RequestAsVars{}
+				evCtx.RequestAsVars = &lib.RequestAsVars{}
 				request, err := lib.LoadOnlyRequest(args[0], evCtx, execCtx)
 
 				// Skip this execution if there is an error while loading the request

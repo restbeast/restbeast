@@ -1,9 +1,10 @@
 package lib
 
 import (
-	"github.com/hashicorp/hcl/v2"
 	"reflect"
 	"testing"
+
+	"github.com/hashicorp/hcl/v2"
 )
 
 func Test_silenceValueMustBeKnown(t *testing.T) {
@@ -40,12 +41,14 @@ func Test_silenceValueMustBeKnown(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got := silenceValueMustBeKnown(tt.diags)
+		t.Run(
+			tt.name, func(t *testing.T) {
+				got := silenceValueMustBeKnown(tt.diags)
 
-			if !reflect.DeepEqual(got.Error(), tt.want.Error()) {
-				t.Errorf("silenceValueMustBeKnown() = %v, want %v", got, tt.want)
-			}
-		})
+				if !reflect.DeepEqual(got.Error(), tt.want.Error()) {
+					t.Errorf("silenceValueMustBeKnown() = %v, want %v", got, tt.want)
+				}
+			},
+		)
 	}
 }

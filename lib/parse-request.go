@@ -66,7 +66,7 @@ func findRequest(name string, rawRequests RequestCfgs) (*RequestCfg, error) {
 	return nil, Errorf("`%s` not found", name)
 }
 
-func getCtxEvalContext(evCtx EvalContext) hcl.EvalContext {
+func getCtxEvalContext(evCtx *EvalContext) hcl.EvalContext {
 	var vars map[string]cty.Value
 
 	if evCtx.Variables != nil {
@@ -137,7 +137,7 @@ func getUniqueDependencies(intSlice []string) []string {
 // TODO: This needs a lot more thinking
 // Right now it can handle chained dependencies based on dependency count
 // This obviously might cause unexpected dependency problems
-func sortCrossDependency(deps []string, evCtx EvalContext) ([]string, error) {
+func sortCrossDependency(deps []string, evCtx *EvalContext) ([]string, error) {
 	if len(deps) < 2 {
 		return deps, nil
 	}
@@ -168,9 +168,11 @@ func sortCrossDependency(deps []string, evCtx EvalContext) ([]string, error) {
 		depsWithDeps[dep] = len(relevantDeps)
 	}
 
-	sort.Slice(deps, func(i, j int) bool {
-		return depsWithDeps[deps[i]] > depsWithDeps[deps[j]]
-	})
+	sort.Slice(
+		deps, func(i, j int) bool {
+			return depsWithDeps[deps[i]] > depsWithDeps[deps[j]]
+		},
+	)
 
 	return deps, nil
 }
@@ -185,7 +187,9 @@ func processResponseBody(contentType *string, body []byte) (cty.Value, error) {
 		var decodedBody interface{}
 		err := json.Unmarshal(body, &decodedBody)
 		if err != nil {
-			return cty.Value{}, Errorf("error decoding json response body for request\n%s\nResponse body:\n%s\n", err, string(body))
+			return cty.Value{}, Errorf(
+				"error decoding json response body for request\n%s\nResponse body:\n%s\n", err, string(body),
+			)
 		}
 		return walkThrough(reflect.ValueOf(decodedBody)), nil
 	}
@@ -193,8 +197,10 @@ func processResponseBody(contentType *string, body []byte) (cty.Value, error) {
 	return cty.Value{}, nil
 }
 
-func processDependency(dependency string, evCtx *EvalContext, execCtx *ExecutionContext) (*EvalContext, *Response, error) {
-	repeatCount, parseErr := getRequestRepeatCount(dependency, *evCtx)
+func processDependency(dependency string, evCtx *EvalContext, execCtx *ExecutionContext) (
+	*EvalContext, *Response, error,
+) {
+	repeatCount, parseErr := getRequestRepeatCount(dependency, evCtx)
 	if parseErr != nil {
 		return nil, nil, parseErr
 	}
@@ -208,7 +214,7 @@ func processDependency(dependency string, evCtx *EvalContext, execCtx *Execution
 	// Request loaded and executed X repeat count
 	// Only the last response will be assigned to request
 	for i := 0; i < repeatCount; i++ {
-		request, parseErr = parseRequest(dependency, *evCtx, execCtx)
+		request, parseErr = parseRequest(dependency, evCtx, execCtx)
 		if parseErr != nil {
 			return nil, nil, parseErr
 		}
@@ -258,7 +264,9 @@ func getCookiesAsMap(cfg cty.Value) (map[string]string, error) {
 	return cookiesMap, nil
 }
 
-func getRequest(cfg cty.Value, requestCfg RequestCfg, evCtx EvalContext, execCtx *ExecutionContext) (*Request, error, hcl.Diagnostics) {
+func getRequest(cfg cty.Value, requestCfg RequestCfg, evCtx *EvalContext, execCtx *ExecutionContext) (
+	*Request, error, hcl.Diagnostics,
+) {
 	headers := Headers{}
 	headersAsMap, err := getHeadersAsMap(cfg)
 	if err != nil {
@@ -315,7 +323,10 @@ func getRequest(cfg cty.Value, requestCfg RequestCfg, evCtx EvalContext, execCtx
 	return request, nil, nil
 }
 
-func retryWithDependency(requestCfg *RequestCfg, cfg cty.Value, diags hcl.Diagnostics, evCtx EvalContext, execCtx *ExecutionContext, responses []*Response) (cty.Value, []*Response, error) {
+func retryWithDependency(
+	requestCfg *RequestCfg, cfg cty.Value, diags hcl.Diagnostics, evCtx *EvalContext, execCtx *ExecutionContext,
+	responses []*Response,
+) (cty.Value, []*Response, error) {
 	dependencies, restDiagMsgs := getPossibleDependencies(diags)
 
 	if len(restDiagMsgs) > 0 {
@@ -337,13 +348,13 @@ func retryWithDependency(requestCfg *RequestCfg, cfg cty.Value, diags hcl.Diagno
 
 		for _, dependency := range sortedDeps {
 			if _, ok := evCtx.RequestAsVars.Load(dependency); !ok {
-				evCtxP, response, depErr := processDependency(dependency, &evCtx, execCtx)
+				evCtxP, response, depErr := processDependency(dependency, evCtx, execCtx)
 				if depErr != nil {
 					return cfg, responses, depErr
 				}
 
 				responses = append(responses, response)
-				evCtx = *evCtxP
+				evCtx = evCtxP
 			}
 		}
 
@@ -366,7 +377,7 @@ func retryWithDependency(requestCfg *RequestCfg, cfg cty.Value, diags hcl.Diagno
 	return cfg, responses, nil
 }
 
-func getRequestRepeatCount(name string, evCtx EvalContext) (int, error) {
+func getRequestRepeatCount(name string, evCtx *EvalContext) (int, error) {
 	requestCfg, err := findRequest(name, evCtx.RawRequests)
 	if err != nil {
 		return 0, err
@@ -375,7 +386,7 @@ func getRequestRepeatCount(name string, evCtx EvalContext) (int, error) {
 	return requestCfg.Repeat, nil
 }
 
-func parseRequest(name string, evCtx EvalContext, execCtx *ExecutionContext) (*Request, error) {
+func parseRequest(name string, evCtx *EvalContext, execCtx *ExecutionContext) (*Request, error) {
 	requestCfg, err := findRequest(name, evCtx.RawRequests)
 	if err != nil {
 		return nil, err
@@ -390,14 +401,14 @@ func parseRequest(name string, evCtx EvalContext, execCtx *ExecutionContext) (*R
 
 			if len(findString) > 1 {
 				if _, ok := evCtx.RequestAsVars.Load(findString[1]); !ok {
-					evCtxP, response, depErr := processDependency(findString[1], &evCtx, execCtx)
+					evCtxP, response, depErr := processDependency(findString[1], evCtx, execCtx)
 					responses = append(responses, response)
 
 					if depErr != nil {
 						return nil, depErr
 					}
 
-					evCtx = *evCtxP
+					evCtx = evCtxP
 				}
 			}
 		}

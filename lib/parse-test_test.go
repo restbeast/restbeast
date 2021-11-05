@@ -1,10 +1,11 @@
 package lib
 
 import (
-	"github.com/zclconf/go-cty/cty"
-	"github.com/zclconf/go-cty/cty/function"
 	"reflect"
 	"testing"
+
+	"github.com/zclconf/go-cty/cty"
+	"github.com/zclconf/go-cty/cty/function"
 )
 
 func Test_findTest(t *testing.T) {
@@ -27,16 +28,18 @@ func Test_findTest(t *testing.T) {
 		{"got err", args{"y", TestCfgs{&cfg1}}, nil, true},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := findTest(tt.args.name, tt.args.rawTests)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("findTest() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("findTest() got = %v, want %v", got, tt.want)
-			}
-		})
+		t.Run(
+			tt.name, func(t *testing.T) {
+				got, err := findTest(tt.args.name, tt.args.rawTests)
+				if (err != nil) != tt.wantErr {
+					t.Errorf("findTest() error = %v, wantErr %v", err, tt.wantErr)
+					return
+				}
+				if !reflect.DeepEqual(got, tt.want) {
+					t.Errorf("findTest() got = %v, want %v", got, tt.want)
+				}
+			},
+		)
 	}
 }
 
@@ -44,13 +47,15 @@ func Test_updateEvalContextWithTestFns(t *testing.T) {
 	fnList := map[string]function.Function{}
 	evCtx := EvalContext{Functions: &fnList}
 
-	t.Run("Add all assertion functions to evaluation context", func(t *testing.T) {
-		updateEvalContextWithTestFns(&evCtx)
+	t.Run(
+		"Add all assertion functions to evaluation context", func(t *testing.T) {
+			updateEvalContextWithTestFns(&evCtx)
 
-		if len(fnList) != len(assertionFunctionList) {
-			t.Errorf("updateEvalContextWithTestFns, failed to update functions list")
-		}
-	})
+			if len(fnList) != len(assertionFunctionList) {
+				t.Errorf("updateEvalContextWithTestFns, failed to update functions list")
+			}
+		},
+	)
 }
 
 func Test_prepareResults(t *testing.T) {

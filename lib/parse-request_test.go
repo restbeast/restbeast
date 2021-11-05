@@ -17,45 +17,49 @@ func Test_getRequestObjSpec(t *testing.T) {
 		name string
 		want hcldec.ObjectSpec
 	}{
-		{"success", hcldec.ObjectSpec{
-			"method": &hcldec.AttrSpec{
-				Name:     "method",
-				Required: true,
-				Type:     cty.String,
+		{
+			"success", hcldec.ObjectSpec{
+				"method": &hcldec.AttrSpec{
+					Name:     "method",
+					Required: true,
+					Type:     cty.String,
+				},
+				"url": &hcldec.AttrSpec{
+					Name:     "url",
+					Required: true,
+					Type:     cty.String,
+				},
+				"cookies": &hcldec.AttrSpec{
+					Name:     "cookies",
+					Required: false,
+					Type:     cty.Map(cty.String),
+				},
+				"headers": &hcldec.AttrSpec{
+					Name:     "headers",
+					Required: false,
+					Type:     cty.Map(cty.String),
+				},
+				"body": &hcldec.AttrSpec{
+					Name:     "body",
+					Required: false,
+					Type:     cty.DynamicPseudoType,
+				},
+				"depends_on": &hcldec.AttrSpec{
+					Name:     "depends_on",
+					Required: false,
+					Type:     cty.List(cty.String),
+				},
 			},
-			"url": &hcldec.AttrSpec{
-				Name:     "url",
-				Required: true,
-				Type:     cty.String,
-			},
-			"cookies": &hcldec.AttrSpec{
-				Name:     "cookies",
-				Required: false,
-				Type:     cty.Map(cty.String),
-			},
-			"headers": &hcldec.AttrSpec{
-				Name:     "headers",
-				Required: false,
-				Type:     cty.Map(cty.String),
-			},
-			"body": &hcldec.AttrSpec{
-				Name:     "body",
-				Required: false,
-				Type:     cty.DynamicPseudoType,
-			},
-			"depends_on": &hcldec.AttrSpec{
-				Name:     "depends_on",
-				Required: false,
-				Type:     cty.List(cty.String),
-			},
-		}},
+		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := getRequestObjSpec(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("getObjSpec() = %v, want %v", got, tt.want)
-			}
-		})
+		t.Run(
+			tt.name, func(t *testing.T) {
+				if got := getRequestObjSpec(); !reflect.DeepEqual(got, tt.want) {
+					t.Errorf("getObjSpec() = %v, want %v", got, tt.want)
+				}
+			},
+		)
 	}
 }
 
@@ -72,11 +76,13 @@ func Test_getUniqueDependencies(t *testing.T) {
 		{"test2", args{[]string{"a", "b", "c", "b"}}, []string{"a", "b", "c"}},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := getUniqueDependencies(tt.args.intSlice); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("getUniqueDependencies() = %v, want %v", got, tt.want)
-			}
-		})
+		t.Run(
+			tt.name, func(t *testing.T) {
+				if got := getUniqueDependencies(tt.args.intSlice); !reflect.DeepEqual(got, tt.want) {
+					t.Errorf("getUniqueDependencies() = %v, want %v", got, tt.want)
+				}
+			},
+		)
 	}
 }
 
@@ -132,16 +138,18 @@ func Test_getPossibleDependencies(t *testing.T) {
 		{"with res", args{diag3}, wantDep3, wantRes3},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			gotDependencies, gotRestDiagMsgs := getPossibleDependencies(tt.args.diags)
-			if !reflect.DeepEqual(gotDependencies, tt.wantDependencies) {
-				t.Errorf("getPossibleDependencies() gotDependencies = %v, want %v", gotDependencies, tt.wantDependencies)
-			}
+		t.Run(
+			tt.name, func(t *testing.T) {
+				gotDependencies, gotRestDiagMsgs := getPossibleDependencies(tt.args.diags)
+				if !reflect.DeepEqual(gotDependencies, tt.wantDependencies) {
+					t.Errorf("getPossibleDependencies() gotDependencies = %v, want %v", gotDependencies, tt.wantDependencies)
+				}
 
-			if !reflect.DeepEqual(gotRestDiagMsgs, tt.wantRestDiagMsgs) {
-				t.Errorf("getPossibleDependencies() gotRestDiagMsgs = %v, want %v", gotRestDiagMsgs, tt.wantRestDiagMsgs)
-			}
-		})
+				if !reflect.DeepEqual(gotRestDiagMsgs, tt.wantRestDiagMsgs) {
+					t.Errorf("getPossibleDependencies() gotRestDiagMsgs = %v, want %v", gotRestDiagMsgs, tt.wantRestDiagMsgs)
+				}
+			},
+		)
 	}
 }
 
@@ -166,16 +174,18 @@ func Test_findRequest(t *testing.T) {
 		{"got err", args{"y", RequestCfgs{&cfg1}}, nil, true},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := findRequest(tt.args.name, tt.args.rawRequests)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("findRequest() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("findRequest() got = %v, want %v", got, tt.want)
-			}
-		})
+		t.Run(
+			tt.name, func(t *testing.T) {
+				got, err := findRequest(tt.args.name, tt.args.rawRequests)
+				if (err != nil) != tt.wantErr {
+					t.Errorf("findRequest() error = %v, wantErr %v", err, tt.wantErr)
+					return
+				}
+				if !reflect.DeepEqual(got, tt.want) {
+					t.Errorf("findRequest() got = %v, want %v", got, tt.want)
+				}
+			},
+		)
 	}
 }
 
@@ -184,19 +194,23 @@ func Test_getRequest(t *testing.T) {
 		cfg        cty.Value
 		requestCfg RequestCfg
 		execCtx    *ExecutionContext
-		evCtx      EvalContext
+		evCtx      *EvalContext
 	}
 
 	args1 := args{
-		cty.ObjectVal(map[string]cty.Value{
-			"body": cty.StringVal(`{ x: "y" }`),
-			"headers": cty.MapVal(map[string]cty.Value{
-				"content-type": cty.StringVal("application/json"),
-				"Cookie":       cty.StringVal("name=value; another-name=another-value"),
-			}),
-			"method": cty.StringVal("GET"),
-			"url":    cty.StringVal("localhost"),
-		}),
+		cty.ObjectVal(
+			map[string]cty.Value{
+				"body": cty.StringVal(`{ x: "y" }`),
+				"headers": cty.MapVal(
+					map[string]cty.Value{
+						"content-type": cty.StringVal("application/json"),
+						"Cookie":       cty.StringVal("name=value; another-name=another-value"),
+					},
+				),
+				"method": cty.StringVal("GET"),
+				"url":    cty.StringVal("localhost"),
+			},
+		),
 		RequestCfg{
 			Name:      "",
 			DependsOn: nil,
@@ -207,20 +221,22 @@ func Test_getRequest(t *testing.T) {
 			Version: "",
 			Debug:   false,
 		},
-		EvalContext{
+		&EvalContext{
 			Functions:     nil,
 			Variables:     nil,
 			Environment:   nil,
-			RequestAsVars: RequestAsVars{},
+			RequestAsVars: &RequestAsVars{},
 			RawRequests:   nil,
 		},
 	}
 
 	args2 := args{
-		cty.ObjectVal(map[string]cty.Value{
-			"method": cty.StringVal("GET"),
-			"url":    cty.StringVal("localhost"),
-		}),
+		cty.ObjectVal(
+			map[string]cty.Value{
+				"method": cty.StringVal("GET"),
+				"url":    cty.StringVal("localhost"),
+			},
+		),
 		RequestCfg{
 			Name:      "",
 			DependsOn: nil,
@@ -231,22 +247,24 @@ func Test_getRequest(t *testing.T) {
 			Version: "",
 			Debug:   false,
 		},
-		EvalContext{
+		&EvalContext{
 			Functions:     nil,
 			Variables:     nil,
 			Environment:   nil,
-			RequestAsVars: RequestAsVars{},
+			RequestAsVars: &RequestAsVars{},
 			RawRequests:   nil,
 		},
 	}
 
 	args3 := args{
-		cty.ObjectVal(map[string]cty.Value{
-			"method":   cty.StringVal("GET"),
-			"url":      cty.StringVal("localhost"),
-			"body":     cty.ObjectVal(map[string]cty.Value{"hey": cty.StringVal("ho")}),
-			"boundary": cty.StringVal("test"),
-		}),
+		cty.ObjectVal(
+			map[string]cty.Value{
+				"method":   cty.StringVal("GET"),
+				"url":      cty.StringVal("localhost"),
+				"body":     cty.ObjectVal(map[string]cty.Value{"hey": cty.StringVal("ho")}),
+				"boundary": cty.StringVal("test"),
+			},
+		),
 		RequestCfg{
 			Name:      "",
 			DependsOn: nil,
@@ -257,11 +275,11 @@ func Test_getRequest(t *testing.T) {
 			Version: "",
 			Debug:   false,
 		},
-		EvalContext{
+		&EvalContext{
 			Functions:     nil,
 			Variables:     nil,
 			Environment:   nil,
-			RequestAsVars: RequestAsVars{},
+			RequestAsVars: &RequestAsVars{},
 			RawRequests:   nil,
 		},
 	}
@@ -276,13 +294,15 @@ func Test_getRequest(t *testing.T) {
 		{"test3", args3, false},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			_, err, _ := getRequest(tt.args.cfg, tt.args.requestCfg, tt.args.evCtx, tt.args.execCtx)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("getRequest() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-		})
+		t.Run(
+			tt.name, func(t *testing.T) {
+				_, err, _ := getRequest(tt.args.cfg, tt.args.requestCfg, tt.args.evCtx, tt.args.execCtx)
+				if (err != nil) != tt.wantErr {
+					t.Errorf("getRequest() error = %v, wantErr %v", err, tt.wantErr)
+					return
+				}
+			},
+		)
 	}
 }
 
@@ -292,11 +312,11 @@ func Test_getCtxEvalContext(t *testing.T) {
 	vars := map[string]cty.Value{
 		"var":     cty.ObjectVal(emptyMap),
 		"request": cty.ObjectVal(emptyMap),
-		"env":     cty.Value{},
+		"env": {},
 	}
 
 	type args struct {
-		evCtx EvalContext
+		evCtx *EvalContext
 	}
 	tests := []struct {
 		name string
@@ -304,24 +324,28 @@ func Test_getCtxEvalContext(t *testing.T) {
 		want hcl.EvalContext
 	}{
 		{
-			"success", args{EvalContext{
-				Functions:     &emptyFMap,
-				Variables:     &emptyMap,
-				Environment:   &cty.Value{},
-				RequestAsVars: RequestAsVars{},
-				RawRequests:   nil,
-			}}, hcl.EvalContext{
+			"success", args{
+				&EvalContext{
+					Functions:     &emptyFMap,
+					Variables:     &emptyMap,
+					Environment:   &cty.Value{},
+					RequestAsVars: &RequestAsVars{},
+					RawRequests:   nil,
+				},
+			}, hcl.EvalContext{
 				Variables: vars,
 				Functions: emptyFMap,
 			},
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := getCtxEvalContext(tt.args.evCtx); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("getCtxEvalContext() = %v, want %v", got, tt.want)
-			}
-		})
+		t.Run(
+			tt.name, func(t *testing.T) {
+				if got := getCtxEvalContext(tt.args.evCtx); !reflect.DeepEqual(got, tt.want) {
+					t.Errorf("getCtxEvalContext() = %v, want %v", got, tt.want)
+				}
+			},
+		)
 	}
 }
 
@@ -330,38 +354,47 @@ func Test_retryWithDependency(t *testing.T) {
 		requestCfg *RequestCfg
 		cfg        cty.Value
 		diags      hcl.Diagnostics
-		evCtx      EvalContext
+		evCtx      *EvalContext
 		execCtx    *ExecutionContext
 		responses  []*Response
 	}
 
 	args1 := args{}
 	args2 := args{
-		diags: hcl.Diagnostics{&hcl.Diagnostic{
-			Severity: 0,
-			Summary:  "Unsupported attribute",
-			Detail:   "detail",
-		}},
+		diags: hcl.Diagnostics{
+			&hcl.Diagnostic{
+				Severity: 0,
+				Summary:  "Unsupported attribute",
+				Detail:   "detail",
+			},
+		},
 	}
 
 	args3 := args{
-		diags: hcl.Diagnostics{&hcl.Diagnostic{
-			Severity: 0,
-			Summary:  "Unsupported attribute",
-			Detail:   "This object does not have an attribute named \"deprequest\"",
-		}},
+		diags: hcl.Diagnostics{
+			&hcl.Diagnostic{
+				Severity: 0,
+				Summary:  "Unsupported attribute",
+				Detail:   "This object does not have an attribute named \"deprequest\"",
+			},
+		},
+		evCtx: &EvalContext{
+			RequestAsVars: &RequestAsVars{},
+		},
 	}
 
 	rav := RequestAsVars{}
 	rav.Store("deprequest", cty.Value{})
 
 	args4 := args{
-		diags: hcl.Diagnostics{&hcl.Diagnostic{
-			Severity: 0,
-			Summary:  "Unsupported attribute",
-			Detail:   "This object does not have an attribute named \"deprequest\"",
-		}},
-		evCtx: EvalContext{RequestAsVars: rav},
+		diags: hcl.Diagnostics{
+			&hcl.Diagnostic{
+				Severity: 0,
+				Summary:  "Unsupported attribute",
+				Detail:   "This object does not have an attribute named \"deprequest\"",
+			},
+		},
+		evCtx: &EvalContext{RequestAsVars: &rav},
 		requestCfg: &RequestCfg{
 			Name:      "a-request",
 			DependsOn: nil,
@@ -382,16 +415,21 @@ func Test_retryWithDependency(t *testing.T) {
 		{"dep", args4, nil, true},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			_, got1, err := retryWithDependency(tt.args.requestCfg, tt.args.cfg, tt.args.diags, tt.args.evCtx, tt.args.execCtx, tt.args.responses)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("retryWithDependency() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got1, tt.want1) {
-				t.Errorf("retryWithDependency() got1 = %v, want %v", got1, tt.want1)
-			}
-		})
+		t.Run(
+			tt.name, func(t *testing.T) {
+				fmt.Println(tt.name)
+				_, got1, err := retryWithDependency(
+					tt.args.requestCfg, tt.args.cfg, tt.args.diags, tt.args.evCtx, tt.args.execCtx, tt.args.responses,
+				)
+				if (err != nil) != tt.wantErr {
+					t.Errorf("retryWithDependency() error = %v, wantErr %v", err, tt.wantErr)
+					return
+				}
+				if !reflect.DeepEqual(got1, tt.want1) {
+					t.Errorf("retryWithDependency() got1 = %v, want %v", got1, tt.want1)
+				}
+			},
+		)
 	}
 }
 
@@ -405,34 +443,40 @@ func Test_getHeadersAsMap(t *testing.T) {
 		want    map[string]string
 		wantErr bool
 	}{
-		{"success", args{cty.ObjectVal(map[string]cty.Value{"headers": cty.MapVal(map[string]cty.Value{"hey": cty.StringVal("ho")})})}, map[string]string{"hey": "ho"}, false},
+		{
+			"success",
+			args{cty.ObjectVal(map[string]cty.Value{"headers": cty.MapVal(map[string]cty.Value{"hey": cty.StringVal("ho")})})},
+			map[string]string{"hey": "ho"}, false,
+		},
 		{"no headers", args{cty.ObjectVal(map[string]cty.Value{})}, map[string]string{}, false},
 		{"error", args{cty.ObjectVal(map[string]cty.Value{"headers": cty.StringVal("o.O")})}, map[string]string{}, true},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := getHeadersAsMap(tt.args.cfg)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("getHeadersAsMap() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("getHeadersAsMap() got = %v, want %v", got, tt.want)
-			}
-		})
+		t.Run(
+			tt.name, func(t *testing.T) {
+				got, err := getHeadersAsMap(tt.args.cfg)
+				if (err != nil) != tt.wantErr {
+					t.Errorf("getHeadersAsMap() error = %v, wantErr %v", err, tt.wantErr)
+					return
+				}
+				if !reflect.DeepEqual(got, tt.want) {
+					t.Errorf("getHeadersAsMap() got = %v, want %v", got, tt.want)
+				}
+			},
+		)
 	}
 }
 
 func Test_parseRequest(t *testing.T) {
 	type args struct {
 		name    string
-		evCtx   EvalContext
+		evCtx   *EvalContext
 		execCtx *ExecutionContext
 	}
 
 	args1 := args{
 		name:    "not-found-request",
-		evCtx:   EvalContext{},
+		evCtx:   &EvalContext{},
 		execCtx: nil,
 	}
 
@@ -444,7 +488,7 @@ func Test_parseRequest(t *testing.T) {
 	file, _ := parser.ParseHCL([]byte(testStringBody1), "test.hcl")
 	args2 := args{
 		name: "a-request",
-		evCtx: EvalContext{
+		evCtx: &EvalContext{
 			RawRequests: RequestCfgs{
 				&RequestCfg{
 					Name:      "a-request",
@@ -454,7 +498,7 @@ func Test_parseRequest(t *testing.T) {
 					Params:    nil,
 				},
 			},
-			RequestAsVars: RequestAsVars{},
+			RequestAsVars: &RequestAsVars{},
 			RawDynamics:   VariableCfgs{},
 			RawTests:      TestCfgs{},
 		},
@@ -469,7 +513,7 @@ func Test_parseRequest(t *testing.T) {
 	file3, _ := parse3.ParseHCL([]byte(testStringBody3), "test.hcl")
 	args3 := args{
 		name: "a-request",
-		evCtx: EvalContext{
+		evCtx: &EvalContext{
 			RawRequests: RequestCfgs{
 				&RequestCfg{
 					Name:      "a-request",
@@ -479,7 +523,7 @@ func Test_parseRequest(t *testing.T) {
 					Params:    nil,
 				},
 			},
-			RequestAsVars: RequestAsVars{},
+			RequestAsVars: &RequestAsVars{},
 			RawDynamics:   VariableCfgs{},
 			RawTests:      TestCfgs{},
 		},
@@ -493,11 +537,13 @@ func Test_parseRequest(t *testing.T) {
 	`
 	file4, _ := parse4.ParseHCL([]byte(testStringBody4), "test.hcl")
 	parentDep := RequestAsVars{}
-	parentDep.Store("parent", cty.MapVal(map[string]cty.Value{"body": cty.ObjectVal(map[string]cty.Value{"x": cty.StringVal("y")})}))
+	parentDep.Store(
+		"parent", cty.MapVal(map[string]cty.Value{"body": cty.ObjectVal(map[string]cty.Value{"x": cty.StringVal("y")})}),
+	)
 
 	args4 := args{
 		name: "a-request",
-		evCtx: EvalContext{
+		evCtx: &EvalContext{
 			RawRequests: RequestCfgs{
 				&RequestCfg{
 					Name:      "a-request",
@@ -507,9 +553,9 @@ func Test_parseRequest(t *testing.T) {
 					Params:    nil,
 				},
 			},
-			RequestAsVars: parentDep,
-			RawDynamics: VariableCfgs{},
-			RawTests:    TestCfgs{},
+			RequestAsVars: &parentDep,
+			RawDynamics:   VariableCfgs{},
+			RawTests:      TestCfgs{},
 		},
 		execCtx: nil,
 	}
@@ -525,13 +571,15 @@ func Test_parseRequest(t *testing.T) {
 		{"request-with-resolved-deps", args4, false},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			_, err := parseRequest(tt.args.name, tt.args.evCtx, tt.args.execCtx)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("parseRequest() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-		})
+		t.Run(
+			tt.name, func(t *testing.T) {
+				_, err := parseRequest(tt.args.name, tt.args.evCtx, tt.args.execCtx)
+				if (err != nil) != tt.wantErr {
+					t.Errorf("parseRequest() error = %v, wantErr %v", err, tt.wantErr)
+					return
+				}
+			},
+		)
 	}
 }
 
@@ -545,21 +593,27 @@ func Test_getCookiesAsMap(t *testing.T) {
 		want    map[string]string
 		wantErr bool
 	}{
-		{"success", args{cty.ObjectVal(map[string]cty.Value{"cookies": cty.MapVal(map[string]cty.Value{"hey": cty.StringVal("ho")})})}, map[string]string{"hey": "ho"}, false},
+		{
+			"success",
+			args{cty.ObjectVal(map[string]cty.Value{"cookies": cty.MapVal(map[string]cty.Value{"hey": cty.StringVal("ho")})})},
+			map[string]string{"hey": "ho"}, false,
+		},
 		{"no headers", args{cty.ObjectVal(map[string]cty.Value{})}, map[string]string{}, false},
 		{"error", args{cty.ObjectVal(map[string]cty.Value{"cookies": cty.StringVal("o.O")})}, map[string]string{}, true},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := getCookiesAsMap(tt.args.cfg)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("getCookiesAsMap() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("getCookiesAsMap() got = %v, want %v", got, tt.want)
-			}
-		})
+		t.Run(
+			tt.name, func(t *testing.T) {
+				got, err := getCookiesAsMap(tt.args.cfg)
+				if (err != nil) != tt.wantErr {
+					t.Errorf("getCookiesAsMap() error = %v, wantErr %v", err, tt.wantErr)
+					return
+				}
+				if !reflect.DeepEqual(got, tt.want) {
+					t.Errorf("getCookiesAsMap() got = %v, want %v", got, tt.want)
+				}
+			},
+		)
 	}
 }
 
@@ -584,15 +638,17 @@ func Test_processResponseBody(t *testing.T) {
 		{"error json body", args{&jsonCt, []byte(`=::`)}, cty.Value{}, true},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := processResponseBody(tt.args.contentType, tt.args.body)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("processResponseBody() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("processResponseBody() got = %v, want %v", got, tt.want)
-			}
-		})
+		t.Run(
+			tt.name, func(t *testing.T) {
+				got, err := processResponseBody(tt.args.contentType, tt.args.body)
+				if (err != nil) != tt.wantErr {
+					t.Errorf("processResponseBody() error = %v, wantErr %v", err, tt.wantErr)
+					return
+				}
+				if !reflect.DeepEqual(got, tt.want) {
+					t.Errorf("processResponseBody() got = %v, want %v", got, tt.want)
+				}
+			},
+		)
 	}
 }

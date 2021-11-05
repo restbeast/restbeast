@@ -28,10 +28,12 @@ func Test_secretEngineEnvVar(t *testing.T) {
 		{"success", args{paths}, parsedSecret},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if gotSecrets := secretEngineEnvVar(tt.args.paths); !reflect.DeepEqual(gotSecrets, tt.wantSecrets) {
-				t.Errorf("secretEngineEnvVar() = %v, want %v", gotSecrets, tt.wantSecrets)
-			}
-		})
+		t.Run(
+			tt.name, func(t *testing.T) {
+				if gotSecrets := secretEngineEnvVar(tt.args.paths); !reflect.DeepEqual(gotSecrets, tt.wantSecrets) {
+					t.Errorf("secretEngineEnvVar() = %v, want %v", gotSecrets, tt.wantSecrets)
+				}
+			},
+		)
 	}
 }

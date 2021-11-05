@@ -4,9 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	. "fmt"
-	"github.com/h2non/filetype"
-	"github.com/zclconf/go-cty/cty"
-	ctyjson "github.com/zclconf/go-cty/cty/json"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
@@ -14,6 +11,10 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/h2non/filetype"
+	"github.com/zclconf/go-cty/cty"
+	ctyjson "github.com/zclconf/go-cty/cty/json"
 )
 
 func bodyAsString(bodyAsCtyValue cty.Value) (io.Reader, error) {

@@ -1,8 +1,9 @@
 package lib
 
 import (
-	"github.com/zclconf/go-cty/cty"
 	"reflect"
+
+	"github.com/zclconf/go-cty/cty"
 )
 
 func walkThrough(v reflect.Value) cty.Value {

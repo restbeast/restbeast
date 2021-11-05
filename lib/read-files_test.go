@@ -1,11 +1,12 @@
 package lib
 
 import (
-	"github.com/hashicorp/hcl/v2"
 	"io/ioutil"
 	"os"
 	"reflect"
 	"testing"
+
+	"github.com/hashicorp/hcl/v2"
 )
 
 func TestReadFilesNoFile(t *testing.T) {

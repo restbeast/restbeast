@@ -1,10 +1,11 @@
 package lib
 
 import (
-	"github.com/hashicorp/hcl/v2"
-	"github.com/hashicorp/hcl/v2/hclparse"
 	"reflect"
 	"testing"
+
+	"github.com/hashicorp/hcl/v2"
+	"github.com/hashicorp/hcl/v2/hclparse"
 )
 
 func Test_parseParamsBlock(t *testing.T) {
@@ -95,15 +96,17 @@ func Test_parseParamsBlock(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got := parseParamsBlock(tt.args.request, tt.args.paramsBlock, tt.args.ctx)
-			if tt.wantErr != nil && !reflect.DeepEqual(got.Error(), tt.wantErr.Error()) {
-				t.Errorf("parseParamsBlock() = %v, want %v", got.Error(), tt.wantErr.Error())
-			}
+		t.Run(
+			tt.name, func(t *testing.T) {
+				got := parseParamsBlock(tt.args.request, tt.args.paramsBlock, tt.args.ctx)
+				if tt.wantErr != nil && !reflect.DeepEqual(got.Error(), tt.wantErr.Error()) {
+					t.Errorf("parseParamsBlock() = %v, want %v", got.Error(), tt.wantErr.Error())
+				}
 
-			if tt.wantParams != nil && !reflect.DeepEqual(tt.args.request.Params, *tt.wantParams) {
-				t.Errorf("parseParamsBlock() = %v, want %v", tt.args.request.Params, tt.wantParams)
-			}
-		})
+				if tt.wantParams != nil && !reflect.DeepEqual(tt.args.request.Params, *tt.wantParams) {
+					t.Errorf("parseParamsBlock() = %v, want %v", tt.args.request.Params, tt.wantParams)
+				}
+			},
+		)
 	}
 }

@@ -2,9 +2,10 @@ package lib
 
 import (
 	"encoding/json"
-	"github.com/zclconf/go-cty/cty"
 	"reflect"
 	"testing"
+
+	"github.com/zclconf/go-cty/cty"
 )
 
 func TestWalkThrough(t *testing.T) {
@@ -14,12 +15,20 @@ func TestWalkThrough(t *testing.T) {
 	}{
 		{[]byte(`"only-string"`), cty.StringVal("only-string")},
 		{[]byte(`["test1", "test2"]`), cty.ListVal([]cty.Value{cty.StringVal("test1"), cty.StringVal("test2")})},
-		{[]byte(`{ "key1": "value1", "key2": "value2" }`), cty.ObjectVal(map[string]cty.Value{
-			"key1": cty.StringVal("value1"), "key2": cty.StringVal("value2"),
-		})},
-		{[]byte(`{ "key1": ["test1", "test2"] }`), cty.ObjectVal(map[string]cty.Value{
-			"key1": cty.ListVal([]cty.Value{cty.StringVal("test1"), cty.StringVal("test2")}),
-		})},
+		{
+			[]byte(`{ "key1": "value1", "key2": "value2" }`), cty.ObjectVal(
+				map[string]cty.Value{
+					"key1": cty.StringVal("value1"), "key2": cty.StringVal("value2"),
+				},
+			),
+		},
+		{
+			[]byte(`{ "key1": ["test1", "test2"] }`), cty.ObjectVal(
+				map[string]cty.Value{
+					"key1": cty.ListVal([]cty.Value{cty.StringVal("test1"), cty.StringVal("test2")}),
+				},
+			),
+		},
 		{[]byte(`true`), cty.BoolVal(true)},
 	}
 

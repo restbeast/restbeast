@@ -3,13 +3,14 @@ package lib
 import (
 	"encoding/json"
 	. "fmt"
-	"github.com/zclconf/go-cty/cty"
-	"github.com/zclconf/go-cty/cty/function"
 	"io"
 	"log"
 	"os/exec"
 	"strings"
 	"syscall"
+
+	"github.com/zclconf/go-cty/cty"
+	"github.com/zclconf/go-cty/cty/function"
 )
 
 func prepParams(args []string) []function.Parameter {
@@ -143,17 +144,21 @@ func prepImpl(exFn *ExternalFunctionCfg, execCtx *ExecutionContext) function.Imp
 	}
 }
 
-func parseExternalFunctions(internalFunctions map[string]function.Function, externalFunctions []*ExternalFunctionCfg, execCtx *ExecutionContext) (*map[string]function.Function, error) {
+func parseExternalFunctions(
+	internalFunctions map[string]function.Function, externalFunctions []*ExternalFunctionCfg, execCtx *ExecutionContext,
+) (*map[string]function.Function, error) {
 	for _, exFn := range externalFunctions {
 		if _, chk := internalFunctions[exFn.Name]; chk {
 			return nil, Errorf("Error: overwriting an internal function isn't allowed, %s\n", exFn.Name)
 		}
 
-		internalFunctions[exFn.Name] = function.New(&function.Spec{
-			Params: prepParams(exFn.Args),
-			Type:   function.StaticReturnType(cty.String),
-			Impl:   prepImpl(exFn, execCtx),
-		})
+		internalFunctions[exFn.Name] = function.New(
+			&function.Spec{
+				Params: prepParams(exFn.Args),
+				Type:   function.StaticReturnType(cty.String),
+				Impl:   prepImpl(exFn, execCtx),
+			},
+		)
 	}
 
 	return &internalFunctions, nil

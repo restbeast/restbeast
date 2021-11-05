@@ -153,7 +153,7 @@ type EvalContext struct {
 	Functions     *map[string]function.Function
 	Variables     *map[string]cty.Value
 	Environment   *cty.Value
-	RequestAsVars RequestAsVars
+	RequestAsVars *RequestAsVars
 	RawRequests   RequestCfgs
 	RawDynamics   VariableCfgs
 	RawTests      TestCfgs
@@ -162,12 +162,15 @@ type EvalContext struct {
 type RequestAsVars struct {
 	sync.Map
 }
-func (rv *RequestAsVars) AsCtyMap () map[string]cty.Value {
+
+func (rv *RequestAsVars) AsCtyMap() map[string]cty.Value {
 	out := make(map[string]cty.Value)
-	rv.Range(func(key interface{}, value interface{}) bool {
-		out[key.(string)] = value.(cty.Value)
-		return true
-	})
+	rv.Range(
+		func(key interface{}, value interface{}) bool {
+			out[key.(string)] = value.(cty.Value)
+			return true
+		},
+	)
 
 	return out
 }

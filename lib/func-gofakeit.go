@@ -2,10 +2,11 @@ package lib
 
 import (
 	. "fmt"
+	"time"
+
 	"github.com/brianvoe/gofakeit/v5"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/gocty"
-	"time"
 )
 
 func gofakeitNameImpl(args []cty.Value, retType cty.Type) (cty.Value, error) {
@@ -68,7 +69,11 @@ func gofakeitPasswordImpl(args []cty.Value, retType cty.Type) (cty.Value, error)
 
 	var size int
 	_ = gocty.FromCtyValue(args[5], &size)
-	return cty.StringVal(gofakeit.Password(args[0].True(), args[1].True(), args[2].True(), args[3].True(), args[4].True(), size)), nil
+	return cty.StringVal(
+		gofakeit.Password(
+			args[0].True(), args[1].True(), args[2].True(), args[3].True(), args[4].True(), size,
+		),
+	), nil
 }
 
 func gofakeitCityImpl(args []cty.Value, retType cty.Type) (cty.Value, error) {
@@ -582,10 +587,16 @@ func gofakeitCreditCardNumberImpl(args []cty.Value, retType cty.Type) (cty.Value
 		return cty.StringVal(""), Errorf("at least 1 credit card type needs to be specified")
 	}
 
-	validTypes := []string{"visa", "mastercard", "american-express", "diners-club", "discover", "jcb", "unionpay", "maestro", "elo", "hiper", "hipercard"}
+	validTypes := []string{
+		"visa", "mastercard", "american-express", "diners-club", "discover", "jcb", "unionpay", "maestro", "elo", "hiper",
+		"hipercard",
+	}
 	for _, t := range types {
 		if !sliceContains(validTypes, t) {
-			return cty.StringVal(""), Errorf("given type(%s) isn't allowed. Pick one from visa, mastercard, american-express, diners-club, discover, jcb, unionpay, maestro, elo, hiper, hipercard", t)
+			return cty.StringVal(""), Errorf(
+				"given type(%s) isn't allowed. Pick one from visa, mastercard, american-express, diners-club, discover, jcb, unionpay, maestro, elo, hiper, hipercard",
+				t,
+			)
 		}
 	}
 

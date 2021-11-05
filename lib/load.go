@@ -3,11 +3,12 @@ package lib
 import (
 	"errors"
 	"fmt"
+	"sort"
+	"strings"
+
 	"github.com/Masterminds/semver"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/zclconf/go-cty/cty"
-	"sort"
-	"strings"
 )
 
 // Reads all files in present folder
@@ -98,7 +99,7 @@ func LoadEvalCtx(env string, execCtx *ExecutionContext) (*EvalContext, error) {
 		RawDynamics:   root.Dynamics,
 		RawRequests:   root.Requests,
 		RawTests:      root.Tests,
-		RequestAsVars: RequestAsVars{},
+		RequestAsVars: &RequestAsVars{},
 	}, nil
 }
 
@@ -130,7 +131,7 @@ func LoadOnlyRequest(name string, evCtx *EvalContext, execCtx *ExecutionContext)
 		return nil, err
 	}
 
-	return parseRequest(name, *evCtx, execCtx)
+	return parseRequest(name, evCtx, execCtx)
 }
 
 // LoadWhole Gather EvalContext and load given request
@@ -145,7 +146,7 @@ func LoadWhole(name, env string, execCtx *ExecutionContext) (request *Request, e
 		return nil, err
 	}
 
-	return parseRequest(name, *evCtx, execCtx)
+	return parseRequest(name, evCtx, execCtx)
 }
 
 func ListRequestsAndTests(lsType string, execCtx *ExecutionContext) (list []ListObject, maxNameLen int, err error) {
@@ -183,9 +184,11 @@ func ListRequestsAndTests(lsType string, execCtx *ExecutionContext) (list []List
 		}
 	}
 
-	sort.Slice(list, func(i, j int) bool {
-		return list[i].Name < list[j].Name
-	})
+	sort.Slice(
+		list, func(i, j int) bool {
+			return list[i].Name < list[j].Name
+		},
+	)
 
 	return list, maxNameLen, nil
 }
@@ -201,7 +204,7 @@ func LoadTest(name, env string, execCtx *ExecutionContext) (request *Test, err e
 		return nil, err
 	}
 
-	return parseTest(name, *evCtx, execCtx)
+	return parseTest(name, evCtx, execCtx)
 }
 
 func LoadAllTests(env string, execCtx *ExecutionContext) (tests Tests, err error) {
@@ -216,11 +219,11 @@ func LoadAllTests(env string, execCtx *ExecutionContext) (tests Tests, err error
 	}
 
 	for _, t := range evCtx.RawTests {
-		uniqueCtx := EvalContext{
+		uniqueCtx := &EvalContext{
 			Functions:     evCtx.Functions,
 			Variables:     evCtx.Variables,
 			Environment:   evCtx.Environment,
-			RequestAsVars: RequestAsVars{},
+			RequestAsVars: &RequestAsVars{},
 			RawRequests:   evCtx.RawRequests,
 			RawDynamics:   evCtx.RawDynamics,
 			RawTests:      evCtx.RawTests,
@@ -237,5 +240,5 @@ func LoadAllTests(env string, execCtx *ExecutionContext) (tests Tests, err error
 }
 
 func LoadRepeatCount(name string, evCtx *EvalContext) (int, error) {
-	return getRequestRepeatCount(name, *evCtx)
+	return getRequestRepeatCount(name, evCtx)
 }

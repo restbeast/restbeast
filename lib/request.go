@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"crypto/tls"
 	. "fmt"
-	"github.com/dustin/go-humanize"
 	"io"
 	"io/ioutil"
 	"log"
@@ -13,6 +12,8 @@ import (
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/dustin/go-humanize"
 )
 
 func (request *Request) SetUrl(urlToSet string) {
@@ -135,9 +136,11 @@ func (request *Request) Exec() error {
 		}
 		log.Printf("response Bytes Received: %s", humanize.Bytes(uint64(len(data))))
 
-		headers.OrderedCallBack(func(k, v string) {
-			log.Printf("response header: %s=%s", k, v)
-		})
+		headers.OrderedCallBack(
+			func(k, v string) {
+				log.Printf("response header: %s=%s", k, v)
+			},
+		)
 
 		log.Printf("response body: %s", data)
 	}

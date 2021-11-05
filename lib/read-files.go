@@ -2,9 +2,10 @@ package lib
 
 import (
 	"fmt"
+	"path/filepath"
+
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclparse"
-	"path/filepath"
 )
 
 func readFiles() (body hcl.Body, err error) {

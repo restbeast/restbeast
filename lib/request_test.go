@@ -3,23 +3,28 @@ package lib
 import (
 	"bytes"
 	"fmt"
-	"github.com/restbeast/restbeast/lib/mocks"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"testing"
+
+	"github.com/restbeast/restbeast/lib/mocks"
 )
 
 func TestRequest_Exec(t *testing.T) {
-	test1 := mocks.Responder(func(*http.Request) (*http.Response, error) {
-		return nil, fmt.Errorf("oh my")
-	})
-	test2 := mocks.Responder(func(*http.Request) (*http.Response, error) {
-		return &http.Response{
-			Body:   ioutil.NopCloser(bytes.NewReader([]byte("hello world"))),
-			Header: http.Header{"header1": []string{"value1"}},
-		}, nil
-	})
+	test1 := mocks.Responder(
+		func(*http.Request) (*http.Response, error) {
+			return nil, fmt.Errorf("oh my")
+		},
+	)
+	test2 := mocks.Responder(
+		func(*http.Request) (*http.Response, error) {
+			return &http.Response{
+				Body:   ioutil.NopCloser(bytes.NewReader([]byte("hello world"))),
+				Header: http.Header{"header1": []string{"value1"}},
+			}, nil
+		},
+	)
 
 	var mockTransport = mocks.MockTransport{}
 	mockTransport.RegisterResponder("GET", "URL1", test1)
@@ -105,23 +110,25 @@ func TestRequest_Exec(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			request := &Request{
-				Method:            tt.fields.Method,
-				Url:               tt.fields.Url,
-				FullUrl:           tt.fields.FullUrl,
-				Headers:           tt.fields.Headers,
-				Body:              tt.fields.Body,
-				EvalContext:       tt.fields.EvalContext,
-				PrecedingRequests: tt.fields.PrecedingRequests,
-				Response:          tt.fields.Response,
-				ExecutionContext:  tt.fields.ExecutionContext,
-				RoundTripper:      tt.fields.RoundTripper,
-			}
-			if err := request.Exec(); (err != nil) != tt.wantErr {
-				t.Errorf("Exec() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
+		t.Run(
+			tt.name, func(t *testing.T) {
+				request := &Request{
+					Method:            tt.fields.Method,
+					Url:               tt.fields.Url,
+					FullUrl:           tt.fields.FullUrl,
+					Headers:           tt.fields.Headers,
+					Body:              tt.fields.Body,
+					EvalContext:       tt.fields.EvalContext,
+					PrecedingRequests: tt.fields.PrecedingRequests,
+					Response:          tt.fields.Response,
+					ExecutionContext:  tt.fields.ExecutionContext,
+					RoundTripper:      tt.fields.RoundTripper,
+				}
+				if err := request.Exec(); (err != nil) != tt.wantErr {
+					t.Errorf("Exec() error = %v, wantErr %v", err, tt.wantErr)
+				}
+			},
+		)
 	}
 }
 
@@ -140,20 +147,22 @@ func TestRequest_SetUrl(t *testing.T) {
 		{"test-3", args{"test-1?key1=value1", map[string]string{"key2": "value2"}}, "test-1?key1=value1&key2=value2"},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			request := &Request{
-				Params: tt.args.params,
-			}
-			request.SetUrl(tt.args.urlToSet)
+		t.Run(
+			tt.name, func(t *testing.T) {
+				request := &Request{
+					Params: tt.args.params,
+				}
+				request.SetUrl(tt.args.urlToSet)
 
-			if request.Url != tt.args.urlToSet {
-				t.Errorf("SetUrl() got = %s, want %s", request.Url, tt.args.urlToSet)
-			}
+				if request.Url != tt.args.urlToSet {
+					t.Errorf("SetUrl() got = %s, want %s", request.Url, tt.args.urlToSet)
+				}
 
-			if request.FullUrl != tt.want {
-				t.Errorf("Exec() got = %s, want %s", request.FullUrl, tt.want)
-			}
-		})
+				if request.FullUrl != tt.want {
+					t.Errorf("Exec() got = %s, want %s", request.FullUrl, tt.want)
+				}
+			},
+		)
 	}
 }
 
@@ -171,13 +180,15 @@ func TestRequest_SetMethod(t *testing.T) {
 		{"empty", args{""}, "GET"},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			request := &Request{}
-			request.SetMethod(tt.args.methodToSet)
+		t.Run(
+			tt.name, func(t *testing.T) {
+				request := &Request{}
+				request.SetMethod(tt.args.methodToSet)
 
-			if request.Method != tt.want {
-				t.Errorf("SetMethod() got = %s, want %s", request.Method, tt.want)
-			}
-		})
+				if request.Method != tt.want {
+					t.Errorf("SetMethod() got = %s, want %s", request.Method, tt.want)
+				}
+			},
+		)
 	}
 }

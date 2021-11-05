@@ -31,7 +31,8 @@ func Commands() [][]string {
 			cmds = append(cmds, []string{"xdg-open"})
 		}
 	}
-	cmds = append(cmds,
+	cmds = append(
+		cmds,
 		[]string{"chrome"},
 		[]string{"google-chrome"},
 		[]string{"chromium"},

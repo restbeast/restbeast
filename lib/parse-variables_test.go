@@ -1,11 +1,12 @@
 package lib
 
 import (
+	"reflect"
+	"testing"
+
 	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/function"
-	"reflect"
-	"testing"
 )
 
 func Test_parseVariables(t *testing.T) {
@@ -40,19 +41,24 @@ func Test_parseVariables(t *testing.T) {
 		wantErr bool
 	}{
 		{"test1", args{emptyVarCfg, map[string]function.Function{}}, &map[string]cty.Value{}, false},
-		{"test2", args{varCfg1, map[string]function.Function{}}, &map[string]cty.Value{"varName": cty.StringVal("testvalue")}, false},
+		{
+			"test2", args{varCfg1, map[string]function.Function{}},
+			&map[string]cty.Value{"varName": cty.StringVal("testvalue")}, false,
+		},
 		{"test2", args{varCfg2, map[string]function.Function{}}, nil, true},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := parseVariables(tt.args.rawVars, tt.args.functions)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("parseVariables() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("parseVariables() got = %v, want %v", got, tt.want)
-			}
-		})
+		t.Run(
+			tt.name, func(t *testing.T) {
+				got, err := parseVariables(tt.args.rawVars, tt.args.functions)
+				if (err != nil) != tt.wantErr {
+					t.Errorf("parseVariables() error = %v, wantErr %v", err, tt.wantErr)
+					return
+				}
+				if !reflect.DeepEqual(got, tt.want) {
+					t.Errorf("parseVariables() got = %v, want %v", got, tt.want)
+				}
+			},
+		)
 	}
 }

@@ -1,11 +1,12 @@
 package lib
 
 import (
-	"github.com/hashicorp/hcl/v2/hclparse"
-	"github.com/zclconf/go-cty/cty"
 	"os"
 	"reflect"
 	"testing"
+
+	"github.com/hashicorp/hcl/v2/hclparse"
+	"github.com/zclconf/go-cty/cty"
 )
 
 func Test_parseEnv(t *testing.T) {
@@ -91,18 +92,20 @@ func Test_parseEnv(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := parseEnv(tt.args.env, tt.args.rawEnvironments, &execCtx)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("parseEnv() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if tt.want != nil {
-				if !reflect.DeepEqual(got, *tt.want) {
-					t.Errorf("parseEnv() got = %v, want %v", got, tt.want)
+		t.Run(
+			tt.name, func(t *testing.T) {
+				got, err := parseEnv(tt.args.env, tt.args.rawEnvironments, &execCtx)
+				if (err != nil) != tt.wantErr {
+					t.Errorf("parseEnv() error = %v, wantErr %v", err, tt.wantErr)
+					return
 				}
-			}
-		})
+				if tt.want != nil {
+					if !reflect.DeepEqual(got, *tt.want) {
+						t.Errorf("parseEnv() got = %v, want %v", got, tt.want)
+					}
+				}
+			},
+		)
 	}
 }
 
@@ -115,13 +118,19 @@ func Test_parseSecrets(t *testing.T) {
 		want       AllParsedSecrets
 	}{
 		{"test1", SecretCfgs{&SecretCfg{Name: "", Type: "", Paths: nil}}, AllParsedSecrets{}},
-		{"test2", SecretCfgs{&SecretCfg{Name: "from_shell_env", Type: "env-var", Paths: map[string]string{"test": "TESTENVAR"}}}, AllParsedSecrets{"from_shell_env": map[string]string{"test": "testEnvValue"}}},
+		{
+			"test2",
+			SecretCfgs{&SecretCfg{Name: "from_shell_env", Type: "env-var", Paths: map[string]string{"test": "TESTENVAR"}}},
+			AllParsedSecrets{"from_shell_env": map[string]string{"test": "testEnvValue"}},
+		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := parseSecrets(tt.secretCfgs); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("parseSecrets() = %v, want %v", got, tt.want)
-			}
-		})
+		t.Run(
+			tt.name, func(t *testing.T) {
+				if got := parseSecrets(tt.secretCfgs); !reflect.DeepEqual(got, tt.want) {
+					t.Errorf("parseSecrets() = %v, want %v", got, tt.want)
+				}
+			},
+		)
 	}
 }
