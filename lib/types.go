@@ -1,12 +1,14 @@
 package lib
 
 import (
+	"io"
+	"net/http"
+	"sync"
+	"time"
+
 	"github.com/hashicorp/hcl/v2"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/function"
-	"io"
-	"net/http"
-	"time"
 )
 
 type VariableCfg struct {
@@ -157,7 +159,19 @@ type EvalContext struct {
 	RawTests      TestCfgs
 }
 
-type RequestAsVars map[string]cty.Value
+type RequestAsVars struct {
+	sync.Map
+}
+func (rv *RequestAsVars) AsCtyMap () map[string]cty.Value {
+	out := make(map[string]cty.Value)
+	rv.Range(func(key interface{}, value interface{}) bool {
+		out[key.(string)] = value.(cty.Value)
+		return true
+	})
+
+	return out
+}
+
 type Requests map[string]map[string]cty.Value
 
 type ExecutionContext struct {

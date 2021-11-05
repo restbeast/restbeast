@@ -2,11 +2,12 @@ package lib
 
 import (
 	. "fmt"
+	"sort"
+
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/function"
-	"sort"
 )
 
 type ParsedAssertions map[string]cty.Value
@@ -85,7 +86,7 @@ func retryTestWithDependency(testCfg *TestCfg, diags hcl.Diagnostics, evCtx Eval
 		}
 
 		for _, dependency := range sortedDeps {
-			if _, ok := evCtx.RequestAsVars[dependency]; !ok {
+			if _, ok := evCtx.RequestAsVars.Load(dependency); !ok {
 				evCtxP, response, err := processDependency(dependency, &evCtx, execCtx)
 				if err != nil {
 					return err

@@ -1,14 +1,9 @@
 package lib
 
 import (
-	"fmt"
-	"github.com/go-errors/errors"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/function"
 	"github.com/zclconf/go-cty/cty/function/stdlib"
-	"math/rand"
-	"os"
-	"time"
 )
 
 var defaultFunctions = map[string]function.Function{
@@ -486,13 +481,7 @@ var restbeastFunctionList = map[string]function.Function{
 			},
 		},
 		Type: function.StaticReturnType(cty.String),
-		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
-			if len(args) < 1 {
-				return cty.StringVal(""), errors.New("Invalid argument count")
-			}
-
-			return cty.StringVal(fmt.Sprintf("###READFILE=%s###", args[0].AsString())), nil
-		},
+		Impl: restbeastReadfileImpl,
 	}),
 	"fill_null": function.New(&function.Spec{
 		Params: []function.Parameter{
@@ -514,16 +503,7 @@ var restbeastFunctionList = map[string]function.Function{
 			},
 		},
 		Type: function.StaticReturnType(cty.DynamicPseudoType),
-		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
-			r := rand.Float32()
-			p, _ := args[0].AsBigFloat().Float32()
-
-			if r > p/100 {
-				return args[1], nil
-			} else {
-				return cty.NilVal, nil
-			}
-		},
+		Impl: restbeastFillNullImpl,
 	}),
 	"env_var": function.New(&function.Spec{
 		Params: []function.Parameter{
@@ -537,11 +517,7 @@ var restbeastFunctionList = map[string]function.Function{
 			},
 		},
 		Type: function.StaticReturnType(cty.String),
-		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
-			varKey := args[0].AsString()
-			value := os.Getenv(fmt.Sprintf("restbeast_var_%s", varKey))
-			return cty.StringVal(value), nil
-		},
+		Impl: restbeastEnvVarImpl,
 	}),
 	"unixTimestamp": function.New(&function.Spec{
 		Params: []function.Parameter{
@@ -555,22 +531,11 @@ var restbeastFunctionList = map[string]function.Function{
 			},
 		},
 		Type: function.StaticReturnType(cty.Number),
-		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
-			varDate := args[0].AsString()
-			t, err := time.Parse(time.RFC3339, varDate)
-
-			if err != nil {
-				return cty.NilVal, err
-			}
-
-			return cty.NumberIntVal(t.Unix()), nil
-		},
+		Impl: restbeastUnixTimestampImpl,
 	}),
 	"now": function.New(&function.Spec{
 		Type: function.StaticReturnType(cty.String),
-		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
-			return cty.StringVal(time.Now().UTC().Format(time.RFC3339)), nil
-		},
+		Impl: restbeastNowImpl,
 	}),
 }
 

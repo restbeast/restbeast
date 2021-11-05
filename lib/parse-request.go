@@ -3,17 +3,18 @@ package lib
 import (
 	"encoding/json"
 	. "fmt"
-	"github.com/hashicorp/hcl/v2"
-	"github.com/hashicorp/hcl/v2/hcldec"
-	"github.com/zclconf/go-cty/cty"
-	"github.com/zclconf/go-cty/cty/function"
-	"github.com/zclconf/go-cty/cty/gocty"
 	"io"
 	"net/http"
 	"reflect"
 	"regexp"
 	"sort"
 	"strings"
+
+	"github.com/hashicorp/hcl/v2"
+	"github.com/hashicorp/hcl/v2/hcldec"
+	"github.com/zclconf/go-cty/cty"
+	"github.com/zclconf/go-cty/cty/function"
+	"github.com/zclconf/go-cty/cty/gocty"
 )
 
 var dependencyDiagMessageRegex = regexp.MustCompile(`This object does not have an attribute named "(?P<name>[\w\d-_]+)"`)
@@ -71,12 +72,12 @@ func getCtxEvalContext(evCtx EvalContext) hcl.EvalContext {
 	if evCtx.Variables != nil {
 		vars = map[string]cty.Value{
 			"var":     cty.ObjectVal(*evCtx.Variables),
-			"request": cty.ObjectVal(evCtx.RequestAsVars),
+			"request": cty.ObjectVal(evCtx.RequestAsVars.AsCtyMap()),
 		}
 	} else {
 		vars = map[string]cty.Value{
 			"vars":    cty.EmptyObjectVal,
-			"request": cty.ObjectVal(evCtx.RequestAsVars),
+			"request": cty.ObjectVal(evCtx.RequestAsVars.AsCtyMap()),
 		}
 	}
 
@@ -228,7 +229,7 @@ func processDependency(dependency string, evCtx *EvalContext, execCtx *Execution
 	responseAsCty["headers"] = headersAsCty
 	responseAsCty["status"] = cty.NumberIntVal(int64(request.Response.StatusCode))
 
-	evCtx.RequestAsVars[dependency] = cty.ObjectVal(responseAsCty)
+	evCtx.RequestAsVars.Store(dependency, cty.ObjectVal(responseAsCty))
 
 	return evCtx, request.Response, nil
 }
@@ -335,7 +336,7 @@ func retryWithDependency(requestCfg *RequestCfg, cfg cty.Value, diags hcl.Diagno
 		}
 
 		for _, dependency := range sortedDeps {
-			if _, ok := evCtx.RequestAsVars[dependency]; !ok {
+			if _, ok := evCtx.RequestAsVars.Load(dependency); !ok {
 				evCtxP, response, depErr := processDependency(dependency, &evCtx, execCtx)
 				if depErr != nil {
 					return cfg, responses, depErr
@@ -388,7 +389,7 @@ func parseRequest(name string, evCtx EvalContext, execCtx *ExecutionContext) (*R
 			findString := requestDependencyRegex.FindStringSubmatch(v)
 
 			if len(findString) > 1 {
-				if _, ok := evCtx.RequestAsVars[findString[1]]; !ok {
+				if _, ok := evCtx.RequestAsVars.Load(findString[1]); !ok {
 					evCtxP, response, depErr := processDependency(findString[1], &evCtx, execCtx)
 					responses = append(responses, response)
 

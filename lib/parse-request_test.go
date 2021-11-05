@@ -2,13 +2,14 @@ package lib
 
 import (
 	"fmt"
+	"reflect"
+	"testing"
+
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hcldec"
 	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/function"
-	"reflect"
-	"testing"
 )
 
 func Test_getRequestObjSpec(t *testing.T) {
@@ -210,7 +211,7 @@ func Test_getRequest(t *testing.T) {
 			Functions:     nil,
 			Variables:     nil,
 			Environment:   nil,
-			RequestAsVars: nil,
+			RequestAsVars: RequestAsVars{},
 			RawRequests:   nil,
 		},
 	}
@@ -234,7 +235,7 @@ func Test_getRequest(t *testing.T) {
 			Functions:     nil,
 			Variables:     nil,
 			Environment:   nil,
-			RequestAsVars: nil,
+			RequestAsVars: RequestAsVars{},
 			RawRequests:   nil,
 		},
 	}
@@ -260,7 +261,7 @@ func Test_getRequest(t *testing.T) {
 			Functions:     nil,
 			Variables:     nil,
 			Environment:   nil,
-			RequestAsVars: nil,
+			RequestAsVars: RequestAsVars{},
 			RawRequests:   nil,
 		},
 	}
@@ -307,7 +308,7 @@ func Test_getCtxEvalContext(t *testing.T) {
 				Functions:     &emptyFMap,
 				Variables:     &emptyMap,
 				Environment:   &cty.Value{},
-				RequestAsVars: emptyMap,
+				RequestAsVars: RequestAsVars{},
 				RawRequests:   nil,
 			}}, hcl.EvalContext{
 				Variables: vars,
@@ -351,13 +352,16 @@ func Test_retryWithDependency(t *testing.T) {
 		}},
 	}
 
+	rav := RequestAsVars{}
+	rav.Store("deprequest", cty.Value{})
+
 	args4 := args{
 		diags: hcl.Diagnostics{&hcl.Diagnostic{
 			Severity: 0,
 			Summary:  "Unsupported attribute",
 			Detail:   "This object does not have an attribute named \"deprequest\"",
 		}},
-		evCtx: EvalContext{RequestAsVars: RequestAsVars{"deprequest": cty.Value{}}},
+		evCtx: EvalContext{RequestAsVars: rav},
 		requestCfg: &RequestCfg{
 			Name:      "a-request",
 			DependsOn: nil,
@@ -488,6 +492,9 @@ func Test_parseRequest(t *testing.T) {
 		method = "get"
 	`
 	file4, _ := parse4.ParseHCL([]byte(testStringBody4), "test.hcl")
+	parentDep := RequestAsVars{}
+	parentDep.Store("parent", cty.MapVal(map[string]cty.Value{"body": cty.ObjectVal(map[string]cty.Value{"x": cty.StringVal("y")})}))
+
 	args4 := args{
 		name: "a-request",
 		evCtx: EvalContext{
@@ -500,9 +507,7 @@ func Test_parseRequest(t *testing.T) {
 					Params:    nil,
 				},
 			},
-			RequestAsVars: RequestAsVars{
-				"parent": cty.MapVal(map[string]cty.Value{"body": cty.ObjectVal(map[string]cty.Value{"x": cty.StringVal("y")})}),
-			},
+			RequestAsVars: parentDep,
 			RawDynamics: VariableCfgs{},
 			RawTests:    TestCfgs{},
 		},
