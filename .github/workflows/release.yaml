@@ -29,3 +29,4 @@ jobs:
           goversion: https://dl.google.com/go/go1.17.linux-amd64.tar.gz
           ldflags: -X "main.version=${{ env.VERSION }}" -X "main.sentryDsn=${{ secrets.SENTRY_DSN }}"
           binary_name: "restbeast"
+          overwrite: true
