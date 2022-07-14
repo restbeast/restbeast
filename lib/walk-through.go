@@ -26,7 +26,7 @@ func walkThrough(v reflect.Value) cty.Value {
 			newSlice[i] = walkThrough(v.Index(i))
 		}
 
-		return cty.ListVal(newSlice)
+		return cty.TupleVal(newSlice)
 	case reflect.Map:
 		newMap := make(map[string]cty.Value)
 

@@ -3,6 +3,7 @@ package lib
 import (
 	"bytes"
 	"crypto/tls"
+	"encoding/json"
 	. "fmt"
 	"io"
 	"io/ioutil"
@@ -70,7 +71,9 @@ func (request *Request) Exec() error {
 			log.Printf("request header: %s=%s", k, v)
 		}
 
-		log.Printf("request body: %s", request.Body)
+		if jsonMarshalled, err := json.MarshalIndent(request.Body, "", "  "); err == nil {
+			log.Printf("request body: %s", string(jsonMarshalled))
+		}
 	}
 
 	trace := &httptrace.ClientTrace{
@@ -142,7 +145,9 @@ func (request *Request) Exec() error {
 			},
 		)
 
-		log.Printf("response body: %s", data)
+		if jsonMarshalled, err := json.MarshalIndent(data, "", "  "); err == nil {
+			log.Printf("response body: %s", string(jsonMarshalled))
+		}
 	}
 
 	request.Response = &Response{
