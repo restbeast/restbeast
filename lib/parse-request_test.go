@@ -312,7 +312,7 @@ func Test_getCtxEvalContext(t *testing.T) {
 	vars := map[string]cty.Value{
 		"var":     cty.ObjectVal(emptyMap),
 		"request": cty.ObjectVal(emptyMap),
-		"env": {},
+		"env":     {},
 	}
 
 	type args struct {
@@ -634,7 +634,7 @@ func Test_processResponseBody(t *testing.T) {
 		{"empty body", args{&jsonCt, []byte("")}, cty.Value{}, false},
 		{"text body", args{nil, []byte("text")}, cty.StringVal("text"), false},
 		{"text body", args{&textCt, []byte("text")}, cty.StringVal("text"), false},
-		{"json body", args{&jsonCt, []byte(`["text"]`)}, cty.ListVal([]cty.Value{cty.StringVal("text")}), false},
+		{"json body", args{&jsonCt, []byte(`["text"]`)}, cty.TupleVal([]cty.Value{cty.StringVal("text")}), false},
 		{"error json body", args{&jsonCt, []byte(`=::`)}, cty.Value{}, true},
 	}
 	for _, tt := range tests {

@@ -2,10 +2,9 @@ package lib
 
 import (
 	"encoding/json"
+	"github.com/zclconf/go-cty/cty"
 	"reflect"
 	"testing"
-
-	"github.com/zclconf/go-cty/cty"
 )
 
 func TestWalkThrough(t *testing.T) {
@@ -14,7 +13,7 @@ func TestWalkThrough(t *testing.T) {
 		Cty  cty.Value
 	}{
 		{[]byte(`"only-string"`), cty.StringVal("only-string")},
-		{[]byte(`["test1", "test2"]`), cty.ListVal([]cty.Value{cty.StringVal("test1"), cty.StringVal("test2")})},
+		{[]byte(`["test1", "test2"]`), cty.TupleVal([]cty.Value{cty.StringVal("test1"), cty.StringVal("test2")})},
 		{
 			[]byte(`{ "key1": "value1", "key2": "value2" }`), cty.ObjectVal(
 				map[string]cty.Value{
@@ -25,7 +24,7 @@ func TestWalkThrough(t *testing.T) {
 		{
 			[]byte(`{ "key1": ["test1", "test2"] }`), cty.ObjectVal(
 				map[string]cty.Value{
-					"key1": cty.ListVal([]cty.Value{cty.StringVal("test1"), cty.StringVal("test2")}),
+					"key1": cty.TupleVal([]cty.Value{cty.StringVal("test1"), cty.StringVal("test2")}),
 				},
 			),
 		},
@@ -37,9 +36,8 @@ func TestWalkThrough(t *testing.T) {
 		json.Unmarshal(run.Json, &decoded)
 
 		result := walkThrough(reflect.ValueOf(decoded))
-
 		if !reflect.DeepEqual(result, run.Cty) {
-			t.Errorf("error parsing json to cty,\n got %s,\n want %s", result, run.Cty)
+			t.Errorf("error parsing json to cty,\n got %+v,\n want %+v", result, run.Cty)
 		}
 	}
 }
