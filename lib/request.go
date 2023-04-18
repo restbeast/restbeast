@@ -70,10 +70,6 @@ func (request *Request) Exec() error {
 		for k, v := range httpReq.Header {
 			log.Printf("request header: %s=%s", k, v)
 		}
-
-		if jsonMarshalled, err := json.MarshalIndent(request.Body, "", "  "); err == nil {
-			log.Printf("request body: %s", string(jsonMarshalled))
-		}
 	}
 
 	trace := &httptrace.ClientTrace{

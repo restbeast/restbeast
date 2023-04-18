@@ -43,6 +43,7 @@ freebsd: freebsd-amd64 freebsd-arm ## Build all freebsd
 all: linux darwin freebsd ## Build all
 
 install:
+	@rm -rf $(PREFIX)/bin/restbeast
 	@cp restbeast $(PREFIX)/bin/
 
 clean: ## Remove previous build

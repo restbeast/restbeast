@@ -32,7 +32,16 @@ func restbeastFillNullImpl(args []cty.Value, retType cty.Type) (cty.Value, error
 func restbeastEnvVarImpl(args []cty.Value, retType cty.Type) (cty.Value, error) {
 	varKey := args[0].AsString()
 	value := os.Getenv(fmt.Sprintf("restbeast_var_%s", varKey))
-	return cty.StringVal(value), nil
+	if value != "" {
+		return cty.StringVal(value), nil
+	}
+
+	value = os.Getenv(varKey)
+	if value != "" {
+		return cty.StringVal(value), nil
+	}
+
+	return cty.StringVal(""), errors.New(fmt.Sprintf("Environment variable %s not found", varKey))
 }
 
 func restbeastUnixTimestampImpl(args []cty.Value, retType cty.Type) (cty.Value, error) {
