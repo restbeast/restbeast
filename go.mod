@@ -7,7 +7,7 @@ require (
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/brianvoe/gofakeit/v5 v5.11.2
 	github.com/dustin/go-humanize v1.0.1
-	github.com/getsentry/sentry-go v0.20.0
+	github.com/getsentry/sentry-go v0.22.0
 	github.com/go-errors/errors v1.4.2
 	github.com/h2non/filetype v1.1.3
 	github.com/hashicorp/hcl/v2 v2.16.2
