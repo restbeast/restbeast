@@ -7,17 +7,16 @@ require (
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/brianvoe/gofakeit/v5 v5.11.2
 	github.com/dustin/go-humanize v1.0.1
-	github.com/getsentry/sentry-go v0.20.0
 	github.com/go-errors/errors v1.4.2
 	github.com/h2non/filetype v1.1.3
-	github.com/hashicorp/hcl/v2 v2.16.2
+	github.com/hashicorp/hcl/v2 v2.17.0
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	github.com/nathan-fiscaletti/consolesize-go v0.0.0-20220204101620-317176b6684d
 	github.com/spf13/cobra v1.7.0
 	github.com/ttacon/chalk v0.0.0-20160626202418-22c06c80ed31
-	github.com/zclconf/go-cty v1.13.1
-	golang.org/x/crypto v0.9.0
-	golang.org/x/term v0.8.0 // indirect
+	github.com/zclconf/go-cty v1.13.2
+	golang.org/x/crypto v0.10.0
+	golang.org/x/term v0.9.0 // indirect
 )
 
 require (
@@ -25,6 +24,6 @@ require (
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	golang.org/x/sys v0.8.0 // indirect
-	golang.org/x/text v0.9.0 // indirect
+	golang.org/x/sys v0.9.0 // indirect
+	golang.org/x/text v0.10.0 // indirect
 )
