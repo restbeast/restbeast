@@ -9,18 +9,18 @@ import (
 )
 
 type Headers struct {
-	kv map[string]string
+	kv map[string][]string
 }
 
 type OrderedMapCallback func(k, v string)
 
 func (headers *Headers) AddBulk(all map[string]string) *Headers {
 	if headers.kv == nil {
-		headers.kv = make(map[string]string)
+		headers.kv = make(map[string][]string)
 	}
 
 	for key, val := range all {
-		headers.kv[key] = val
+		headers.kv[key][0] = val
 	}
 
 	return headers
@@ -28,24 +28,28 @@ func (headers *Headers) AddBulk(all map[string]string) *Headers {
 
 func (headers *Headers) Add(k string, v string) *Headers {
 	if headers.kv == nil {
-		headers.kv = make(map[string]string)
+		headers.kv = make(map[string][]string)
 	}
 
-	headers.kv[k] = v
+	if headers.kv[k] == nil {
+		headers.kv[k] = []string{v}
+	} else {
+		headers.kv[k] = append(headers.kv[k], v)
+	}
 
 	return headers
 }
 
 func (headers *Headers) Set(k string, v string) *Headers {
 	if headers.kv == nil {
-		headers.kv = make(map[string]string)
+		headers.kv = make(map[string][]string)
 	}
 
 	existingKey := headers.GetKey(k)
 	if existingKey != nil {
-		headers.kv[*existingKey] = v
+		headers.kv[*existingKey][0] = v
 	} else {
-		headers.kv[k] = v
+		headers.kv[k] = []string{v}
 	}
 
 	return headers
@@ -58,7 +62,7 @@ func (headers *Headers) Get(searchKey string) (found *string) {
 
 	for key, val := range headers.kv {
 		if strings.ToLower(searchKey) == strings.ToLower(key) {
-			return &val
+			return &val[0]
 		}
 	}
 
@@ -79,8 +83,8 @@ func (headers *Headers) GetKey(searchKey string) *string {
 	return nil
 }
 
-func (headers *Headers) GetAll() map[string]string {
-	allHeaders := map[string]string{}
+func (headers *Headers) GetAll() map[string][]string {
+	allHeaders := make(map[string][]string)
 
 	for key, val := range headers.kv {
 		allHeaders[key] = val
@@ -88,10 +92,6 @@ func (headers *Headers) GetAll() map[string]string {
 	}
 
 	return allHeaders
-}
-
-func (headers *Headers) GetAllUnique() map[string]string {
-	return headers.kv
 }
 
 func (headers *Headers) SetCookies(cookies map[string]string) {
@@ -121,17 +121,19 @@ func (headers *Headers) ToRequest(httpReq *http.Request) {
 	}
 
 	for key, value := range headers.kv {
-		httpReq.Header.Set(key, value)
+		httpReq.Header.Set(key, value[0])
 	}
 }
 
 func (headers *Headers) FromResponse(resHeaders http.Header) *Headers {
 	if headers.kv == nil {
-		headers.kv = make(map[string]string)
+		headers.kv = make(map[string][]string)
 	}
 
 	for key, slice := range resHeaders {
-		headers.kv[key] = slice[0]
+		for i, val := range slice {
+			headers.kv[key][i] = val
+		}
 	}
 
 	return headers
@@ -139,7 +141,7 @@ func (headers *Headers) FromResponse(resHeaders http.Header) *Headers {
 
 func (headers *Headers) OrderedCallBack(cb OrderedMapCallback) {
 	if headers.kv == nil {
-		headers.kv = make(map[string]string)
+		headers.kv = make(map[string][]string)
 	}
 
 	keys := make([]string, 0, len(headers.kv))
@@ -149,6 +151,6 @@ func (headers *Headers) OrderedCallBack(cb OrderedMapCallback) {
 	sort.Strings(keys)
 
 	for _, k := range keys {
-		cb(k, headers.kv[k])
+		cb(k, headers.kv[k][0])
 	}
 }
