@@ -1029,6 +1029,30 @@ var restbeastFunctionList = map[string]function.Function{
 			Impl: restbeastEnvVarImpl,
 		},
 	),
+	"env_var_with_default": function.New(
+		&function.Spec{
+			Params: []function.Parameter{
+				{
+					Name:             "key",
+					Type:             cty.String,
+					AllowNull:        false,
+					AllowUnknown:     false,
+					AllowDynamicType: false,
+					AllowMarked:      false,
+				},
+				{
+					Name:             "default",
+					Type:             cty.String,
+					AllowNull:        false,
+					AllowUnknown:     false,
+					AllowDynamicType: false,
+					AllowMarked:      false,
+				},
+			},
+			Type: function.StaticReturnType(cty.String),
+			Impl: restbeastEnvVarWithDefaultImpl,
+		},
+	),
 	"unixTimestamp": function.New(
 		&function.Spec{
 			Params: []function.Parameter{

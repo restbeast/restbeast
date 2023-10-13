@@ -44,6 +44,21 @@ func restbeastEnvVarImpl(args []cty.Value, retType cty.Type) (cty.Value, error) 
 	return cty.StringVal(""), errors.New(fmt.Sprintf("Environment variable %s not found", varKey))
 }
 
+func restbeastEnvVarWithDefaultImpl(args []cty.Value, retType cty.Type) (cty.Value, error) {
+	varKey := args[0].AsString()
+	value := os.Getenv(fmt.Sprintf("restbeast_var_%s", varKey))
+	if value != "" {
+		return cty.StringVal(value), nil
+	}
+
+	value = os.Getenv(varKey)
+	if value != "" {
+		return cty.StringVal(value), nil
+	}
+
+	return args[1], nil
+}
+
 func restbeastUnixTimestampImpl(args []cty.Value, retType cty.Type) (cty.Value, error) {
 	varDate := args[0].AsString()
 	t, err := time.Parse(time.RFC3339, varDate)
