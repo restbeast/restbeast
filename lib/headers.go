@@ -20,7 +20,11 @@ func (headers *Headers) AddBulk(all map[string]string) *Headers {
 	}
 
 	for key, val := range all {
-		headers.kv[key][0] = val
+		if headers.kv[key] == nil {
+			headers.kv[key] = []string{val}
+		} else {
+			headers.kv[key] = append(headers.kv[key], val)
+		}
 	}
 
 	return headers
@@ -132,6 +136,9 @@ func (headers *Headers) FromResponse(resHeaders http.Header) *Headers {
 
 	for key, slice := range resHeaders {
 		for i, val := range slice {
+			if headers.kv[key] == nil {
+				headers.kv[key] = make([]string, len(slice))
+			}
 			headers.kv[key][i] = val
 		}
 	}

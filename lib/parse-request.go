@@ -238,15 +238,14 @@ func processDependency(dependency string, evCtx *EvalContext, execCtx *Execution
 	cookiesAsCty := map[string]cty.Value{}
 	for key, value := range request.Response.Headers.GetAll() {
 		if strings.ToLower(key) == "set-cookie" {
-			var values []cty.Value
 			for _, cookie := range value {
-				values = append(values, cty.StringVal(cookie))
+				keyValuePart := strings.Split(cookie, ";")[0]
+				keyValue := strings.Split(keyValuePart, "=")
+				cookiesAsCty[keyValue[0]] = cty.StringVal(keyValue[1])
 			}
-			cookiesAsCty[key] = cty.ListVal(values)
 		}
 	}
 	responseAsCty["cookies"] = cty.MapVal(cookiesAsCty)
-
 	evCtx.RequestAsVars.Store(dependency, cty.ObjectVal(responseAsCty))
 
 	return evCtx, request.Response, nil
