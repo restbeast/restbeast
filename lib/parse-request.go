@@ -245,7 +245,9 @@ func processDependency(dependency string, evCtx *EvalContext, execCtx *Execution
 			}
 		}
 	}
-	responseAsCty["cookies"] = cty.MapVal(cookiesAsCty)
+	if len(cookiesAsCty) > 0 {
+		responseAsCty["cookies"] = cty.MapVal(cookiesAsCty)
+	}
 	evCtx.RequestAsVars.Store(dependency, cty.ObjectVal(responseAsCty))
 
 	return evCtx, request.Response, nil
