@@ -986,7 +986,55 @@ var restbeastFunctionList = map[string]function.Function{
 				},
 			},
 			Type: function.StaticReturnType(cty.String),
-			Impl: restbeastReadfileImpl,
+			Impl: restbeastReadFileImpl,
+		},
+	),
+	"read_file": function.New(
+		&function.Spec{
+			Params: []function.Parameter{
+				{
+					Name:             "file",
+					Type:             cty.String,
+					AllowNull:        false,
+					AllowUnknown:     false,
+					AllowDynamicType: false,
+					AllowMarked:      false,
+				},
+			},
+			Type: function.StaticReturnType(cty.String),
+			Impl: restbeastReadFileImpl,
+		},
+	),
+	"read_file_part": function.New(
+		&function.Spec{
+			Params: []function.Parameter{
+				{
+					Name:             "file",
+					Type:             cty.String,
+					AllowNull:        false,
+					AllowUnknown:     false,
+					AllowDynamicType: false,
+					AllowMarked:      false,
+				},
+				{
+					Name:             "offset",
+					Type:             cty.Number,
+					AllowNull:        false,
+					AllowUnknown:     false,
+					AllowDynamicType: false,
+					AllowMarked:      false,
+				},
+				{
+					Name:             "length",
+					Type:             cty.Number,
+					AllowNull:        false,
+					AllowUnknown:     false,
+					AllowDynamicType: false,
+					AllowMarked:      false,
+				},
+			},
+			Type: function.StaticReturnType(cty.String),
+			Impl: restbeastFilePartImpl,
 		},
 	),
 	"fill_null": function.New(

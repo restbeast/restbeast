@@ -15,20 +15,20 @@ func Test_restbeastReadfileImpl(t *testing.T) {
 
 	t.Run(
 		"success", func(t *testing.T) {
-			got, _ := restbeastReadfileImpl(argList, cty.String)
+			got, _ := restbeastReadFileImpl(argList, cty.String)
 
 			if got.AsString() != "###READFILE=filename###" {
-				t.Errorf("restbeastReadfileImpl() invalid output")
+				t.Errorf("restbeastReadFileImpl() invalid output")
 			}
 		},
 	)
 
 	t.Run(
 		"error", func(t *testing.T) {
-			_, err := restbeastReadfileImpl([]cty.Value{}, cty.String)
+			_, err := restbeastReadFileImpl([]cty.Value{}, cty.String)
 
 			if err == nil {
-				t.Errorf("restbeastReadfileImpl() should throw an error")
+				t.Errorf("restbeastReadFileImpl() should throw an error")
 			}
 		},
 	)

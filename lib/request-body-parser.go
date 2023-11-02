@@ -4,12 +4,15 @@ import (
 	"bytes"
 	"encoding/json"
 	. "fmt"
+	"github.com/go-errors/errors"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
 	"net/url"
+	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/h2non/filetype"
@@ -140,6 +143,41 @@ func processMultipartBodyPart(k string, v cty.Value, writer *multipart.Writer) e
 			}
 
 			_, err = fw.Write(contents)
+			if err != nil {
+				return err
+			}
+		} else if strings.HasPrefix(vStr, "###READFILEPART=") && strings.HasSuffix(vStr, "###") {
+			trimmed := strings.TrimPrefix(vStr, "###READFILE=")
+			full := strings.TrimSuffix(trimmed, "###")
+			parts := strings.Split(full, ":")
+			path := parts[0]
+			offset, _ := strconv.ParseInt(parts[1], 10, 64)
+			length, _ := strconv.Atoi(parts[2])
+
+			// read file starting from offset with length
+			file := filepath.Base(path)
+			fw, _ := writer.CreateFormFile(k, file)
+
+			fp, err := os.Open(path)
+			if err != nil {
+				return errors.Wrap(err, 0)
+			}
+			defer fp.Close()
+
+			// Seek to the desired offset
+			_, seekErr := fp.Seek(offset, 0)
+			if seekErr != nil {
+				return errors.Wrap(seekErr, 0)
+			}
+
+			// Read the specified length of data
+			data := make([]byte, length)
+			_, readErr := fp.Read(data)
+			if readErr != nil {
+				return errors.Wrap(readErr, 0)
+			}
+
+			_, err = fw.Write(data)
 			if err != nil {
 				return err
 			}

@@ -10,12 +10,19 @@ import (
 	"github.com/zclconf/go-cty/cty"
 )
 
-func restbeastReadfileImpl(args []cty.Value, retType cty.Type) (cty.Value, error) {
-	if len(args) < 1 {
+func restbeastReadFileImpl(args []cty.Value, retType cty.Type) (cty.Value, error) {
+	if len(args) < 3 {
 		return cty.StringVal(""), errors.New("Invalid argument count")
 	}
 
 	return cty.StringVal(fmt.Sprintf("###READFILE=%s###", args[0].AsString())), nil
+}
+func restbeastFilePartImpl(args []cty.Value, retType cty.Type) (cty.Value, error) {
+	if len(args) < 1 {
+		return cty.StringVal(""), errors.New("Invalid argument count")
+	}
+
+	return cty.StringVal(fmt.Sprintf("###READFILE=%s:%s:%s###", args[0].AsString(), args[1].AsString(), args[2].AsString())), nil
 }
 
 func restbeastFillNullImpl(args []cty.Value, retType cty.Type) (cty.Value, error) {
