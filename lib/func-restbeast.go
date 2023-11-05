@@ -11,18 +11,29 @@ import (
 )
 
 func restbeastReadFileImpl(args []cty.Value, retType cty.Type) (cty.Value, error) {
-	if len(args) < 3 {
+	if len(args) < 1 {
 		return cty.StringVal(""), errors.New("Invalid argument count")
 	}
 
 	return cty.StringVal(fmt.Sprintf("###READFILE=%s###", args[0].AsString())), nil
 }
 func restbeastFilePartImpl(args []cty.Value, retType cty.Type) (cty.Value, error) {
-	if len(args) < 1 {
+	if len(args) < 3 {
 		return cty.StringVal(""), errors.New("Invalid argument count")
 	}
 
-	return cty.StringVal(fmt.Sprintf("###READFILE=%s:%s:%s###", args[0].AsString(), args[1].AsString(), args[2].AsString())), nil
+	if cty.Number != args[1].Type() {
+		return cty.StringVal(""), errors.New("Invalid argument type, offset expected to be a number")
+	}
+
+	if cty.Number != args[2].Type() {
+		return cty.StringVal(""), errors.New("Invalid argument type, length expected to be a number")
+	}
+
+	offset, _ := args[1].AsBigFloat().Int64()
+	length, _ := args[2].AsBigFloat().Int64()
+
+	return cty.StringVal(fmt.Sprintf("###READFILE=%s:%d:%d###", args[0].AsString(), offset, length)), nil
 }
 
 func restbeastFillNullImpl(args []cty.Value, retType cty.Type) (cty.Value, error) {
