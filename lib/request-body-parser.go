@@ -147,7 +147,7 @@ func processMultipartBodyPart(k string, v cty.Value, writer *multipart.Writer) e
 				return err
 			}
 		} else if strings.HasPrefix(vStr, "###READFILEPART=") && strings.HasSuffix(vStr, "###") {
-			trimmed := strings.TrimPrefix(vStr, "###READFILE=")
+			trimmed := strings.TrimPrefix(vStr, "###READFILEPART=")
 			full := strings.TrimSuffix(trimmed, "###")
 			parts := strings.Split(full, ":")
 			path := parts[0]
@@ -202,22 +202,54 @@ func processMultipartBodyPart(k string, v cty.Value, writer *multipart.Writer) e
 }
 
 func processFileBody(readfileStr string) (reader io.Reader, mime string, err error) {
-	trimmed := strings.TrimPrefix(readfileStr, "###READFILE=")
-	path := strings.TrimSuffix(trimmed, "###")
+	if strings.HasPrefix(readfileStr, "###READFILE=") {
+		trimmed := strings.TrimPrefix(readfileStr, "###READFILE=")
+		path := strings.TrimSuffix(trimmed, "###")
 
-	contents, err := ioutil.ReadFile(path)
-	if err != nil {
-		return nil, "", err
+		contents, err := os.ReadFile(path)
+		if err != nil {
+			return nil, "", err
+		}
+
+		match, err := filetype.Match(contents)
+		if err != nil {
+			return nil, "", err
+		} else if match != filetype.Unknown {
+			mime = match.MIME.Value
+		}
+
+		return bytes.NewReader(contents), mime, nil
+	} else if strings.HasPrefix(readfileStr, "###READFILEPART=") {
+		trimmed := strings.TrimPrefix(readfileStr, "###READFILEPART=")
+		full := strings.TrimSuffix(trimmed, "###")
+		parts := strings.Split(full, ":")
+		path := parts[0]
+		offset, _ := strconv.ParseInt(parts[1], 10, 64)
+		length, _ := strconv.Atoi(parts[2])
+
+		fp, err := os.Open(path)
+		if err != nil {
+			return nil, "", err
+		}
+		defer fp.Close()
+
+		// Seek to the desired offset
+		_, seekErr := fp.Seek(offset, 0)
+		if seekErr != nil {
+			return nil, "", err
+		}
+
+		// Read the specified length of data
+		data := make([]byte, length)
+		_, readErr := fp.Read(data)
+		if readErr != nil {
+			return nil, "", err
+		}
+
+		return bytes.NewReader(data), mime, nil
 	}
 
-	match, err := filetype.Match(contents)
-	if err != nil {
-		return nil, "", err
-	} else if match != filetype.Unknown {
-		mime = match.MIME.Value
-	}
-
-	return bytes.NewReader(contents), mime, nil
+	return nil, "", errors.New("invalid file body")
 }
 
 func parseBody(bodyAsCtyValue cty.Value, headers Headers) (io.Reader, error) {
@@ -233,7 +265,8 @@ func parseBody(bodyAsCtyValue cty.Value, headers Headers) (io.Reader, error) {
 		strings.HasPrefix(contentType, "multipart/mixed")
 	isFile := bodyAsCtyValue.Type().FriendlyName() == "string" &&
 		!bodyAsCtyValue.IsNull() &&
-		strings.HasPrefix(bodyAsCtyValue.AsString(), "###READFILE=") &&
+		(strings.HasPrefix(bodyAsCtyValue.AsString(), "###READFILE=") ||
+			strings.HasPrefix(bodyAsCtyValue.AsString(), "###READFILEPART=")) &&
 		strings.HasSuffix(bodyAsCtyValue.AsString(), "###")
 
 	if !bodyAsCtyValue.IsNull() {

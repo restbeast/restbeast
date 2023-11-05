@@ -33,7 +33,7 @@ func restbeastFilePartImpl(args []cty.Value, retType cty.Type) (cty.Value, error
 	offset, _ := args[1].AsBigFloat().Int64()
 	length, _ := args[2].AsBigFloat().Int64()
 
-	return cty.StringVal(fmt.Sprintf("###READFILE=%s:%d:%d###", args[0].AsString(), offset, length)), nil
+	return cty.StringVal(fmt.Sprintf("###READFILEPART=%s:%d:%d###", args[0].AsString(), offset, length)), nil
 }
 
 func restbeastFillNullImpl(args []cty.Value, retType cty.Type) (cty.Value, error) {
